@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Ember &amp; Oak Coffee Roasters &mdash; The Monthly Subscription</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Libre+Baskerville:ital@0;1&family=Courier+Prime&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4ECD8;
+    --paper-dark: #EADFC4;
+    --ink: #2B2520;
+    --faded: #5A4E42;
+    --stamp: #9B2C20;
+    --display: "Playfair Display", Didot, Georgia, serif;
+    --text: "Libre Baskerville", Baskerville, Georgia, serif;
+    --type: "Courier Prime", "Courier New", monospace;
+  }
+  * { border-radius: 0; box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.65 var(--text); }
+
+  /* paper grain: felt, not seen */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 50;
+    mix-blend-mode: multiply; opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.17  0 0 0 0 0.15  0 0 0 0 0.12  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>");
+  }
+
+  a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { color: var(--stamp); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--stamp); outline-offset: 3px; }
+
+  .sheet { max-width: 1080px; margin: 0 auto; padding: 28px 32px 40px; }
+
+  .dateline { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 16px;
+              font: 13px var(--type); letter-spacing: .15em; text-transform: uppercase;
+              border-top: 4px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 6px 0; }
+  .masthead { text-align: center; position: relative; padding: 18px 0 10px; border-bottom: 3px double var(--ink); }
+  .masthead h1 { margin: 0; font: 900 clamp(2.2rem, 8vw, 5rem)/1 var(--display); letter-spacing: .02em; text-transform: uppercase; }
+  .masthead .motto { font: italic 400 1.05rem var(--display); color: var(--faded); margin: 6px 0 0; }
+  .masthead .stamp { position: absolute; right: 1%; top: 14px; }
+  nav.sections { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 28px; padding: 8px 0;
+                 border-bottom: 1px solid var(--ink); font-variant: small-caps; letter-spacing: .12em; font-size: 1.05rem; }
+  nav.sections a { text-decoration: none; }
+
+  .stamp { display: inline-block; border: 3px double var(--stamp); color: var(--stamp);
+           padding: .35rem .8rem; font: 700 .8rem var(--type); letter-spacing: .2em; text-transform: uppercase;
+           transform: rotate(-6deg); filter: url(#rough); mix-blend-mode: multiply; opacity: .88; }
+
+  /* hero */
+  .hero h2 { font: 900 clamp(1.9rem, 5.5vw, 3.6rem)/1.08 var(--display); margin: 24px 0 6px; text-align: center; }
+  .deck { font: italic 400 1.25rem/1.4 var(--display); color: var(--faded); margin: 0 auto 6px; text-align: center; max-width: 40em; }
+  .byline { font: 13px var(--type); letter-spacing: .15em; text-transform: uppercase; border-top: 1px solid var(--ink);
+            border-bottom: 1px solid var(--ink); padding: 4px 0; margin: 10px 0 18px; text-align: center; }
+  .columns { column-count: 3; column-gap: 2rem; column-rule: 1px solid var(--ink); text-align: justify; hyphens: auto; }
+  .columns p { margin: 0 0 1em; }
+  .columns p:first-of-type::first-letter { float: left; font: 900 4.1rem/.82 var(--display); padding: 6px 8px 0 0; }
+  blockquote.pull { margin: 0 0 1em; padding: .6em 0; border-top: 3px double var(--ink); border-bottom: 3px double var(--ink);
+                    font: italic 700 1.3rem/1.35 var(--display); text-align: center; break-inside: avoid; }
+  figure { margin: 0 0 1em; break-inside: avoid; }
+  figure .photo { display: block; width: 100%; aspect-ratio: 4/3; background: var(--paper-dark); border: 1px solid var(--ink);
+                  outline: 6px solid var(--paper); filter: sepia(.5) contrast(1.05); }
+  figcaption { font: 12px/1.5 var(--type); letter-spacing: .08em; text-transform: uppercase; margin-top: 8px; color: var(--faded); }
+
+  .ornament { text-align: center; letter-spacing: .8em; color: var(--faded); margin: 26px 0; }
+
+  /* section heads */
+  h2.section { font: 900 clamp(1.6rem, 4vw, 2.4rem)/1.1 var(--display); text-align: center; margin: 0 0 4px; font-variant: small-caps; letter-spacing: .04em; }
+
+  /* pricing: ruled catalogue plates */
+  .tiers { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 20px; border-top: 4px solid var(--ink); border-bottom: 1px solid var(--ink); }
+  .tier { padding: 18px 22px 24px; border-right: 1px solid var(--ink); position: relative; display: flex; flex-direction: column; }
+  .tier:last-child { border-right: 0; }
+  .tier.pick { background: var(--paper-dark); border-left: 3px double var(--ink); border-right: 3px double var(--ink); }
+  .tier .plate { font: 13px var(--type); letter-spacing: .18em; text-transform: uppercase; color: var(--faded); margin: 0; }
+  .tier h3 { font: 900 1.8rem/1.1 var(--display); margin: 4px 0 2px; }
+  .tier .tag { font: italic 400 1rem var(--display); color: var(--faded); margin: 0 0 10px; }
+  .tier .price { font: 700 2.6rem/1 var(--type); border-top: 3px double var(--ink); border-bottom: 1px solid var(--ink); padding: 10px 0; margin: 0 0 12px; }
+  .tier .price small { font-size: .9rem; letter-spacing: .12em; text-transform: uppercase; }
+  .tier ul { list-style: none; margin: 0 0 18px; padding: 0; flex: 1; }
+  .tier li { padding: 6px 0 6px 1.4em; border-bottom: 1px dotted var(--faded); position: relative; font-size: .95rem; line-height: 1.45; }
+  .tier li::before { content: "\00A7"; position: absolute; left: 0; color: var(--stamp); font-family: var(--display); font-weight: 700; }
+  .tier .stamp { position: absolute; top: 12px; right: 12px; font-size: .7rem; }
+
+  .btn { display: inline-block; background: transparent; color: var(--ink); border: 2px solid var(--ink); padding: .55rem 1.1rem;
+         font: 700 .85rem var(--type); letter-spacing: .15em; text-transform: uppercase; text-decoration: none; cursor: pointer; text-align: center; }
+  .btn:hover, .btn:focus-visible { background: var(--ink); color: var(--paper); }
+
+  /* the big signup */
+  .signup { margin-top: 10px; text-align: center; border-top: 4px solid var(--ink); border-bottom: 4px solid var(--ink); padding: 34px 20px 38px; position: relative; }
+  .signup::before { content: ""; position: absolute; inset: 6px; border: 1px solid var(--ink); pointer-events: none; }
+  .signup h2 { font: 900 clamp(1.8rem, 5vw, 3rem)/1.1 var(--display); margin: 0 0 6px; }
+  .signup p { margin: 0 auto 22px; max-width: 34em; }
+  .btn-big { display: inline-block; background: var(--ink); color: var(--paper); border: 4px double var(--paper); outline: 3px solid var(--ink);
+             padding: 1.1rem 2.6rem; font: 700 clamp(1.15rem, 3.4vw, 1.8rem) var(--type); letter-spacing: .2em; text-transform: uppercase;
+             text-decoration: none; box-shadow: 6px 6px 0 var(--stamp); position: relative; z-index: 1; }
+  .btn-big:hover, .btn-big:focus-visible { background: var(--stamp); color: var(--paper); outline-color: var(--stamp); box-shadow: 2px 2px 0 var(--ink); }
+  .btn-big:focus-visible { outline: 3px solid var(--stamp); outline-offset: 4px; }
+  .btn-big:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--stamp); }
+  .fine { font: 12px/1.6 var(--type); letter-spacing: .12em; text-transform: uppercase; color: var(--faded); margin-top: 22px !important; }
+
+  footer { border-top: 3px double var(--ink); padding-top: 12px; margin-top: 30px; font: 12px/1.7 var(--type); letter-spacing: .12em; text-transform: uppercase; text-align: center; color: var(--faded); }
+
+  @media (max-width: 900px) {
+    .columns { column-count: 2; }
+    .tiers { grid-template-columns: 1fr; }
+    .tier { border-right: 0; border-bottom: 1px solid var(--ink); }
+    .tier.pick { border-left: 0; border-right: 0; border-top: 3px double var(--ink); border-bottom: 3px double var(--ink); }
+    .tier:last-child { border-bottom: 0; }
+  }
+  @media (max-width: 600px) {
+    .sheet { padding: 16px; }
+    .columns { column-count: 1; column-rule: none; }
+    .masthead .stamp { position: static; margin-top: 10px; }
+    .btn-big { padding: 1rem 1.2rem; letter-spacing: .12em; width: 100%; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="4" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="2.6"/>
+  </filter>
+</svg>
+
+<div class="sheet">
+  <div class="dateline">
+    <span>Vol. I &middot; No. 11</span>
+    <span>Tuesday, 24 November 2026</span>
+    <span>Delivered Monthly</span>
+  </div>
+
+  <header class="masthead">
+    <h1>Ember &amp; Oak</h1>
+    <p class="motto">&ldquo;Coffee Roasters &mdash; Small Batches, Slowly Done&rdquo;</p>
+    <span class="stamp">Roasted Fresh</span>
+  </header>
+
+  <nav class="sections" aria-label="Sections">
+    <a href="#house">The House</a><a href="#subscription">Subscription</a><a href="#enroll">Enrol</a>
+  </nav>
+
+  <main>
+    <article class="hero" id="house">
+      <h2>Fresh-Roasted Coffee, Delivered to Your Door Each Month</h2>
+      <p class="deck">Roasted over oak embers in small lots, packed the same morning, and posted to you at the peak of flavour.</p>
+      <p class="byline">By Our Head Roaster &middot; A Notice to the Discerning Drinker</p>
+
+      <div class="columns">
+        <p>There is a particular hour, just after the second crack, when a good roast turns from green to gold to the deep brown of old furniture, and the whole shop smells of toasted sugar and woodsmoke. It is that hour we wish to put in your cup.</p>
+        <p>Every bag of Ember &amp; Oak is roasted in lots of no more than twelve kilos, over a fire tended by hand. We buy only from growers we have met, and we pay them fairly. Nothing sits upon a shelf; your parcel leaves our door within a day of the roast.</p>
+        <blockquote class="pull">&ldquo;Roasted this morning, on your doorstep within the week.&rdquo;</blockquote>
+        <figure>
+          <div class="photo" role="img" aria-label="Photograph of burlap sacks of green coffee beside the oak-fired roaster"></div>
+          <figcaption>Fig. 1 &mdash; The roasting floor at dawn.</figcaption>
+        </figure>
+        <p>Choose a parcel below and we shall do the rest: a fresh bag, or several, arrives each month, ground to your liking or left whole. Pause, change or cancel at any time by sending us a line; no questions, and no ceremony.</p>
+      </div>
+    </article>
+
+    <p class="ornament" aria-hidden="true">&#10086; &#10086; &#10086;</p>
+
+    <section id="subscription" aria-labelledby="sub-h">
+      <h2 class="section" id="sub-h">The Monthly Subscription</h2>
+      <p class="deck">Three parcels to suit every household. Carriage paid.</p>
+
+      <div class="tiers">
+        <article class="tier">
+          <p class="plate">Plate No. 1</p>
+          <h3>The Morning Cup</h3>
+          <p class="tag">For the solitary drinker</p>
+          <p class="price">$16 <small>/ month</small></p>
+          <ul>
+            <li>One 12 oz bag, freshly roasted</li>
+            <li>The roaster&rsquo;s choice of single origin</li>
+            <li>Whole bean or ground</li>
+            <li>Free carriage</li>
+          </ul>
+          <a class="btn" href="#enroll">Select No. 1</a>
+        </article>
+
+        <article class="tier pick">
+          <span class="stamp">Most Popular</span>
+          <p class="plate">Plate No. 2</p>
+          <h3>The Household</h3>
+          <p class="tag">For the family table</p>
+          <p class="price">$29 <small>/ month</small></p>
+          <ul>
+            <li>Two 12 oz bags, a single origin and a house blend</li>
+            <li>Tasting notes in the roaster&rsquo;s own hand</li>
+            <li>Whole bean or ground</li>
+            <li>Free carriage and a pause whenever you please</li>
+          </ul>
+          <a class="btn" href="#enroll">Select No. 2</a>
+        </article>
+
+        <article class="tier">
+          <p class="plate">Plate No. 3</p>
+          <h3>The Cellar Reserve</h3>
+          <p class="tag">For the connoisseur</p>
+          <p class="price">$54 <small>/ month</small></p>
+          <ul>
+            <li>Four 12 oz bags, including one limited reserve lot</li>
+            <li>First notice of each new harvest</li>
+            <li>A printed brewing card with every parcel</li>
+            <li>Free carriage and priority roasting</li>
+          </ul>
+          <a class="btn" href="#enroll">Select No. 3</a>
+        </article>
+      </div>
+    </section>
+
+    <p class="ornament" aria-hidden="true">&#10086; &#10086; &#10086;</p>
+
+    <section class="signup" id="enroll" aria-labelledby="enroll-h">
+      <h2 id="enroll-h">Enrol Yourself Upon Our Roll</h2>
+      <p>Your first parcel is roasted the day you subscribe. Cancel by letter or by post at any time.</p>
+      <a class="btn-big" href="#enroll">Sign Up Today</a>
+      <p class="fine">No contract &middot; Cancel any month &middot; Satisfaction guaranteed</p>
+    </section>
+  </main>
+
+  <footer>
+    Set in Playfair Display &amp; Libre Baskerville &middot; Roasted on the premises<br>
+    &copy; 2026 Ember &amp; Oak Coffee Roasters &middot; All rights reserved
+  </footer>
+</div>
+
+</body>
+</html>

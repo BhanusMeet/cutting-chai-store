@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow",
+      "passed": true,
+      "evidence": "no violations"
+    },
+    {
+      "text": "index.html lays out the page with a table or table-style grid with visible bevel or inset borders",
+      "passed": true,
+      "evidence": "all of table + bevel borders present"
+    },
+    {
+      "text": "index.html includes a scrolling marquee or ticker element",
+      "passed": true,
+      "evidence": "found 'ticker'"
+    },
+    {
+      "text": "index.html styles unvisited links blue (#0000EE) and visited links purple (#551A8B)",
+      "passed": true,
+      "evidence": "all of #0000EE and #551A8B present"
+    },
+    {
+      "text": "index.html uses a pixel or monospace font for headings (for example Press Start 2P, VT323 or Courier New)",
+      "passed": true,
+      "evidence": "found 'VT323'"
+    },
+    {
+      "text": "index.html includes a subtle CRT scanline overlay that does not block clicks",
+      "passed": true,
+      "evidence": "found 'repeating-linear-gradient'"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  }
+}

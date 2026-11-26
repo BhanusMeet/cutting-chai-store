@@ -1,0 +1,64 @@
+/* Theme: Raja-Maharaja Princely Darbar (vintage-web Mode 4). Flat pigment only. */
+:root {
+  --bg: #EFE3C8; --ink: #1F1916; --muted: #4a3f35;
+  --panel: #E3D3AE; --panel-2: #EFE3C8;
+  --accent: #D4AF37; --accent-ink: #1F1916;
+  --deep: #1B365D; --deep-ink: #EFE3C8; --alert: #6E0D16;
+  --bw: 3px; --shadow: 0 0 0 0 transparent;
+  --f-head: "Rozha One", "Yatra One", Georgia, serif;
+  --f-body: "Cormorant Garamond", Garamond, Georgia, serif;
+  --f-mono: "Cormorant Garamond", Garamond, Georgia, serif;
+  --f-label: "Cinzel Decorative", "Rozha One", Georgia, serif;
+}
+:lang(hi) { --f-head: "Rozha One", "Yatra One", serif; --f-body: "Tiro Devanagari Hindi", serif; --f-mono: "Tiro Devanagari Hindi", serif; --f-label: "Rozha One", serif; }
+:lang(mr) { --f-head: "Rozha One", "Yatra One", serif; --f-body: "Tiro Devanagari Marathi", serif; --f-mono: "Tiro Devanagari Marathi", serif; --f-label: "Rozha One", serif; }
+
+body { background: var(--deep); font-size: 20px; font-weight: 500; padding: 30px 18px 44px; }
+body::before, body::after { content: ""; position: fixed; inset: 0; pointer-events: none; mix-blend-mode: multiply; z-index: 50; }
+body::before { opacity: .4; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='s' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.02 0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.25  0 0 0 0 0.15  0 0 0 0 0.08  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23s)'/></svg>"); }
+body::after { opacity: .35; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='g' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.17  0 0 0 0 0.12  0 0 0 0 0.08  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>"); }
+
+/* miniature-painting frame: hard rings, zero blur */
+.wrap { background: var(--bg); border: 6px solid var(--alert); outline: 2px solid var(--accent); outline-offset: -14px; margin-top: 12px;
+        box-shadow: 0 0 0 3px var(--accent), 0 0 0 12px var(--alert), 0 0 0 14px var(--accent); padding: 34px 32px 40px; }
+.hdr .brand { color: var(--alert); text-shadow: 2px 2px 0 var(--accent); font-weight: 400; letter-spacing: .04em; }
+.hdr .tagline { font-style: italic; letter-spacing: .12em; text-transform: none; font-size: 1.15rem; }
+.hdr .jali { display: block; width: 100%; height: 34px; margin: 18px 0 4px; border-top: 3px solid var(--accent); border-bottom: 3px solid var(--accent); }
+
+/* plaques */
+.dish { background: var(--panel); border: 3px solid var(--ink); outline: 2px solid var(--accent); outline-offset: -9px; padding: 0 20px 14px; position: relative; }
+.dish.in { background: var(--panel-2); }
+.dish .name { margin: 0 -20px 8px; padding: 8px 14px; background: var(--alert); color: var(--bg); border-bottom: 3px solid var(--accent); font-size: 1.15rem; text-align: center; letter-spacing: .05em; }
+.dish .name .veg { border-color: var(--bg); }
+.dish .name .veg::after { background: var(--bg); }
+.dish .tag { background: var(--accent); color: var(--ink); }
+.dish .desc { padding: 0 6px; }
+.dish .row { border-top: 2px solid var(--ink); }
+.dish .price { font-family: var(--f-label); font-size: .95rem; }
+.cat-title { color: var(--alert); text-align: center; border-bottom: 3px double var(--ink); font-size: 1.5rem; }
+.cart-in { background: var(--deep); color: var(--deep-ink); border: 3px solid var(--accent); outline: 2px solid var(--deep-ink); outline-offset: -9px; padding: 22px 26px 26px; font-size: 1rem; }
+.cart .sub, .lines li { border-color: var(--accent); }
+.cart-in h2 { color: var(--accent); }
+.total { border-top-color: var(--accent); color: var(--accent); }
+.cart-in .chips button, .cart-in .seg button { background: var(--bg); color: var(--ink); border-color: var(--ink); }
+.cart-in .chips button[aria-pressed="true"], .cart-in .seg button[aria-pressed="true"] { background: var(--accent); color: var(--ink); }
+.cart-in input[type=text] { background: var(--bg); }
+.cart-in .stepper { background: var(--bg); border-color: var(--bg); }
+.cart-in .stepper output { color: var(--ink); }
+.cart-in .stepper button { background: var(--alert); color: var(--bg); }
+.btn { background: var(--accent); color: var(--ink); border: 3px solid var(--alert); outline: 0; box-shadow: inset 0 0 0 2px var(--accent), inset 0 0 0 4px var(--ink); font-family: var(--f-label); font-size: 1rem; }
+.btn:hover { background: var(--alert); color: var(--bg); }
+.btn[disabled] { background: var(--panel); color: var(--muted); border: 3px dashed var(--ink); box-shadow: none; }
+.slip .cart-in { background: var(--panel); color: var(--ink); border-color: var(--ink); outline-color: var(--accent); }
+.slip .cart-in h2, .slip .total { color: var(--alert); border-top-color: var(--ink); }
+.slip .lines li { border-color: var(--ink); }
+.tab { font-size: .95rem; }
+.track h2 { color: var(--alert); text-shadow: 2px 2px 0 var(--accent); font-size: clamp(1.8rem, 5vw, 3.4rem); }
+.track .kick, .track .status { background: var(--alert); color: var(--bg); }
+.route { background: var(--accent); }
+.stop.now { background: var(--accent); color: var(--ink); }
+
+@media (max-width: 720px) {
+  body { padding: 18px 12px 34px; }
+  .wrap { padding: 24px 14px 30px; box-shadow: 0 0 0 3px var(--accent), 0 0 0 8px var(--alert), 0 0 0 10px var(--accent); }
+}

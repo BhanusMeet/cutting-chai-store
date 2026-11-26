@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Holloway &amp; Sons Apothecary — Est. 1912</title>
+<meta name="description" content="Holloway & Sons Apothecary: tonics, salves and remedies, compounded by one family since 1912.">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Playfair+Display:wght@500;700;900&family=Special+Elite&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#f1e6cc; --paper-deep:#e6d6b0; --ink:#2b1d12; --ink-soft:#5a4430;
+  --green:#2f4a3a; --green-deep:#1f3327; --brass:#9c7a2e; --wine:#7a2a22;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+body{
+  background:var(--paper);
+  background-image:
+    radial-gradient(ellipse at top,rgba(255,250,235,.6),transparent 60%),
+    repeating-linear-gradient(0deg,rgba(90,68,48,.03) 0 2px,transparent 2px 4px);
+  color:var(--ink);
+  font-family:'IM Fell English',Georgia,serif;
+  font-size:1.15rem;line-height:1.7;
+}
+h1,h2,h3{font-family:'Playfair Display',Georgia,serif;line-height:1.15;color:var(--green-deep)}
+a{color:inherit}
+.wrap{max-width:1050px;margin:0 auto;padding:0 24px}
+.rule{height:12px;border:0;border-top:3px double var(--brass);border-bottom:1px solid var(--brass);margin:0}
+.orn{text-align:center;color:var(--brass);letter-spacing:.6em;font-size:1.1rem;margin:.4rem 0}
+
+/* nav */
+nav{background:var(--green-deep);color:var(--paper);border-bottom:4px solid var(--brass);position:sticky;top:0;z-index:10}
+nav .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding-top:12px;padding-bottom:12px}
+nav .mark{font-family:'Playfair Display',serif;font-weight:700;font-size:1.15rem;letter-spacing:.04em}
+nav ul{list-style:none;display:flex;gap:22px;flex-wrap:wrap}
+nav a{text-decoration:none;font-variant:small-caps;letter-spacing:.12em;font-size:1.05rem}
+nav a:hover,nav a:focus-visible{color:#e6c46a;outline:none;text-decoration:underline}
+
+/* hero */
+header.hero{text-align:center;padding:64px 0 48px}
+.frame{border:3px double var(--green);outline:1px solid var(--brass);outline-offset:6px;padding:48px 28px;background:rgba(255,250,235,.45);margin:8px}
+.est{font-family:'Special Elite',monospace;letter-spacing:.35em;text-transform:uppercase;font-size:.85rem;color:var(--wine)}
+.hero h1{font-size:clamp(2.4rem,7vw,4.8rem);font-weight:900;margin:.4rem 0;letter-spacing:.02em}
+.hero h1 em{font-style:italic;font-weight:500;color:var(--wine);font-size:.6em;display:block}
+.tag{font-style:italic;font-size:1.35rem;color:var(--ink-soft);max-width:34ch;margin:1rem auto 1.8rem}
+.btn{display:inline-block;background:var(--green);color:var(--paper);padding:.8rem 2rem;text-decoration:none;font-variant:small-caps;letter-spacing:.14em;font-size:1.15rem;border:2px solid var(--green-deep);box-shadow:0 0 0 3px var(--paper),0 0 0 4px var(--brass);cursor:pointer;font-family:inherit;transition:background .2s}
+.btn:hover,.btn:focus-visible{background:var(--wine);outline:none}
+
+section{padding:64px 0}
+.title{text-align:center;margin-bottom:40px}
+.title h2{font-size:clamp(1.9rem,4vw,2.8rem)}
+.title p{font-style:italic;color:var(--ink-soft)}
+
+/* products */
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:28px}
+.label{background:var(--paper-deep);border:2px solid var(--ink);outline:1px solid var(--ink);outline-offset:-8px;padding:30px 24px;text-align:center;box-shadow:5px 5px 0 rgba(43,29,18,.2);display:flex;flex-direction:column}
+.label svg{width:70px;height:90px;margin:0 auto 10px}
+.label h3{font-size:1.4rem}
+.label .sub{font-family:'Special Elite',monospace;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--wine);margin:.3rem 0 .8rem}
+.label p{font-size:1.02rem;flex:1}
+.price{font-family:'Playfair Display',serif;font-weight:700;font-size:1.4rem;margin-top:14px;color:var(--green-deep)}
+
+/* story */
+.story{background:var(--green-deep);color:var(--paper)}
+.story h2{color:#e6c46a}
+.story .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:48px;align-items:start}
+.story p+p{margin-top:1rem}
+.story p:first-of-type::first-letter{font-family:'Playfair Display',serif;font-size:4.2rem;float:left;line-height:.8;padding:.3rem .6rem 0 0;color:#e6c46a;font-weight:900}
+.timeline{list-style:none;border-left:2px solid var(--brass);padding-left:24px}
+.timeline li{margin-bottom:22px;position:relative}
+.timeline li::before{content:"";position:absolute;left:-31px;top:.6em;width:12px;height:12px;background:var(--brass);transform:rotate(45deg)}
+.timeline b{font-family:'Playfair Display',serif;color:#e6c46a;font-size:1.3rem;display:block}
+
+/* order */
+.order{max-width:640px;margin:0 auto;background:#f8f0dc;border:3px double var(--ink);padding:36px 32px;box-shadow:6px 6px 0 rgba(43,29,18,.2)}
+.order h3{text-align:center;font-size:1.6rem;margin-bottom:4px}
+.order .note{text-align:center;font-style:italic;color:var(--ink-soft);margin-bottom:22px}
+label{display:block;font-family:'Special Elite',monospace;font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;margin:16px 0 4px}
+input,select,textarea{width:100%;font:inherit;font-size:1.1rem;padding:.55rem .7rem;background:transparent;border:0;border-bottom:2px solid var(--ink);color:var(--ink);border-radius:0}
+textarea{border:2px solid var(--ink);resize:vertical}
+input:focus,select:focus,textarea:focus{outline:2px solid var(--brass);outline-offset:2px;background:rgba(255,255,255,.4)}
+.row{display:grid;grid-template-columns:1fr 1fr;gap:18px}
+.order .btn{width:100%;margin-top:26px}
+#thanks{display:none;text-align:center;font-style:italic;color:var(--green);margin-top:18px;font-size:1.2rem}
+.phone{text-align:center;margin-top:28px;font-size:1.05rem}
+
+footer{background:var(--ink);color:var(--paper-deep);text-align:center;padding:36px 24px;font-size:1rem;border-top:4px solid var(--brass)}
+footer b{font-family:'Playfair Display',serif;color:var(--paper);font-size:1.2rem}
+
+@media(max-width:760px){
+  .story .cols{grid-template-columns:1fr;gap:32px}
+  .row{grid-template-columns:1fr}
+  nav ul{gap:14px}
+  section{padding:48px 0}
+}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}
+</style>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <span class="mark">Holloway &amp; Sons</span>
+    <ul>
+      <li><a href="#remedies">Remedies</a></li>
+      <li><a href="#story">Our Story</a></li>
+      <li><a href="#order">Order</a></li>
+    </ul>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="frame">
+      <p class="est">Established 1912</p>
+      <div class="orn" aria-hidden="true">&#10086; &#10086; &#10086;</div>
+      <h1><em>The</em>Holloway &amp; Sons<br>Apothecary</h1>
+      <p class="tag">Tonics, salves &amp; remedies, compounded by hand and by one family for over a century.</p>
+      <a class="btn" href="#order">Place an Order</a>
+    </div>
+  </div>
+</header>
+
+<hr class="rule">
+
+<section id="remedies">
+  <div class="wrap">
+    <div class="title">
+      <h2>Remedies of the House</h2>
+      <div class="orn" aria-hidden="true">&#10086;</div>
+      <p>A few favourites from the shelves, each made in small batches.</p>
+    </div>
+    <div class="grid">
+      <article class="label">
+        <svg viewBox="0 0 70 90" aria-hidden="true"><path d="M27 6h16v8H27z" fill="#9c7a2e"/><path d="M29 14h12v10c10 6 16 14 16 26v28c0 4-3 8-8 8H21c-5 0-8-4-8-8V50c0-12 6-20 16-26z" fill="none" stroke="#2b1d12" stroke-width="3"/><rect x="20" y="44" width="30" height="26" fill="#f1e6cc" stroke="#2b1d12" stroke-width="2"/><path d="M26 54h18M26 60h18" stroke="#7a2a22" stroke-width="2"/></svg>
+        <h3>Holloway's Elixir</h3>
+        <div class="sub">Restorative Tonic</div>
+        <p>Our founding formula of ginger, gentian and wild honey. A warming cordial for weary mornings and winter evenings.</p>
+        <div class="price">$18 &middot; 8 fl. oz.</div>
+      </article>
+      <article class="label">
+        <svg viewBox="0 0 70 90" aria-hidden="true"><rect x="12" y="30" width="46" height="50" rx="4" fill="none" stroke="#2b1d12" stroke-width="3"/><rect x="8" y="18" width="54" height="14" rx="3" fill="#9c7a2e" stroke="#2b1d12" stroke-width="3"/><rect x="20" y="44" width="30" height="24" fill="#f1e6cc" stroke="#2b1d12" stroke-width="2"/><circle cx="35" cy="56" r="6" fill="none" stroke="#7a2a22" stroke-width="2"/></svg>
+        <h3>Old Mill Salve</h3>
+        <div class="sub">For Hands &amp; Weather</div>
+        <p>Beeswax, calendula and lanolin, simmered slowly. Soothes chapped skin, tired hands and the odd garden scrape.</p>
+        <div class="price">$14 &middot; 2 oz. tin</div>
+      </article>
+      <article class="label">
+        <svg viewBox="0 0 70 90" aria-hidden="true"><path d="M28 8h14v10H28z" fill="#9c7a2e" stroke="#2b1d12" stroke-width="2"/><path d="M30 18h10v12l10 14v34c0 4-3 6-6 6H26c-3 0-6-2-6-6V44l10-14z" fill="none" stroke="#2b1d12" stroke-width="3"/><path d="M24 62c6-4 10 4 22 0v14c0 2-2 4-4 4H28c-2 0-4-2-4-4z" fill="#2f4a3a"/></svg>
+        <h3>Lavender &amp; Lung Syrup</h3>
+        <div class="sub">Chest &amp; Throat</div>
+        <p>Horehound, thyme and lavender in a syrup of sugar and honey. Grandfather Holloway's cure for winter coughs.</p>
+        <div class="price">$16 &middot; 6 fl. oz.</div>
+      </article>
+      <article class="label">
+        <svg viewBox="0 0 70 90" aria-hidden="true"><ellipse cx="35" cy="66" rx="24" ry="10" fill="none" stroke="#2b1d12" stroke-width="3"/><path d="M11 66V44c0-6 11-10 24-10s24 4 24 10v22" fill="none" stroke="#2b1d12" stroke-width="3"/><ellipse cx="35" cy="44" rx="24" ry="8" fill="#e6d6b0" stroke="#2b1d12" stroke-width="3"/><path d="M26 56h18" stroke="#7a2a22" stroke-width="2"/></svg>
+        <h3>Rose &amp; Almond Cold Cream</h3>
+        <div class="sub">Toilet Preparation</div>
+        <p>A silken cream of sweet almond oil and rose water, made to the 1912 recipe and still poured by hand.</p>
+        <div class="price">$20 &middot; 3 oz. jar</div>
+      </article>
+    </div>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="story" class="story">
+  <div class="wrap cols">
+    <div>
+      <h2>Four Generations at the Counter</h2>
+      <br>
+      <p>In the spring of 1912, Josiah Holloway hung a green shingle over a narrow shop on Mill Street and began compounding remedies for his neighbours. Back then a prescription was a conversation, and a good druggist knew every customer by name.</p>
+      <p>His sons, Edmund and Walter, kept the lamps lit through two wars and a depression, and the recipe book passed to their children, and then to theirs. The mortar and pestle on our counter is the same one Josiah used.</p>
+      <p>Today we still make our tonics and salves in small batches, from honest ingredients, and we still like to know your name.</p>
+    </div>
+    <ol class="timeline">
+      <li><b>1912</b>Josiah Holloway opens the shop on Mill Street.</li>
+      <li><b>1934</b>&ldquo;&amp; Sons&rdquo; is painted on the window.</li>
+      <li><b>1968</b>The Elixir wins a county fair ribbon.</li>
+      <li><b>1999</b>Third generation begins mail-order service.</li>
+      <li><b>Today</b>Fourth generation, same recipes.</li>
+    </ol>
+  </div>
+</section>
+
+<hr class="rule">
+
+<section id="order">
+  <div class="wrap">
+    <div class="title">
+      <h2>Send Us Your Order</h2>
+      <div class="orn" aria-hidden="true">&#10086;</div>
+      <p>Tell us what you need and we will prepare it, wrap it in paper and post it to your door.</p>
+    </div>
+    <form class="order" id="orderForm">
+      <h3>Order Form</h3>
+      <p class="note">Payment is taken on confirmation by post or telephone.</p>
+      <label for="name">Your Name</label>
+      <input id="name" name="name" required autocomplete="name">
+      <div class="row">
+        <div>
+          <label for="email">Email</label>
+          <input id="email" name="email" type="email" required autocomplete="email">
+        </div>
+        <div>
+          <label for="phone">Telephone</label>
+          <input id="phone" name="phone" type="tel" autocomplete="tel">
+        </div>
+      </div>
+      <div class="row">
+        <div>
+          <label for="item">Remedy</label>
+          <select id="item" name="item">
+            <option>Holloway's Elixir &mdash; $18</option>
+            <option>Old Mill Salve &mdash; $14</option>
+            <option>Lavender &amp; Lung Syrup &mdash; $16</option>
+            <option>Rose &amp; Almond Cold Cream &mdash; $20</option>
+          </select>
+        </div>
+        <div>
+          <label for="qty">Quantity</label>
+          <input id="qty" name="qty" type="number" min="1" max="12" value="1">
+        </div>
+      </div>
+      <label for="address">Delivery Address</label>
+      <textarea id="address" name="address" rows="3" required autocomplete="street-address"></textarea>
+      <button class="btn" type="submit">Post My Order</button>
+      <p id="thanks" role="status">Thank you. Your order is received, and we will write to you shortly.</p>
+      <p class="phone">Prefer to speak with us? Telephone <b>(555) 019-1912</b>, Monday to Saturday, 9 till 6.</p>
+    </form>
+  </div>
+</section>
+
+<footer>
+  <b>Holloway &amp; Sons Apothecary</b><br>
+  14 Mill Street &middot; Est. 1912<br>
+  <small>Our remedies are traditional preparations and are not intended to diagnose or treat any illness.</small>
+</footer>
+
+<script>
+document.getElementById('orderForm').addEventListener('submit',function(e){
+  e.preventDefault();
+  document.getElementById('thanks').style.display='block';
+  this.reset();
+});
+</script>
+</body>
+</html>

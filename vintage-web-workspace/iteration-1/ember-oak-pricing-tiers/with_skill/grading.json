@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow",
+      "passed": true,
+      "evidence": "no violations"
+    },
+    {
+      "text": "index.html shows exactly three subscription pricing tiers and a prominent signup button",
+      "passed": true,
+      "evidence": "report: three plates, $16/$29/$54, plus a large Sign Up Today button"
+    },
+    {
+      "text": "index.html commits to a single vintage mode (either 90s Web 1.0 or Classic Editorial/Heritage) without mixing elements of both",
+      "passed": true,
+      "evidence": "report: Mode 2 Editorial/Heritage; page has no 90s markers"
+    },
+    {
+      "text": "the signup button has square corners and a flat or beveled look, not a pill or glossy gradient",
+      "passed": true,
+      "evidence": "no radius/gradient violations"
+    },
+    {
+      "text": "the final response names which vintage mode was chosen",
+      "passed": true,
+      "evidence": "final message: 'Mode chosen: Mode 2, Classic Editorial/Heritage'"
+    }
+  ],
+  "summary": {
+    "passed": 5,
+    "failed": 0,
+    "total": 5,
+    "pass_rate": 1.0
+  }
+}

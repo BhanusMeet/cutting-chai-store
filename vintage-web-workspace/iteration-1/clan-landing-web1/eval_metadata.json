@@ -1,0 +1,12 @@
+{
+  "eval_name": "clan-landing-web1",
+  "prompt": "make me an old-school website for my retro gaming clan, the Pixel Vipers. needs a news section, a member roster, and a way to apply to join. save it as index.html",
+  "assertions": [
+    "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow",
+    "index.html lays out the page with a table or table-style grid with visible bevel or inset borders",
+    "index.html includes a scrolling marquee or ticker element",
+    "index.html styles unvisited links blue (#0000EE) and visited links purple (#551A8B)",
+    "index.html uses a pixel or monospace font for headings (for example Press Start 2P, VT323 or Courier New)",
+    "index.html includes a subtle CRT scanline overlay that does not block clicks"
+  ]
+}

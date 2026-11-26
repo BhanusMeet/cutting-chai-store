@@ -1,0 +1,211 @@
+{
+  "metadata": {
+    "skill_name": "vintage-web",
+    "skill_path": "<path/to/skill>",
+    "executor_model": "<model-name>",
+    "analyzer_model": "<model-name>",
+    "timestamp": "2026-11-24T08:35:01Z",
+    "evals_run": [
+      "apothecary-heritage",
+      "clan-landing-web1"
+    ],
+    "runs_per_configuration": 1
+  },
+  "runs": [
+    {
+      "eval_id": "apothecary-heritage",
+      "eval_name": "apothecary-heritage",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 72.5,
+        "tokens": 103987,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "index.html contains no gradients, no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow",
+          "passed": true,
+          "evidence": "no violations"
+        },
+        {
+          "text": "index.html uses #F4ECD8 as the page background and #2B2520 as the text color",
+          "passed": true,
+          "evidence": "all of #F4ECD8 and #2B2520 present"
+        },
+        {
+          "text": "index.html uses Playfair Display (or a Didot/Georgia serif) for headings and Courier for typewriter details",
+          "passed": true,
+          "evidence": "all of serif display + Courier present"
+        },
+        {
+          "text": "index.html overlays a paper grain texture made with an SVG filter (feTurbulence)",
+          "passed": true,
+          "evidence": "found 'feTurbulence'"
+        },
+        {
+          "text": "index.html includes at least one stamp-style badge (double border, rotated, uppercase)",
+          "passed": true,
+          "evidence": "all of stamp + rotation present"
+        },
+        {
+          "text": "index.html presents text in multi-column print-style layout with column rules",
+          "passed": true,
+          "evidence": "found 'column-count'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "clan-landing-web1",
+      "eval_name": "clan-landing-web1",
+      "configuration": "with_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 1.0,
+        "passed": 6,
+        "failed": 0,
+        "total": 6,
+        "time_seconds": 107.3,
+        "tokens": 109747,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow",
+          "passed": true,
+          "evidence": "no violations"
+        },
+        {
+          "text": "index.html lays out the page with a table or table-style grid with visible bevel or inset borders",
+          "passed": true,
+          "evidence": "all of table + bevel borders present"
+        },
+        {
+          "text": "index.html includes a scrolling marquee or ticker element",
+          "passed": true,
+          "evidence": "found 'ticker'"
+        },
+        {
+          "text": "index.html styles unvisited links blue (#0000EE) and visited links purple (#551A8B)",
+          "passed": true,
+          "evidence": "all of #0000EE and #551A8B present"
+        },
+        {
+          "text": "index.html uses a pixel or monospace font for headings (for example Press Start 2P, VT323 or Courier New)",
+          "passed": true,
+          "evidence": "found 'VT323'"
+        },
+        {
+          "text": "index.html includes a subtle CRT scanline overlay that does not block clicks",
+          "passed": true,
+          "evidence": "found 'repeating-linear-gradient'"
+        }
+      ],
+      "notes": []
+    },
+    {
+      "eval_id": "clan-landing-web1",
+      "eval_name": "clan-landing-web1",
+      "configuration": "without_skill",
+      "run_number": 1,
+      "result": {
+        "pass_rate": 0.5,
+        "passed": 3,
+        "failed": 3,
+        "total": 6,
+        "time_seconds": 48.0,
+        "tokens": 89691,
+        "tool_calls": 0,
+        "errors": 0
+      },
+      "expectations": [
+        {
+          "text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow",
+          "passed": false,
+          "evidence": "L11 gradient: radial-gradient(; L12 gradient: radial-gradient(; L34 gradient: linear-gradient(; L67 gradient: linear-gradient("
+        },
+        {
+          "text": "index.html lays out the page with a table or table-style grid with visible bevel or inset borders",
+          "passed": true,
+          "evidence": "all of table + bevel borders present"
+        },
+        {
+          "text": "index.html includes a scrolling marquee or ticker element",
+          "passed": true,
+          "evidence": "found '<marquee'"
+        },
+        {
+          "text": "index.html styles unvisited links blue (#0000EE) and visited links purple (#551A8B)",
+          "passed": false,
+          "evidence": "missing part of #0000EE and #551A8B"
+        },
+        {
+          "text": "index.html uses a pixel or monospace font for headings (for example Press Start 2P, VT323 or Courier New)",
+          "passed": true,
+          "evidence": "found 'Courier'"
+        },
+        {
+          "text": "index.html includes a subtle CRT scanline overlay that does not block clicks",
+          "passed": false,
+          "evidence": "no match for scanline overlay"
+        }
+      ],
+      "notes": []
+    }
+  ],
+  "run_summary": {
+    "with_skill": {
+      "pass_rate": {
+        "mean": 1.0,
+        "stddev": 0.0,
+        "min": 1.0,
+        "max": 1.0
+      },
+      "time_seconds": {
+        "mean": 89.9,
+        "stddev": 24.6073,
+        "min": 72.5,
+        "max": 107.3
+      },
+      "tokens": {
+        "mean": 106867.0,
+        "stddev": 4072.9351,
+        "min": 103987,
+        "max": 109747
+      }
+    },
+    "without_skill": {
+      "pass_rate": {
+        "mean": 0.5,
+        "stddev": 0.0,
+        "min": 0.5,
+        "max": 0.5
+      },
+      "time_seconds": {
+        "mean": 48.0,
+        "stddev": 0.0,
+        "min": 48.0,
+        "max": 48.0
+      },
+      "tokens": {
+        "mean": 89691.0,
+        "stddev": 0.0,
+        "min": 89691,
+        "max": 89691
+      }
+    },
+    "delta": {
+      "pass_rate": "+0.50",
+      "time_seconds": "+41.9",
+      "tokens": "+17176"
+    }
+  },
+  "notes": []
+}

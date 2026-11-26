@@ -1,0 +1,12 @@
+{
+  "eval_name": "apothecary-heritage",
+  "prompt": "I need a vintage-style homepage for Holloway & Sons Apothecary, a family business since 1912. show a few products, our story, and a way to order. index.html please",
+  "assertions": [
+    "index.html contains no gradients, no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow",
+    "index.html uses #F4ECD8 as the page background and #2B2520 as the text color",
+    "index.html uses Playfair Display (or a Didot/Georgia serif) for headings and Courier for typewriter details",
+    "index.html overlays a paper grain texture made with an SVG filter (feTurbulence)",
+    "index.html includes at least one stamp-style badge (double border, rotated, uppercase)",
+    "index.html presents text in multi-column print-style layout with column rules"
+  ]
+}

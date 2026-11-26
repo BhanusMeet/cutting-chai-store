@@ -1,0 +1,151 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Heritage Gazette</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Libre+Baskerville:ital@0;1&family=Courier+Prime&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4ECD8;
+    --paper-dark: #EADFC4;
+    --ink: #2B2520;
+    --faded: #5A4E42;
+    --stamp: #9B2C20;
+    --display: "Playfair Display", Didot, Georgia, serif;
+    --text: "Libre Baskerville", Baskerville, Georgia, serif;
+    --type: "Courier Prime", "Courier New", monospace;
+  }
+  * { border-radius: 0; box-sizing: border-box; }
+  body {
+    margin: 0; background: var(--paper); color: var(--ink);
+    font: 17px/1.65 var(--text);
+  }
+
+  /* paper grain: felt, not seen */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 50;
+    mix-blend-mode: multiply; opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.17  0 0 0 0 0.15  0 0 0 0 0.12  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>");
+  }
+
+  a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { color: var(--stamp); }
+  a:focus-visible, button:focus-visible { outline: 2px solid var(--stamp); outline-offset: 3px; }
+
+  .sheet { max-width: 1080px; margin: 0 auto; padding: 28px 32px 40px; }
+
+  /* masthead */
+  .dateline { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 16px;
+              font: 13px var(--type); letter-spacing: .15em; text-transform: uppercase;
+              border-top: 4px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 6px 0; }
+  .masthead { text-align: center; position: relative; padding: 18px 0 10px; border-bottom: 3px double var(--ink); }
+  .masthead h1 { margin: 0; font: 900 clamp(2.4rem, 8vw, 5.2rem)/1 var(--display); letter-spacing: .02em; text-transform: uppercase; }
+  .masthead .motto { font: italic 400 1.05rem var(--display); color: var(--faded); margin: 6px 0 0; }
+  .masthead .stamp { position: absolute; right: 2%; top: 14px; }
+  nav.sections { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 28px; padding: 8px 0;
+                 border-bottom: 1px solid var(--ink); font-variant: small-caps; letter-spacing: .12em; font-size: 1.05rem; }
+  nav.sections a { text-decoration: none; }
+
+  /* stamp badge, distressed by the #rough filter */
+  .stamp { display: inline-block; border: 3px double var(--stamp); color: var(--stamp);
+           padding: .35rem .8rem; font: 700 .8rem var(--type); letter-spacing: .2em; text-transform: uppercase;
+           transform: rotate(-6deg); filter: url(#rough); mix-blend-mode: multiply; opacity: .88; }
+
+  /* lead story */
+  .lead h2 { font: 900 clamp(1.9rem, 5vw, 3.2rem)/1.08 var(--display); margin: 22px 0 6px; column-span: all; }
+  .deck { font: italic 400 1.25rem/1.4 var(--display); color: var(--faded); margin: 0 0 6px; }
+  .byline { font: 13px var(--type); letter-spacing: .15em; text-transform: uppercase; border-top: 1px solid var(--ink);
+            border-bottom: 1px solid var(--ink); padding: 4px 0; margin: 10px 0 18px; }
+  .columns { column-count: 3; column-gap: 2rem; column-rule: 1px solid var(--ink); text-align: justify; hyphens: auto; }
+  .columns p { margin: 0 0 1em; }
+  .columns p:first-of-type::first-letter { float: left; font: 900 4.1rem/.82 var(--display); padding: 6px 8px 0 0; }
+  .columns h3 { font: 700 1.2rem var(--display); margin: 0 0 .4rem; column-span: none; text-align: left; font-variant: small-caps; letter-spacing: .06em; }
+  blockquote.pull { margin: 0 0 1em; padding: .6em 0; border-top: 3px double var(--ink); border-bottom: 3px double var(--ink);
+                    font: italic 700 1.3rem/1.35 var(--display); text-align: center; break-inside: avoid; }
+
+  figure { margin: 0 0 1em; break-inside: avoid; }
+  figure .photo { display: block; width: 100%; aspect-ratio: 4/3; background: var(--paper-dark); border: 1px solid var(--ink);
+                  outline: 6px solid var(--paper); filter: sepia(.5) contrast(1.05); }
+  figcaption { font: 12px/1.5 var(--type); letter-spacing: .08em; text-transform: uppercase; margin-top: 8px; color: var(--faded); }
+
+  /* ruled notice box */
+  .notice { border-top: 3px double var(--ink); border-bottom: 1px solid var(--ink); padding: 8px 0 12px; margin-bottom: 1em; break-inside: avoid; }
+  .notice h3 { margin-top: 0; }
+
+  .btn { display: inline-block; background: transparent; color: var(--ink); border: 2px solid var(--ink); padding: .55rem 1.1rem;
+         font: 700 .85rem var(--type); letter-spacing: .15em; text-transform: uppercase; text-decoration: none; cursor: pointer; }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+
+  .ornament { text-align: center; letter-spacing: .8em; color: var(--faded); margin: 26px 0; }
+  footer { border-top: 3px double var(--ink); padding-top: 12px; font: 12px/1.7 var(--type); letter-spacing: .12em; text-transform: uppercase; text-align: center; color: var(--faded); }
+
+  @media (max-width: 900px) { .columns { column-count: 2; } }
+  @media (max-width: 600px) {
+    .sheet { padding: 16px; }
+    .columns { column-count: 1; column-rule: none; }
+    .masthead .stamp { position: static; margin-top: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="4" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="2.6"/>
+  </filter>
+</svg>
+
+<div class="sheet">
+  <div class="dateline">
+    <span>Vol. XCIX &middot; No. 12</span>
+    <span>Tuesday, 24 November 2026</span>
+    <span>Price: Two Pence</span>
+  </div>
+
+  <header class="masthead">
+    <h1>The Heritage Gazette</h1>
+    <p class="motto">&ldquo;Purveyors of Honest News and Fine Goods Since 1924&rdquo;</p>
+    <span class="stamp">Est. 1924</span>
+  </header>
+
+  <nav class="sections" aria-label="Sections">
+    <a href="#news">Front Page</a><a href="#goods">Goods &amp; Wares</a><a href="#notices">Notices</a><a href="#about">About the House</a>
+  </nav>
+
+  <main>
+    <article class="lead" id="news">
+      <h2>Master Craftsmen Reopen the Old Mill to Great Acclaim</h2>
+      <p class="deck">After forty years of silence, the looms turn once more, and the whole town turns out to see them.</p>
+      <p class="byline">By Our Special Correspondent &middot; Illustrated</p>
+
+      <div class="columns">
+        <p>The doors of the old mill on Weaver&rsquo;s Lane opened at nine o&rsquo;clock sharp on Saturday morning, and by half past the street was filled with townsfolk eager to witness what many had believed they would never see again.</p>
+        <p>&ldquo;It is a matter of patience and good thread,&rdquo; remarked the foreman, adjusting his cap. &ldquo;The rest is only practice.&rdquo; The first bolt of cloth was presented to the mayor, who declared it the finest he had handled.</p>
+        <blockquote class="pull">&ldquo;A matter of patience and good thread.&rdquo;</blockquote>
+        <figure>
+          <div class="photo" role="img" aria-label="Photograph of the mill floor with rows of looms"></div>
+          <figcaption>Fig. 1 &mdash; The mill floor, restored to working order.</figcaption>
+        </figure>
+        <p>Orders have already been received from as far afield as the coast, and the proprietors have promised that every length will be inspected by hand before it leaves the premises. A modest exhibition of historic patterns is open to the public throughout the month.</p>
+        <aside class="notice" id="notices">
+          <h3>Notices</h3>
+          <p>Tours of the mill depart daily at ten and two. Apprentices are wanted; apply within.</p>
+        </aside>
+        <p><a class="btn" href="#goods">View the Catalogue</a></p>
+      </div>
+    </article>
+
+    <p class="ornament" aria-hidden="true">&#10086; &#10086; &#10086;</p>
+  </main>
+
+  <footer id="about">
+    Set in Playfair Display &amp; Libre Baskerville &middot; Printed on the premises<br>
+    &copy; 1924&ndash;2026 The Heritage Gazette &middot; All rights reserved
+  </footer>
+</div>
+
+</body>
+</html>

@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: ember-oak-pricing-tiers
+expected_outcome: |
+  A vintage-mode page (one mode only) with a hero, exactly three subscription tiers and a signup button, with the SaaS pricing-card conventions translated into period style: no gradient, pill, glass or soft shadow.

@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Holloway &amp; Sons Apothecary &mdash; Est. 1912</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Libre+Baskerville:ital@0;1&family=Courier+Prime&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --paper: #F4ECD8;
+    --paper-dark: #EADFC4;
+    --ink: #2B2520;
+    --faded: #5A4E42;
+    --stamp: #9B2C20;
+    --display: "Playfair Display", Didot, Georgia, serif;
+    --text: "Libre Baskerville", Baskerville, Georgia, serif;
+    --type: "Courier Prime", "Courier New", monospace;
+  }
+  * { border-radius: 0; box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.65 var(--text); }
+
+  /* paper grain: felt, not seen */
+  body::before {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 50;
+    mix-blend-mode: multiply; opacity: .45;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='n' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.17  0 0 0 0 0.15  0 0 0 0 0.12  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/></svg>");
+  }
+
+  a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 3px; }
+  a:hover { color: var(--stamp); }
+  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--stamp); outline-offset: 3px; }
+
+  .sheet { max-width: 1080px; margin: 0 auto; padding: 28px 32px 40px; }
+
+  .dateline { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 16px;
+              font: 13px var(--type); letter-spacing: .15em; text-transform: uppercase;
+              border-top: 4px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 6px 0; }
+  .masthead { text-align: center; position: relative; padding: 18px 0 10px; border-bottom: 3px double var(--ink); }
+  .masthead h1 { margin: 0; font: 900 clamp(2.1rem, 7vw, 4.6rem)/1.02 var(--display); letter-spacing: .02em; text-transform: uppercase; }
+  .masthead .amp { font-style: italic; font-weight: 400; }
+  .masthead .motto { font: italic 400 1.05rem var(--display); color: var(--faded); margin: 6px 0 0; }
+  .masthead .stamp { position: absolute; right: 2%; top: 14px; }
+  nav.sections { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 28px; padding: 8px 0;
+                 border-bottom: 1px solid var(--ink); font-variant: small-caps; letter-spacing: .12em; font-size: 1.05rem; }
+  nav.sections a { text-decoration: none; }
+
+  .stamp { display: inline-block; border: 3px double var(--stamp); color: var(--stamp);
+           padding: .35rem .8rem; font: 700 .8rem var(--type); letter-spacing: .2em; text-transform: uppercase;
+           transform: rotate(-6deg); filter: url(#rough); mix-blend-mode: multiply; opacity: .88; }
+
+  section { padding-top: 8px; }
+  h2.head { font: 900 clamp(1.8rem, 4.5vw, 2.8rem)/1.08 var(--display); margin: 22px 0 6px; }
+  .deck { font: italic 400 1.2rem/1.4 var(--display); color: var(--faded); margin: 0 0 6px; }
+  .byline { font: 13px var(--type); letter-spacing: .15em; text-transform: uppercase; border-top: 1px solid var(--ink);
+            border-bottom: 1px solid var(--ink); padding: 4px 0; margin: 10px 0 18px; }
+  .columns { column-count: 3; column-gap: 2rem; column-rule: 1px solid var(--ink); text-align: justify; hyphens: auto; }
+  .columns p { margin: 0 0 1em; }
+  .columns.drop p:first-of-type::first-letter { float: left; font: 900 4.1rem/.82 var(--display); padding: 6px 8px 0 0; }
+  .columns h3 { font: 700 1.2rem var(--display); margin: 0 0 .4rem; text-align: left; font-variant: small-caps; letter-spacing: .06em; }
+  blockquote.pull { margin: 0 0 1em; padding: .6em 0; border-top: 3px double var(--ink); border-bottom: 3px double var(--ink);
+                    font: italic 700 1.3rem/1.35 var(--display); text-align: center; break-inside: avoid; }
+
+  figure { margin: 0 0 1em; break-inside: avoid; }
+  figure .photo { display: block; width: 100%; aspect-ratio: 4/3; background: var(--paper-dark); border: 1px solid var(--ink);
+                  outline: 6px solid var(--paper); filter: sepia(.5) contrast(1.05); }
+  figure .photo svg { display: block; width: 100%; height: 100%; }
+  figcaption { font: 12px/1.5 var(--type); letter-spacing: .08em; text-transform: uppercase; margin-top: 10px; color: var(--faded); }
+
+  /* catalogue plates */
+  .catalogue { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }
+  .plate { padding: 18px 22px 22px; border-right: 1px solid var(--ink); position: relative; }
+  .plate:last-child { border-right: 0; }
+  .plate .no { font: 12px var(--type); letter-spacing: .2em; text-transform: uppercase; color: var(--faded); }
+  .plate h3 { font: 700 1.35rem/1.15 var(--display); margin: 4px 0 2px; }
+  .plate .sub { font: italic 400 1rem var(--display); color: var(--faded); margin: 0 0 10px; }
+  .plate p { margin: 10px 0; font-size: .95rem; line-height: 1.55; }
+  .plate .price { font: 700 1.05rem var(--type); letter-spacing: .1em; border-top: 3px double var(--ink); padding-top: 8px; margin-top: 12px; }
+  .plate .status { display: inline-block; margin: 0; font: 700 .72rem var(--type); letter-spacing: .18em; text-transform: uppercase; color: var(--stamp); border: 1px solid var(--stamp); padding: 1px 8px; }
+
+  /* order form */
+  .order { display: grid; grid-template-columns: 1fr 1.3fr; gap: 0; border-top: 3px double var(--ink); border-bottom: 3px double var(--ink); }
+  .order .side { padding: 20px 28px 20px 0; border-right: 1px solid var(--ink); }
+  .order .side h3 { font: 700 1.3rem var(--display); font-variant: small-caps; letter-spacing: .06em; margin: 0 0 8px; }
+  .order .side ol { padding-left: 1.3em; margin: 0 0 14px; }
+  .order .side li { margin-bottom: 6px; }
+  .order form { padding: 20px 0 20px 28px; }
+  label { display: block; font: 12px var(--type); letter-spacing: .15em; text-transform: uppercase; margin: 0 0 4px; }
+  .field { margin-bottom: 14px; }
+  input[type=text], input[type=email], select, textarea { width: 100%; background: var(--paper-dark); color: var(--ink);
+      border: 1px solid var(--ink); border-bottom: 2px solid var(--ink); padding: .5rem .6rem; font: 16px var(--text); }
+  textarea { min-height: 80px; resize: vertical; }
+  .row { display: grid; grid-template-columns: 1fr 90px; gap: 14px; }
+  .btn { display: inline-block; background: transparent; color: var(--ink); border: 2px solid var(--ink); padding: .55rem 1.1rem;
+         font: 700 .85rem var(--type); letter-spacing: .15em; text-transform: uppercase; text-decoration: none; cursor: pointer; }
+  .btn:hover { background: var(--ink); color: var(--paper); }
+  .notice { border-top: 3px double var(--ink); border-bottom: 1px solid var(--ink); padding: 8px 0 12px; margin-top: 18px; font-size: .92rem; }
+  .notice h4 { margin: 0 0 4px; font: 700 1rem var(--display); font-variant: small-caps; letter-spacing: .08em; }
+
+  .ornament { text-align: center; letter-spacing: .8em; color: var(--faded); margin: 26px 0; }
+  footer { border-top: 3px double var(--ink); padding-top: 12px; font: 12px/1.7 var(--type); letter-spacing: .12em; text-transform: uppercase; text-align: center; color: var(--faded); }
+
+  @media (max-width: 900px) {
+    .columns { column-count: 2; }
+    .catalogue { grid-template-columns: 1fr; }
+    .plate { border-right: 0; border-bottom: 1px solid var(--ink); }
+    .plate:last-child { border-bottom: 0; }
+  }
+  @media (max-width: 700px) {
+    .order { grid-template-columns: 1fr; }
+    .order .side { border-right: 0; border-bottom: 1px solid var(--ink); padding-right: 0; }
+    .order form { padding-left: 0; }
+  }
+  @media (max-width: 600px) {
+    .sheet { padding: 16px; }
+    .columns { column-count: 1; column-rule: none; }
+    .masthead .stamp { position: static; margin-top: 10px; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <filter id="rough" x="-5%" y="-5%" width="110%" height="110%">
+    <feTurbulence type="fractalNoise" baseFrequency="0.05" numOctaves="2" seed="4" result="t"/>
+    <feDisplacementMap in="SourceGraphic" in2="t" scale="2.6"/>
+  </filter>
+</svg>
+
+<div class="sheet">
+  <div class="dateline">
+    <span>Third Generation &middot; Family Owned</span>
+    <span>Compounded on the Premises</span>
+    <span>Open Monday to Saturday</span>
+  </div>
+
+  <header class="masthead">
+    <h1>Holloway <span class="amp">&amp;</span> Sons</h1>
+    <p class="motto">&ldquo;Apothecaries &amp; Purveyors of Honest Remedies Since 1912&rdquo;</p>
+    <span class="stamp">Est. 1912</span>
+  </header>
+
+  <nav class="sections" aria-label="Sections">
+    <a href="#goods">Goods &amp; Wares</a><a href="#story">Our Story</a><a href="#order">Place an Order</a><a href="#house">The House</a>
+  </nav>
+
+  <main>
+    <section id="goods">
+      <h2 class="head">Goods &amp; Wares of the Season</h2>
+      <p class="deck">Three favourites from the dispensary, made up in small batches to the old recipes.</p>
+      <p class="byline">Catalogue &sect; I &middot; Prices in Dollars, Carriage Extra</p>
+
+      <div class="catalogue">
+        <article class="plate">
+          <span class="no">Plate No. 1</span>
+          <h3>Holloway&rsquo;s Chest Balsam</h3>
+          <p class="sub">For the winter cough</p>
+          <figure>
+            <div class="photo" role="img" aria-label="Engraved illustration of an amber glass bottle with a cork stopper">
+              <svg viewBox="0 0 200 150" aria-hidden="true"><rect x="82" y="22" width="36" height="16" fill="#5A4E42"/><rect x="88" y="38" width="24" height="16" fill="#2B2520"/><path d="M88 54 L62 80 V132 H138 V80 L112 54 Z" fill="#A8863B" stroke="#2B2520" stroke-width="3"/><rect x="72" y="88" width="56" height="34" fill="#F4ECD8" stroke="#2B2520" stroke-width="2"/><line x1="78" y1="100" x2="122" y2="100" stroke="#2B2520" stroke-width="2"/><line x1="78" y1="108" x2="122" y2="108" stroke="#2B2520" stroke-width="1"/></svg>
+            </div>
+            <figcaption>Fig. 1 &mdash; Four-ounce bottle, hand labelled.</figcaption>
+          </figure>
+          <p>Honey, horehound and black cherry bark, steeped slowly and sealed under cork. A spoonful soothes the throat and settles the night.</p>
+          <p class="status">In Stock</p>
+          <p class="price">$14.00 &middot; 4 fl. oz.</p>
+        </article>
+
+        <article class="plate">
+          <span class="no">Plate No. 2</span>
+          <h3>Lavender &amp; Clove Salve</h3>
+          <p class="sub">For tired hands and aching joints</p>
+          <figure>
+            <div class="photo" role="img" aria-label="Engraved illustration of a round tin with a lid and a sprig of lavender">
+              <svg viewBox="0 0 200 150" aria-hidden="true"><rect x="50" y="62" width="100" height="14" fill="#2B2520"/><rect x="54" y="76" width="92" height="44" fill="#A8863B" stroke="#2B2520" stroke-width="3"/><rect x="62" y="88" width="76" height="20" fill="#F4ECD8" stroke="#2B2520" stroke-width="2"/><line x1="170" y1="130" x2="170" y2="60" stroke="#2B2520" stroke-width="3"/><rect x="166" y="46" width="8" height="10" fill="#2F4A5C"/><rect x="166" y="34" width="8" height="10" fill="#2F4A5C"/><rect x="166" y="22" width="8" height="10" fill="#2F4A5C"/></svg>
+            </div>
+            <figcaption>Fig. 2 &mdash; Tin of one ounce, with lavender sprig.</figcaption>
+          </figure>
+          <p>Beeswax, almond oil and a measure of clove, worked by hand into a firm, fragrant salve. Favoured by gardeners, bakers and grandmothers alike.</p>
+          <p class="status">In Stock</p>
+          <p class="price">$9.50 &middot; 1 oz. tin</p>
+        </article>
+
+        <article class="plate">
+          <span class="no">Plate No. 3</span>
+          <h3>Founder&rsquo;s Digestive Bitters</h3>
+          <p class="sub">After the heavy supper</p>
+          <figure>
+            <div class="photo" role="img" aria-label="Engraved illustration of a tall dark bottle with a long neck and label">
+              <svg viewBox="0 0 200 150" aria-hidden="true"><rect x="92" y="10" width="16" height="12" fill="#5A4E42"/><path d="M94 22 H106 V60 L124 76 V136 H76 V76 L94 60 Z" fill="#2F4A5C" stroke="#2B2520" stroke-width="3"/><rect x="82" y="84" width="36" height="40" fill="#F4ECD8" stroke="#2B2520" stroke-width="2"/><line x1="87" y1="96" x2="113" y2="96" stroke="#2B2520" stroke-width="2"/><line x1="87" y1="104" x2="113" y2="104" stroke="#2B2520" stroke-width="1"/><line x1="87" y1="110" x2="113" y2="110" stroke="#2B2520" stroke-width="1"/></svg>
+            </div>
+            <figcaption>Fig. 3 &mdash; Eight-ounce bottle, the founder&rsquo;s recipe.</figcaption>
+          </figure>
+          <p>Gentian, orange peel and dandelion root, first set down by Josiah Holloway in 1912 and never improved upon. Taken in water before or after dining.</p>
+          <p class="status">Limited &middot; Small Batch</p>
+          <p class="price">$18.00 &middot; 8 fl. oz.</p>
+        </article>
+      </div>
+    </section>
+
+    <p class="ornament" aria-hidden="true">&#10086; &#10086; &#10086;</p>
+
+    <section id="story">
+      <h2 class="head">A Family Trade, Handed Down Since 1912</h2>
+      <p class="deck">Three generations behind one counter, and not a single recipe forgotten.</p>
+      <p class="byline">Our Story &middot; By the Proprietors</p>
+
+      <div class="columns drop">
+        <p>In the spring of 1912, Josiah Holloway hung a green and gold sign above a narrow shopfront on Mercer Street and opened his dispensary to a town that needed one. He kept a ledger, a set of brass scales and a firm belief that a remedy ought to be made by someone who would look you in the eye the next morning.</p>
+        <p>His son Edmund came to the counter in 1938, after the lean years, and with him came the shelves of amber glass that still line the back wall. Through two wars and a good many hard winters, the shop never closed its door to a neighbour in need, whether or not the neighbour could pay that week.</p>
+        <blockquote class="pull">&ldquo;A remedy ought to be made by someone who will look you in the eye.&rdquo;</blockquote>
+        <p>Today the third generation, Margaret and Thomas Holloway, work the same oak counter and the same brass scales. The recipes are written in the original ledger, and we follow them to the grain. We have added a few things over the years, but we have taken nothing away.</p>
+        <p>Everything we sell is compounded in small batches on the premises, bottled by hand, and labelled in our own writing. We use honest ingredients, we say plainly what is in every jar, and we answer for every one we sell.</p>
+        <figure>
+          <div class="photo" role="img" aria-label="Photograph of the apothecary shop interior with shelves of glass bottles and a long wooden counter">
+            <svg viewBox="0 0 200 150" aria-hidden="true"><rect x="0" y="0" width="200" height="150" fill="#EADFC4"/><rect x="10" y="14" width="180" height="4" fill="#2B2520"/><rect x="10" y="50" width="180" height="4" fill="#2B2520"/><rect x="10" y="86" width="180" height="4" fill="#2B2520"/><g fill="#A8863B" stroke="#2B2520" stroke-width="1.5"><rect x="20" y="2" width="14" height="12"/><rect x="42" y="4" width="12" height="10"/><rect x="64" y="1" width="16" height="13"/><rect x="92" y="4" width="12" height="10"/><rect x="116" y="2" width="14" height="12"/><rect x="146" y="4" width="12" height="10"/><rect x="168" y="2" width="14" height="12"/></g><g fill="#2F4A5C" stroke="#2B2520" stroke-width="1.5"><rect x="24" y="38" width="12" height="12"/><rect x="50" y="36" width="16" height="14"/><rect x="82" y="38" width="12" height="12"/><rect x="108" y="36" width="14" height="14"/><rect x="140" y="38" width="12" height="12"/><rect x="166" y="36" width="16" height="14"/></g><g fill="#9B2C20" stroke="#2B2520" stroke-width="1.5"><rect x="22" y="74" width="14" height="12"/><rect x="60" y="72" width="12" height="14"/><rect x="96" y="74" width="16" height="12"/><rect x="130" y="72" width="12" height="14"/><rect x="162" y="74" width="14" height="12"/></g><rect x="0" y="112" width="200" height="38" fill="#5A4E42"/><rect x="0" y="108" width="200" height="6" fill="#2B2520"/></svg>
+          </div>
+          <figcaption>Fig. 4 &mdash; The dispensary, Mercer Street.</figcaption>
+        </figure>
+      </div>
+    </section>
+
+    <p class="ornament" aria-hidden="true">&#10086; &#10086; &#10086;</p>
+
+    <section id="order">
+      <h2 class="head">Place an Order</h2>
+      <p class="deck">By post, by telephone, or by the form below. We pack every parcel ourselves.</p>
+      <p class="byline">Order Desk &sect; II &middot; Dispatched Within Three Working Days</p>
+
+      <div class="order">
+        <div class="side">
+          <h3>How to Order</h3>
+          <ol>
+            <li>Choose your goods from the catalogue above.</li>
+            <li>Fill in the form, or telephone the shop during opening hours.</li>
+            <li>We confirm your order by letter or email, with the carriage charge.</li>
+            <li>Payment is taken upon confirmation. Your parcel follows promptly.</li>
+          </ol>
+          <p><strong>By telephone:</strong><br>(555) 014-1912<br><strong>By post:</strong><br>14 Mercer Street, Old Town</p>
+          <aside class="notice">
+            <h4>Notice</h4>
+            <p>Our remedies are traditional preparations and are not intended to diagnose or cure illness. Consult your physician where in doubt.</p>
+          </aside>
+        </div>
+
+        <form action="mailto:orders@hollowayandsons.example" method="post" enctype="text/plain">
+          <div class="field">
+            <label for="name">Your Name</label>
+            <input type="text" id="name" name="name" required autocomplete="name">
+          </div>
+          <div class="field">
+            <label for="email">Email Address</label>
+            <input type="email" id="email" name="email" required autocomplete="email">
+          </div>
+          <div class="row">
+            <div class="field">
+              <label for="item">Goods Desired</label>
+              <select id="item" name="item">
+                <option>Holloway&rsquo;s Chest Balsam &mdash; $14.00</option>
+                <option>Lavender &amp; Clove Salve &mdash; $9.50</option>
+                <option>Founder&rsquo;s Digestive Bitters &mdash; $18.00</option>
+              </select>
+            </div>
+            <div class="field">
+              <label for="qty">Qty.</label>
+              <input type="text" id="qty" name="quantity" value="1" inputmode="numeric">
+            </div>
+          </div>
+          <div class="field">
+            <label for="addr">Delivery Address &amp; Remarks</label>
+            <textarea id="addr" name="address"></textarea>
+          </div>
+          <button class="btn" type="submit">Send the Order</button>
+        </form>
+      </div>
+    </section>
+
+    <p class="ornament" aria-hidden="true">&#10086; &#10086; &#10086;</p>
+  </main>
+
+  <footer id="house">
+    Holloway &amp; Sons Apothecary &middot; 14 Mercer Street, Old Town &middot; Monday to Saturday, 9 till 6<br>
+    Set in Playfair Display &amp; Libre Baskerville &middot; Printed on the premises<br>
+    &copy; 1912&ndash;2026 Holloway &amp; Sons &middot; All rights reserved
+  </footer>
+</div>
+
+</body>
+</html>

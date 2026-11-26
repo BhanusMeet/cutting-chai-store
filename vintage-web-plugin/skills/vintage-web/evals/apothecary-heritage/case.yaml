@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: apothecary-heritage
+expected_outcome: |
+  A single index.html in Classic Editorial/Heritage style: parchment #F4ECD8, ink #2B2520, Playfair-style serif display, grain overlay, stamp badge, print columns, no modern SaaS styling.

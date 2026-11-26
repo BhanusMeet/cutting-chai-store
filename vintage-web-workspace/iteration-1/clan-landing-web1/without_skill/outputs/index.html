@@ -1,0 +1,268 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>~*~ The Pixel Vipers Official Homepage ~*~</title>
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+  body {
+    background: #000022;
+    background-image:
+      radial-gradient(#ffffff 1px, transparent 1px),
+      radial-gradient(#8888ff 1px, transparent 1px);
+    background-size: 40px 40px, 70px 70px;
+    background-position: 0 0, 20px 30px;
+    color: #00ff00;
+    font-family: "Comic Sans MS", "Comic Sans", "Chalkboard SE", cursive;
+    font-size: 16px;
+    margin: 0;
+    padding: 8px;
+  }
+  a:link { color: #00ffff; }
+  a:visited { color: #ff66ff; }
+  a:hover { color: #ffff00; background: #ff0000; }
+  #wrap { max-width: 860px; margin: 0 auto; }
+  table { border-collapse: separate; }
+  .box { border: 4px ridge #c0c0c0; background: #000000; }
+  h1.logo {
+    font-family: Impact, "Arial Black", sans-serif;
+    font-size: 54px; margin: 6px 0; text-align: center;
+    color: #00ff00; letter-spacing: 3px;
+    text-shadow: 3px 3px 0 #ff00ff, 5px 5px 0 #0000ff;
+  }
+  h2 {
+    background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff);
+    color: #000; margin: 0; padding: 3px 8px; font-size: 18px;
+    font-family: "Courier New", monospace; border-bottom: 2px solid #fff;
+  }
+  .pad { padding: 8px 12px; }
+  .blink { animation: blink 1s steps(2, start) infinite; }
+  @keyframes blink { to { visibility: hidden; } }
+  .nav td { background: #000080; border: 3px outset #8080ff; text-align: center; padding: 4px; }
+  .nav a { font-weight: bold; font-size: 16px; }
+  .news dt { color: #ffff00; font-weight: bold; margin-top: 10px; }
+  .news dd { margin-left: 18px; color: #ffffff; }
+  .new { color: #ff0000; font-weight: bold; background: #ffff00; padding: 0 3px; font-size: 12px; }
+  table.roster { width: 100%; border: 3px ridge #c0c0c0; background: #000033; }
+  table.roster th { background: #800080; color: #ffff00; padding: 4px; font-family: "Courier New", monospace; }
+  table.roster td { padding: 4px; color: #ffffff; border-bottom: 1px dotted #6666ff; }
+  table.roster tr:nth-child(even) td { background: #00001a; }
+  .rank-lead { color: #ff3333; font-weight: bold; }
+  .rank-off { color: #ffcc00; font-weight: bold; }
+  .rank-mem { color: #00ff00; }
+  .rank-rec { color: #999999; }
+  label { color: #ffff00; font-weight: bold; }
+  input[type=text], input[type=email], select, textarea {
+    background: #000; color: #00ff00; border: 2px inset #808080;
+    font-family: "Courier New", monospace; font-size: 15px; padding: 3px; max-width: 100%;
+  }
+  input[type=submit], input[type=reset], button {
+    background: #c0c0c0; color: #000; border: 3px outset #fff;
+    font-family: "Comic Sans MS", cursive; font-weight: bold; padding: 4px 14px; cursor: pointer;
+  }
+  input[type=submit]:active, input[type=reset]:active, button:active { border-style: inset; }
+  #result { display: none; margin-top: 10px; border: 3px double #ffff00; padding: 8px; color: #ffff00; background: #330033; }
+  .counter { font-family: "Courier New", monospace; background: #000; color: #00ff00; border: 3px inset #808080; padding: 2px 8px; letter-spacing: 4px; font-size: 20px; }
+  .badge { display: inline-block; border: 2px outset #c0c0c0; background: #202020; color: #fff; font-size: 11px; padding: 2px 6px; margin: 2px; font-family: Arial, sans-serif; }
+  hr.rainbow { border: 0; height: 6px; background: linear-gradient(90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); }
+  .small { font-size: 12px; }
+  @media (max-width: 600px) {
+    h1.logo { font-size: 34px; }
+    #cols td { display: block; width: auto !important; }
+  }
+</style>
+</head>
+<body>
+<div id="wrap">
+
+<table width="100%" class="box" cellpadding="4"><tr><td>
+  <marquee scrollamount="6" style="color:#ffff00;background:#000080;font-weight:bold;">
+    *** WELCOME TO THE PIXEL VIPERS HOMEPAGE *** BEST VIEWED IN NETSCAPE NAVIGATOR AT 800x600 *** NOW RECRUITING NEW PLAYERS *** TOURNAMENT NIGHT EVERY FRIDAY ***
+  </marquee>
+</td></tr></table>
+
+<h1 class="logo">&gt;&gt; PIXEL VIPERS &lt;&lt;</h1>
+<p align="center" style="margin:0;">
+  <span class="blink" style="color:#ff00ff;font-size:20px;">~ Strike Fast. Respawn Faster. ~</span><br>
+  <span style="color:#ffffff;">The #1 retro gaming clan on the Information Superhighway since 1998!</span>
+</p>
+<hr class="rainbow">
+
+<table width="100%" class="nav" cellspacing="3"><tr>
+  <td><a href="#news">[ NEWS ]</a></td>
+  <td><a href="#roster">[ ROSTER ]</a></td>
+  <td><a href="#join">[ JOIN US ]</a></td>
+  <td><a href="#guestbook">[ GUESTBOOK ]</a></td>
+</tr></table>
+<br>
+
+<table width="100%" id="cols" cellspacing="6" cellpadding="0"><tr valign="top">
+
+<!-- SIDEBAR -->
+<td width="190">
+  <div class="box">
+    <h2>Clan Info</h2>
+    <div class="pad small">
+      <b style="color:#ffff00;">Founded:</b> 1998<br>
+      <b style="color:#ffff00;">Motto:</b> "Insert Coin. Bite."<br>
+      <b style="color:#ffff00;">Servers:</b> Quake, Starcraft, Unreal Tournament, Mario Kart 64<br>
+      <b style="color:#ffff00;">Meetings:</b> Fridays 8pm Pacific on our IRC channel #pixelvipers<br>
+    </div>
+  </div>
+  <br>
+  <div class="box">
+    <h2>Games We Play</h2>
+    <div class="pad small">
+      &raquo; Quake II<br>
+      &raquo; Unreal Tournament<br>
+      &raquo; Starcraft<br>
+      &raquo; GoldenEye 007<br>
+      &raquo; Mario Kart 64<br>
+      &raquo; Street Fighter II<br>
+      &raquo; Tetris (ranked!)
+    </div>
+  </div>
+  <br>
+  <div class="box">
+    <h2>You Are Visitor</h2>
+    <div class="pad" align="center">
+      <span class="counter" id="counter">001337</span><br>
+      <span class="small">since the dawn of time</span>
+    </div>
+  </div>
+  <br>
+  <div class="box"><div class="pad" align="center">
+    <span class="badge">Made with Notepad</span>
+    <span class="badge">Netscape Now!</span>
+    <span class="badge">56k friendly</span>
+    <span class="badge">No frames!</span>
+  </div></div>
+</td>
+
+<!-- MAIN -->
+<td>
+  <div class="box" id="news">
+    <h2>:: LATEST NEWS ::</h2>
+    <div class="pad">
+      <dl class="news">
+        <dt>11/21/2026 <span class="new blink">NEW!</span> - Friday Tournament Results</dt>
+        <dd>Congrats to <b>ViperKing</b> for a 14-win streak in Street Fighter II! Hadoken Hannah took second. Full brackets coming as soon as we figure out how to scan the napkin.</dd>
+
+        <dt>11/15/2026 - Clan Server Upgrade</dt>
+        <dd>The Quake II server now runs on a REAL dedicated machine (Pentium III, 256MB RAM!). Lag is officially dead. Please stop unplugging it to charge your phone, Dave.</dd>
+
+        <dt>11/02/2026 - Mario Kart 64 Cup Season 4</dt>
+        <dd>Sign-ups are open. Blue shells are legal. Friendships are not guaranteed.</dd>
+
+        <dt>10/20/2026 - Welcome New Recruits!</dt>
+        <dd>Give a big Pixel Vipers hello to <b>N00bSl4yer</b>, <b>CRT_Queen</b> and <b>BitRot</b>. Be nice. Teach them the secret handshake (Up Up Down Down).</dd>
+      </dl>
+      <p align="right" class="small"><a href="#top">[ older news in the archive - coming soon ]</a></p>
+    </div>
+  </div>
+  <br>
+
+  <div class="box" id="roster">
+    <h2>:: MEMBER ROSTER ::</h2>
+    <div class="pad">
+      <table class="roster" cellspacing="0">
+        <tr><th>Handle</th><th>Rank</th><th>Main Game</th><th>Joined</th></tr>
+        <tr><td>ViperKing</td><td class="rank-lead">Clan Leader</td><td>Street Fighter II</td><td>1998</td></tr>
+        <tr><td>Hadoken_Hannah</td><td class="rank-lead">Co-Leader</td><td>Street Fighter II</td><td>1999</td></tr>
+        <tr><td>FragMaster_Z</td><td class="rank-off">Officer</td><td>Quake II</td><td>1999</td></tr>
+        <tr><td>Sn4keEyes</td><td class="rank-off">Officer</td><td>GoldenEye 007</td><td>2001</td></tr>
+        <tr><td>PixelPrincess</td><td class="rank-mem">Member</td><td>Mario Kart 64</td><td>2003</td></tr>
+        <tr><td>DialUp_Dave</td><td class="rank-mem">Member</td><td>Starcraft</td><td>2005</td></tr>
+        <tr><td>CRT_Queen</td><td class="rank-mem">Member</td><td>Unreal Tournament</td><td>2026</td></tr>
+        <tr><td>BitRot</td><td class="rank-rec">Recruit</td><td>Tetris</td><td>2026</td></tr>
+        <tr><td>N00bSl4yer</td><td class="rank-rec">Recruit</td><td>Quake II</td><td>2026</td></tr>
+      </table>
+      <p class="small" style="color:#aaa;">Rank key: <span class="rank-lead">Leaders</span> / <span class="rank-off">Officers</span> / <span class="rank-mem">Members</span> / <span class="rank-rec">Recruits</span></p>
+    </div>
+  </div>
+  <br>
+
+  <div class="box" id="join">
+    <h2>:: JOIN THE PIXEL VIPERS ::</h2>
+    <div class="pad">
+      <p>Think you have what it takes? Fill out the application below. An officer will review it and contact you within <b>3-5 business days</b>. No cheaters, no rage-quitters, no spoilers.</p>
+      <form id="applyForm" action="#" method="post">
+        <table cellpadding="4">
+          <tr><td align="right"><label for="handle">Gamer Handle:</label></td>
+              <td><input type="text" id="handle" name="handle" size="26" maxlength="24" required></td></tr>
+          <tr><td align="right"><label for="email">E-mail:</label></td>
+              <td><input type="email" id="email" name="email" size="26" required></td></tr>
+          <tr><td align="right"><label for="game">Main Game:</label></td>
+              <td><select id="game" name="game">
+                <option>Quake II</option><option>Unreal Tournament</option><option>Starcraft</option>
+                <option>GoldenEye 007</option><option>Mario Kart 64</option><option>Street Fighter II</option>
+                <option>Tetris</option><option>Other (tell us below)</option></select></td></tr>
+          <tr><td align="right"><label for="skill">Skill Level:</label></td>
+              <td>
+                <input type="radio" name="skill" value="Noob" id="s1"><label for="s1"> Noob</label>
+                <input type="radio" name="skill" value="Decent" id="s2" checked><label for="s2"> Decent</label>
+                <input type="radio" name="skill" value="Pro" id="s3"><label for="s3"> Pro</label>
+                <input type="radio" name="skill" value="Legend" id="s4"><label for="s4"> Legend</label>
+              </td></tr>
+          <tr><td align="right" valign="top"><label for="why">Why you?</label></td>
+              <td><textarea id="why" name="why" rows="5" cols="38" placeholder="Tell us about your best frag, high score, or most epic rage-quit..."></textarea></td></tr>
+          <tr><td></td><td>
+              <input type="checkbox" id="rules" required><label for="rules"> I swear on my joystick to follow the Clan Rules</label>
+          </td></tr>
+          <tr><td></td><td>
+              <input type="submit" value="Send Application!">
+              <input type="reset" value="Clear">
+          </td></tr>
+        </table>
+      </form>
+      <div id="result" role="status"></div>
+      <p class="small" style="color:#aaa;">Clan Rules: 1) Be cool. 2) No camping the spawn point. 3) Always say "gg". 4) Blue shells are a fact of life.</p>
+    </div>
+  </div>
+  <br>
+
+  <div class="box" id="guestbook">
+    <h2>:: GUESTBOOK ::</h2>
+    <div class="pad" align="center">
+      <img alt="" width="1" height="1" style="display:none">
+      <span style="font-size:28px;" class="blink">&#9888;</span>
+      <b style="color:#ffff00;"> THIS PAGE IS UNDER CONSTRUCTION </b>
+      <span style="font-size:28px;" class="blink">&#9888;</span><br>
+      <span class="small">Our guestbook is being rebuilt. Please sign it next time!</span>
+    </div>
+  </div>
+</td>
+</tr></table>
+
+<hr class="rainbow">
+<p align="center" class="small" style="color:#ffffff;">
+  &copy; 1998-2026 The Pixel Vipers. All your base are belong to us.<br>
+  Last updated: 11/24/2026 &nbsp;|&nbsp; Webmaster: ViperKing<br>
+  <a href="#top">[ Back to top ]</a>
+</p>
+
+</div>
+
+<script>
+  // fake hit counter
+  (function () {
+    var n = 1337, key = "pv_hits";
+    try { n = parseInt(localStorage.getItem(key) || "1337", 10) + 1; localStorage.setItem(key, n); } catch (e) {}
+    document.getElementById("counter").textContent = ("000000" + n).slice(-6);
+  })();
+
+  document.getElementById("applyForm").addEventListener("submit", function (e) {
+    e.preventDefault();
+    var f = e.target;
+    var out = document.getElementById("result");
+    var handle = f.handle.value.replace(/</g, "&lt;");
+    out.style.display = "block";
+    out.innerHTML = "<b>*** APPLICATION RECEIVED ***</b><br>Thanks, <b>" + handle +
+      "</b>! The Vipers officers will check out your application soon. " +
+      "(Demo form: connect it to a mail script or form service to receive real submissions.)";
+    f.reset();
+    out.scrollIntoView({ behavior: "smooth", block: "nearest" });
+  });
+</script>
+</body>
+</html>

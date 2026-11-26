@@ -1,0 +1,37 @@
+/* Theme: 1990s Classic Bombay (vintage-web Mode 5). Flat colour only. */
+:root {
+  --bg: #EFE6D2; --ink: #141414; --muted: #4a4339;
+  --panel: #EFE6D2; --panel-2: #F4C430;
+  --accent: #F4C430; --accent-ink: #141414;
+  --deep: #141414; --deep-ink: #F4C430; --alert: #C1272D;
+  --bw: 3px; --shadow: 5px 5px 0 #141414;
+  --f-head: "Bebas Neue", Oswald, Mukta, Impact, "Arial Narrow", sans-serif;
+  --f-body: Lora, Mukta, Georgia, serif;
+  --f-mono: "Courier Prime", "IBM Plex Mono", Mukta, "Courier New", monospace;
+  --f-label: "Bebas Neue", Oswald, Mukta, Impact, sans-serif;
+  --checker: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><rect width='32' height='32' fill='%23F4C430'/><rect width='16' height='16' fill='%23141414'/><rect x='16' y='16' width='16' height='16' fill='%23141414'/></svg>");
+  --halftone: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12'><circle cx='6' cy='6' r='2.4' fill='%23141414' fill-opacity='0.2'/></svg>");
+}
+/* Devanagari: Latin display faces have no glyphs, so switch to Mukta / Yatra One */
+:lang(hi), :lang(mr) { --f-head: "Yatra One", Mukta, sans-serif; --f-label: Mukta, sans-serif; --f-body: Mukta, sans-serif; --f-mono: Mukta, sans-serif; }
+
+/* VHS scanlines (hard-stop lines) and warm film grain */
+body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 99;
+  background: repeating-linear-gradient(to bottom, rgba(20,20,20,.07) 0 1px, transparent 1px 3px); }
+body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 98; mix-blend-mode: multiply; opacity: .3;
+  background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='g' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.22  0 0 0 0 0.1  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>"); }
+
+.vhs { background: var(--deep); color: var(--accent); font: 600 14px "Courier Prime", monospace; letter-spacing: .12em; padding: 6px 16px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 16px; }
+.rec::before { content: ""; display: inline-block; width: 10px; height: 10px; margin-right: 8px; background: var(--alert); animation: blink 1.2s steps(1) infinite; }
+@keyframes blink { 50% { visibility: hidden; } }
+.checker { height: 28px; background: var(--checker); background-size: 28px 28px; border-top: 3px solid var(--ink); border-bottom: 3px solid var(--ink); }
+
+.hdr .brand { color: var(--accent); text-shadow: 4px 4px 0 var(--ink), 8px 8px 0 var(--alert); -webkit-text-stroke: 2px var(--ink); font-family: "Archivo Black", Impact, sans-serif; font-size: clamp(2.2rem, 6.4vw, 4.2rem); transform: rotate(-1.5deg); }
+:lang(hi) .hdr .brand, :lang(mr) .hdr .brand { font-family: "Yatra One", Mukta, sans-serif; }
+.hdr .tagline { display: inline-block; margin-top: 12px; padding: 2px 12px; background: var(--deep); color: var(--accent); }
+.dish .name { text-transform: uppercase; }
+.cart-in { clip-path: polygon(0 0, 100% 0, 100% 3%, calc(100% - 12px) 3.6%, 100% 4.2%, 100% 100%, 0 100%, 0 4.2%, 12px 3.6%, 0 3%); border: 0; box-shadow: none; background: var(--panel-2); outline: 3px solid var(--ink); outline-offset: -3px; }
+.track h2 { color: var(--accent); text-shadow: 4px 4px 0 var(--ink), 8px 8px 0 var(--alert); -webkit-text-stroke: 2px var(--ink); }
+.route { background: var(--checker); background-size: 14px 14px; }
+.stop.now { animation: blink 1s steps(1) infinite; }
+.stop.done span, .stop.now span { background: var(--bg); }

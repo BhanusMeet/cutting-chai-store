@@ -1,0 +1,40 @@
+{
+  "expectations": [
+    {
+      "text": "index.html contains no gradients, no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow",
+      "passed": true,
+      "evidence": "no violations"
+    },
+    {
+      "text": "index.html uses #F4ECD8 as the page background and #2B2520 as the text color",
+      "passed": true,
+      "evidence": "all of #F4ECD8 and #2B2520 present"
+    },
+    {
+      "text": "index.html uses Playfair Display (or a Didot/Georgia serif) for headings and Courier for typewriter details",
+      "passed": true,
+      "evidence": "all of serif display + Courier present"
+    },
+    {
+      "text": "index.html overlays a paper grain texture made with an SVG filter (feTurbulence)",
+      "passed": true,
+      "evidence": "found 'feTurbulence'"
+    },
+    {
+      "text": "index.html includes at least one stamp-style badge (double border, rotated, uppercase)",
+      "passed": true,
+      "evidence": "all of stamp + rotation present"
+    },
+    {
+      "text": "index.html presents text in multi-column print-style layout with column rules",
+      "passed": true,
+      "evidence": "found 'column-count'"
+    }
+  ],
+  "summary": {
+    "passed": 6,
+    "failed": 0,
+    "total": 6,
+    "pass_rate": 1.0
+  }
+}

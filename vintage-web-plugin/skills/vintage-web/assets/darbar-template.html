@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Darbar of Suvarnagiri</title>
+<script>document.documentElement.classList.add('js');</script>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Rozha+One&family=Yatra+One&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --sand: #EFE3C8;
+    --sand-dark: #E3D3AE;
+    --kohl: #1F1916;
+    --gold: #D4AF37;
+    --crimson: #6E0D16;
+    --lapis: #1B365D;
+    --display: "Cinzel Decorative", Georgia, serif;
+    --bold: "Rozha One", "Yatra One", Georgia, serif;
+    --text: "Cormorant Garamond", Garamond, Georgia, serif;
+  }
+  * { border-radius: 0; box-sizing: border-box; }
+  body { margin: 0; padding: 36px 22px 48px; background: var(--lapis); color: var(--kohl); font: 500 21px/1.55 var(--text); }
+
+  /* silk threads + parchment grain: felt, never blocking */
+  body::before, body::after { content: ""; position: fixed; inset: 0; pointer-events: none; mix-blend-mode: multiply; z-index: 50; }
+  body::before { opacity: .4; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='260' height='260'><filter id='s' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.02 0.9' numOctaves='2' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.25  0 0 0 0 0.15  0 0 0 0 0.08  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23s)'/></svg>"); }
+  body::after { opacity: .35; background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='g' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.17  0 0 0 0 0.12  0 0 0 0 0.08  0 0 0 0.55 0'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>"); }
+
+  a { color: var(--crimson); text-underline-offset: 4px; }
+  a:hover { color: var(--lapis); }
+  a:focus-visible, button:focus-visible { outline: 3px solid var(--lapis); outline-offset: 3px; }
+
+  /* miniature-painting frame: hard rings only, zero blur */
+  .folio { max-width: 1000px; margin: 0 auto; background: var(--sand); border: 6px solid var(--crimson); outline: 2px solid var(--gold); outline-offset: -14px;
+           box-shadow: 0 0 0 3px var(--gold), 0 0 0 12px var(--crimson), 0 0 0 14px var(--gold); padding: 44px 36px 36px; }
+
+  nav.top { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 30px; font: 700 .95rem var(--text); font-variant: small-caps; letter-spacing: .22em; text-transform: lowercase; margin-bottom: 18px; }
+  nav.top a { color: var(--kohl); text-decoration: none; border-bottom: 2px solid var(--gold); padding-bottom: 2px; }
+  nav.top a:hover { color: var(--crimson); }
+
+  /* hero: cusped mehrab arch drawn as SVG */
+  .arch-wrap { position: relative; max-width: 560px; margin: 0 auto; }
+  .arch-wrap svg { display: block; width: 100%; height: auto; }
+  .arch-content { position: absolute; left: 14%; right: 14%; top: 28%; text-align: center; color: var(--sand); }
+  .arch-content .eyebrow { font: 700 .8rem var(--text); letter-spacing: .3em; text-transform: uppercase; color: var(--gold); margin: 0; }
+  .arch-content h1 { margin: .15em 0; font: 700 clamp(1.5rem, 5.4vw, 2.7rem)/1.12 var(--display); color: var(--sand); text-shadow: 2px 2px 0 var(--crimson); }
+  .arch-content p { margin: 0; font-style: italic; font-size: clamp(.95rem, 2.4vw, 1.25rem); }
+  .seal { width: 110px; height: 110px; display: block; margin: -26px auto 0; position: relative; }
+
+  .jali { display: block; width: 100%; height: 34px; border-top: 3px solid var(--gold); border-bottom: 3px solid var(--gold); margin: 26px 0; }
+
+  h2 { font: 400 clamp(1.5rem, 4vw, 2.1rem)/1.15 var(--bold); text-align: center; margin: 0 0 14px; color: var(--crimson); text-shadow: 1px 1px 0 var(--gold); }
+  .lede { text-align: center; max-width: 36em; margin: 0 auto 24px; font-style: italic; }
+
+  /* farman: royal decree that unrolls */
+  .farman { position: relative; margin: 34px auto; max-width: 760px; padding: 14px 0; }
+  .farman::before, .farman::after { content: ""; position: absolute; left: -14px; right: -14px; height: 16px; background: var(--kohl); border: 3px solid var(--gold); z-index: 2; }
+  .farman::before { top: 0; } .farman::after { bottom: 0; }
+  .farman-body { background: var(--sand-dark); border-left: 3px solid var(--kohl); border-right: 3px solid var(--kohl); padding: 34px 40px; }
+  .farman-body p { margin: 0 0 .9em; text-align: justify; hyphens: auto; }
+  .farman-body p:first-of-type::first-letter { float: left; font: 400 3.6rem/.85 var(--bold); color: var(--crimson); padding: 6px 8px 0 0; }
+  .signoff { text-align: right; font: italic 700 1.1rem var(--text); margin: 0; }
+  .js .farman-body { clip-path: inset(0 0 100% 0); }
+  .js .farman.open .farman-body { clip-path: inset(0 0 0 0); transition: clip-path 1.6s cubic-bezier(.2,.7,.2,1); }
+
+  /* plaques: the only container */
+  .halls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 34px 30px; margin: 30px 0; }
+  .plaque { position: relative; background: var(--sand-dark); border: 3px solid var(--kohl); outline: 2px solid var(--gold); outline-offset: -10px; padding: 0 24px 26px; }
+  .plaque::after { content: ""; position: absolute; left: calc(50% - 6px); bottom: -9px; width: 12px; height: 12px; background: var(--gold); border: 2px solid var(--kohl); transform: rotate(45deg); }
+  .plaque h3 { margin: 0 -24px 16px; padding: 10px 12px; text-align: center; background: var(--crimson); color: var(--sand); border-bottom: 3px solid var(--gold);
+               font: 400 1.15rem var(--bold); letter-spacing: .08em; }
+  .plaque.lapis { background: var(--lapis); color: var(--sand); border-color: var(--gold); outline-color: var(--sand); }
+  .plaque p { margin: 0; }
+  .plaque .tag { display: block; margin-top: 12px; font: 700 .8rem var(--text); letter-spacing: .2em; text-transform: uppercase; color: var(--crimson); }
+  .plaque.lapis .tag { color: var(--gold); }
+
+  .cta { text-align: center; margin: 36px 0 10px; }
+  .btn { display: inline-block; font: 400 1.05rem var(--bold); letter-spacing: .12em; text-transform: uppercase; text-decoration: none; cursor: pointer;
+         background: var(--gold); color: var(--kohl); border: 3px solid var(--crimson); padding: 14px 34px; box-shadow: inset 0 0 0 2px var(--gold), inset 0 0 0 4px var(--kohl); }
+  .btn:hover { background: var(--crimson); color: var(--sand); }
+
+  .skyline { display: flex; justify-content: center; gap: 8px; color: var(--crimson); margin: 34px 0 0; overflow: hidden; }
+  .skyline svg { width: 54px; height: 64px; flex: none; }
+  footer { border-top: 3px double var(--kohl); margin-top: 14px; padding-top: 14px; text-align: center; font: 700 .8rem/1.8 var(--text); letter-spacing: .22em; text-transform: uppercase; }
+
+  @media (max-width: 720px) {
+    body { padding: 22px 14px 32px; }
+    .folio { padding: 28px 16px 24px; box-shadow: 0 0 0 3px var(--gold), 0 0 0 8px var(--crimson), 0 0 0 10px var(--gold); }
+    .halls { grid-template-columns: 1fr; }
+    .farman-body { padding: 24px 20px; }
+    .arch-content { left: 10%; right: 10%; top: 26%; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .js .farman-body, .js .farman.open .farman-body { clip-path: none; transition: none; }
+  }
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true" focusable="false">
+  <defs>
+    <path id="mehrab" d="M30 360 V190 Q30 90 150 62 Q215 46 240 8 Q265 46 330 62 Q450 90 450 190 V360 Z"/>
+    <pattern id="jali" width="28" height="34" patternUnits="userSpaceOnUse">
+      <rect width="28" height="34" fill="#1B365D"/>
+      <path d="M14 3 L26 17 L14 31 L2 17 Z" fill="none" stroke="#D4AF37" stroke-width="1.6"/>
+      <path d="M14 10 L20 17 L14 24 L8 17 Z" fill="none" stroke="#D4AF37" stroke-width="1.2"/>
+      <circle cx="14" cy="17" r="2.2" fill="#D4AF37"/>
+      <circle cx="0" cy="0" r="2" fill="#D4AF37"/><circle cx="28" cy="0" r="2" fill="#D4AF37"/>
+      <circle cx="0" cy="34" r="2" fill="#D4AF37"/><circle cx="28" cy="34" r="2" fill="#D4AF37"/>
+    </pattern>
+    <symbol id="chhatri" viewBox="0 0 60 70">
+      <circle cx="30" cy="4" r="3" fill="currentColor"/>
+      <path d="M30 7 V12 M10 34 Q10 14 30 11 Q50 14 50 34 Z" fill="currentColor" stroke="currentColor" stroke-width="1.5"/>
+      <rect x="8" y="34" width="44" height="4" fill="currentColor"/>
+      <rect x="11" y="38" width="6" height="22" fill="currentColor"/>
+      <rect x="27" y="38" width="6" height="22" fill="currentColor"/>
+      <rect x="43" y="38" width="6" height="22" fill="currentColor"/>
+      <rect x="4" y="60" width="52" height="8" fill="currentColor"/>
+    </symbol>
+  </defs>
+</svg>
+
+<div class="folio">
+  <nav class="top" aria-label="Main">
+    <a href="#farman">Proclamation</a><a href="#halls">The Halls</a><a href="#audience">Audience</a>
+  </nav>
+
+  <header>
+    <div class="arch-wrap">
+      <svg viewBox="0 0 480 360" role="img" aria-label="Cusped palace archway">
+        <use href="#mehrab" fill="#6E0D16" stroke="#D4AF37" stroke-width="5"/>
+        <use href="#mehrab" transform="translate(14.4 21.6) scale(.94)" fill="none" stroke="#D4AF37" stroke-width="7" stroke-linecap="round" stroke-dasharray="0.1 16"/>
+        <use href="#mehrab" transform="translate(28.8 43.2) scale(.88)" fill="#1B365D" stroke="#D4AF37" stroke-width="3"/>
+        <path d="M60 345 H420" stroke="#D4AF37" stroke-width="3"/>
+      </svg>
+      <div class="arch-content">
+        <p class="eyebrow">&#2406; Shri &#2406;</p>
+        <h1>The Darbar of Suvarnagiri</h1>
+        <p>Open to honoured guests, by grace of the House</p>
+      </div>
+    </div>
+    <!-- Rajmudra seal -->
+    <svg class="seal" viewBox="0 0 200 200" role="img" aria-label="Royal seal of the House of Suvarnagiri">
+      <circle cx="100" cy="100" r="97" fill="#D4AF37" stroke="#1F1916" stroke-width="3"/>
+      <circle cx="100" cy="100" r="87" fill="none" stroke="#1F1916" stroke-width="1.5"/>
+      <circle cx="100" cy="100" r="58" fill="none" stroke="#1F1916" stroke-width="2"/>
+      <path id="ring" d="M100 100 m-72 0 a72 72 0 1 1 144 0 a72 72 0 1 1 -144 0" fill="none"/>
+      <text font-family="Cinzel Decorative, Georgia, serif" font-size="13" font-weight="700" fill="#1F1916" letter-spacing="2"><textPath href="#ring" startOffset="0">&#183; HOUSE OF SUVARNAGIRI &#183; BY ROYAL SEAL &#183; ANNO 1612 &#183;</textPath></text>
+      <circle cx="100" cy="92" r="13" fill="#6E0D16" stroke="#1F1916" stroke-width="2"/>
+      <g stroke="#1F1916" stroke-width="3" stroke-linecap="square">
+        <line x1="100" y1="64" x2="100" y2="72"/><line x1="100" y1="112" x2="100" y2="120" transform="translate(0 -8)"/>
+        <line x1="100" y1="64" x2="100" y2="72" transform="rotate(45 100 92)"/><line x1="100" y1="64" x2="100" y2="72" transform="rotate(90 100 92)"/>
+        <line x1="100" y1="64" x2="100" y2="72" transform="rotate(135 100 92)"/><line x1="100" y1="64" x2="100" y2="72" transform="rotate(180 100 92)"/>
+        <line x1="100" y1="64" x2="100" y2="72" transform="rotate(225 100 92)"/><line x1="100" y1="64" x2="100" y2="72" transform="rotate(270 100 92)"/>
+        <line x1="100" y1="64" x2="100" y2="72" transform="rotate(315 100 92)"/>
+      </g>
+      <text x="100" y="140" text-anchor="middle" font-family="Yatra One, Georgia, serif" font-size="17" fill="#1F1916">&#2406; &#2358;&#2381;&#2352;&#2368; &#2406;</text>
+    </svg>
+  </header>
+
+  <svg class="jali" aria-hidden="true" focusable="false"><rect width="100%" height="100%" fill="url(#jali)"/></svg>
+
+  <main>
+    <section id="farman" class="farman" aria-labelledby="farman-title">
+      <div class="farman-body">
+        <h2 id="farman-title">A Royal Proclamation</h2>
+        <p>Be it known to all who approach these gates that the fort of Suvarnagiri, long silent, throws open its halls once more. The Diwan-i-Aam shall receive guests at the hour of the morning drum, and the Sheesh Mahal shall be lit by a thousand lamps at dusk.</p>
+        <p>Every visitor shall be welcomed with attar and cardamom tea, and shown the Toshakhana where the treasures of four generations are kept. Let none arrive without a gift of good humour.</p>
+        <p class="signoff">&mdash; By order of the Darbar, in the year of the House 1612</p>
+      </div>
+    </section>
+
+    <svg class="jali" aria-hidden="true" focusable="false"><rect width="100%" height="100%" fill="url(#jali)"/></svg>
+
+    <section id="halls" aria-labelledby="halls-title">
+      <h2 id="halls-title">The Halls of the Fort</h2>
+      <p class="lede">Four chambers, each preserved as the Maharaja knew them.</p>
+      <div class="halls">
+        <article class="plaque"><h3>Diwan-i-Aam</h3><p>The hall of public audience, with sixty carved sandstone pillars and a marble throne beneath a painted canopy.</p><span class="tag">Open at dawn</span></article>
+        <article class="plaque lapis"><h3>Sheesh Mahal</h3><p>The palace of mirrors, where a single flame is multiplied into a night sky of ten thousand stars.</p><span class="tag">Lit at dusk</span></article>
+        <article class="plaque lapis"><h3>Zenana Mahal</h3><p>The quarters of the royal household, with latticed jali screens that let the breeze in and keep the heat out.</p><span class="tag">By appointment</span></article>
+        <article class="plaque"><h3>Toshakhana</h3><p>The treasury of the House: swords, miniature paintings, brocade and seals gathered across four centuries.</p><span class="tag">Guided hours</span></article>
+      </div>
+    </section>
+
+    <div class="cta" id="audience"><a class="btn" href="#audience">Seek an Audience</a></div>
+  </main>
+
+  <div class="skyline" aria-hidden="true">
+    <svg><use href="#chhatri"/></svg><svg><use href="#chhatri"/></svg><svg><use href="#chhatri"/></svg><svg><use href="#chhatri"/></svg><svg><use href="#chhatri"/></svg><svg><use href="#chhatri"/></svg><svg><use href="#chhatri"/></svg>
+  </div>
+  <footer>The House of Suvarnagiri &middot; Set in Cinzel &amp; Cormorant<br>&copy; Anno 1612&ndash;2026</footer>
+</div>
+
+<script>
+  (function () {
+    var els = document.querySelectorAll('.farman');
+    if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('open'); }); return; }
+    var io = new IntersectionObserver(function (entries) {
+      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('open'); io.unobserve(en.target); } });
+    }, { threshold: 0.15 });
+    els.forEach(function (e) { io.observe(e); });
+  })();
+</script>
+</body>
+</html>

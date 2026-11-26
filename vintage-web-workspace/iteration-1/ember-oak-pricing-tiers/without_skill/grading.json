@@ -1,0 +1,35 @@
+{
+  "expectations": [
+    {
+      "text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow",
+      "passed": false,
+      "evidence": "L15 gradient: radial-gradient(; L30 gradient: linear-gradient("
+    },
+    {
+      "text": "index.html shows exactly three subscription pricing tiers and a prominent signup button",
+      "passed": true,
+      "evidence": "report: three tiers $14/$26/$48 and a very large Sign Up Now button"
+    },
+    {
+      "text": "index.html commits to a single vintage mode (either 90s Web 1.0 or Classic Editorial/Heritage) without mixing elements of both",
+      "passed": false,
+      "evidence": "report: chose '1970s Americana coffee-house' with mustard/teal palette, halftone dots, hard offset shadows; neither defined mode"
+    },
+    {
+      "text": "the signup button has square corners and a flat or beveled look, not a pill or glossy gradient",
+      "passed": false,
+      "evidence": "L15 gradient; L30 gradient"
+    },
+    {
+      "text": "the final response names which vintage mode was chosen",
+      "passed": false,
+      "evidence": "final message names a style (1970s Americana) but not one of the two modes"
+    }
+  ],
+  "summary": {
+    "passed": 1,
+    "failed": 4,
+    "total": 5,
+    "pass_rate": 0.2
+  }
+}

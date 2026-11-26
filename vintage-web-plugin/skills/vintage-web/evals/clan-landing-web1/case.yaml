@@ -1,0 +1,4 @@
+schema_version: "1.1"
+name: clan-landing-web1
+expected_outcome: |
+  A single index.html in authentic 90s Web 1.0 style: bevels, pixel fonts, table grid, marquee, scanlines, blue/purple links, and no modern SaaS styling.

@@ -1,0 +1,18 @@
+# store data: sales, customer names and password fingerprints must never be uploaded
+qr-order/data/
+*.db
+*.db-wal
+*.db-shm
+*.log
+# certificates and secrets
+*.pem
+*.key
+.env*
+# test output, caches and local-only files
+qr-order/loadtest/results/
+qr-order/loadtest/ab_old/
+qr-order/loadtest/ab_noconn/
+__pycache__/
+*.pyc
+.claude/
+backup-before-*/

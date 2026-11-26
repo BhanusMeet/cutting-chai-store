@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pixel Vipers - Retro Gaming Clan</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --desk: #000080;
+    --face: #c0c0c0;
+    --hi: #ffffff;
+    --lo: #404040;
+    --mid: #808080;
+    --ink: #000000;
+    --pixel: "Press Start 2P", "Courier New", monospace;
+    --term: "VT323", "Courier New", monospace;
+    --body: "Times New Roman", Times, serif;
+  }
+  * { border-radius: 0; box-sizing: border-box; }
+  body {
+    margin: 0; padding: 12px;
+    background-color: var(--desk);
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='2' height='2' x='0' y='0' fill='%230000a0'/%3E%3Crect width='2' height='2' x='4' y='4' fill='%230000a0'/%3E%3C/svg%3E");
+    color: var(--ink);
+    font: 16px/1.4 var(--body);
+  }
+  a:link    { color: #0000ee; }
+  a:visited { color: #551a8b; }
+  a:hover   { color: #ff0000; background: #ffff00; }
+  a:active  { color: #ff0000; }
+  a:focus-visible { outline: 1px dotted #000; outline-offset: 2px; }
+
+  body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 99;
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,.06) 0 1px, transparent 1px 3px);
+  }
+
+  .raised { background: var(--face); border: 2px solid; border-color: var(--hi) var(--lo) var(--lo) var(--hi);
+            box-shadow: inset -1px -1px 0 var(--mid), inset 1px 1px 0 #dfdfdf; }
+  .sunken { background: #fff; border: 2px solid; border-color: var(--lo) var(--hi) var(--hi) var(--lo);
+            box-shadow: inset 1px 1px 0 var(--mid); }
+
+  .btn {
+    font: 12px var(--pixel); color: var(--ink); padding: 8px 12px; cursor: pointer;
+    background: var(--face); border: 2px solid; border-color: var(--hi) var(--lo) var(--lo) var(--hi);
+    box-shadow: inset -1px -1px 0 var(--mid), inset 1px 1px 0 #dfdfdf; text-decoration: none; display: inline-block;
+  }
+  .btn:link, .btn:visited { color: var(--ink); }
+  .btn:hover { background: #dfdfdf; color: var(--ink); }
+  .btn:active { border-color: var(--lo) var(--hi) var(--hi) var(--lo); padding: 9px 11px 7px 13px; }
+  .btn:focus-visible { outline: 1px dotted #000; outline-offset: -5px; }
+
+  .frame { width: 100%; max-width: 940px; margin: 0 auto; border-collapse: separate; border-spacing: 4px; }
+  .frame > tbody > tr > td { vertical-align: top; padding: 10px; }
+  .banner { text-align: center; background: #000000; color: #00ff00; padding: 14px 8px; border: 4px ridge #808080; }
+  .banner h1 { margin: 0; font: 24px/1.5 var(--pixel); letter-spacing: 1px; color: #ffff00; }
+  .banner p { margin: 6px 0 0; font: 24px var(--term); color: #00ffff; }
+
+  h2 { font: 12px/1.6 var(--pixel); margin: 0 0 8px; background: #000080; color: #fff; padding: 6px 8px; }
+  h3 { font: 12px/1.6 var(--pixel); margin: 0 0 4px; color: #800000; }
+  nav ul { list-style: none; margin: 0; padding: 0; }
+  nav li { margin: 0 0 6px; }
+  nav .btn { width: 100%; font-size: 10px; }
+
+  .ticker { background: #000; color: #00ff00; font: 24px var(--term); overflow: hidden; white-space: nowrap; padding: 2px 0; }
+  .ticker span { display: inline-block; padding-left: 100%; animation: scroll 40s steps(240) infinite; }
+  @keyframes scroll { to { transform: translateX(-100%); } }
+
+  .counter { display: inline-block; background: #000; color: #00ff00; font: 22px var(--term); letter-spacing: 3px; padding: 2px 8px; }
+  .new { background: #ff00ff; color: #ffff00; font: 9px var(--pixel); padding: 2px 4px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { visibility: hidden; } }
+  .construction { background: #ffff00; border: 3px solid #000; text-align: center; font: 10px/1.6 var(--pixel); padding: 8px; }
+  hr { border: 0; border-top: 2px solid var(--mid); border-bottom: 2px solid var(--hi); margin: 14px 0; }
+  .webring { text-align: center; font: 20px var(--term); }
+  footer { text-align: center; font-size: 13px; }
+
+  .post .date { font: 18px var(--term); color: #800000; }
+
+  table.roster { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 15px; }
+  table.roster th { font: 10px/1.4 var(--pixel); background: #000080; color: #fff; text-align: left; padding: 6px; border: 1px solid #000; }
+  table.roster td { padding: 5px 6px; border: 1px solid #808080; vertical-align: middle; }
+  table.roster tr:nth-child(even) td { background: #e8e8e8; }
+  table.roster .handle { font: 11px var(--pixel); }
+  .avatar { display: block; width: 32px; height: 32px; border: 2px inset #808080; }
+  .rank-1 { color: #800000; font-weight: bold; }
+
+  label { font-size: 14px; font-weight: bold; display: block; }
+  input[type=text], input[type=email], select, textarea { font: 20px var(--term); width: 100%; padding: 4px; margin: 2px 0 8px;
+    background: #fff; border: 2px solid; border-color: var(--lo) var(--hi) var(--hi) var(--lo); }
+  input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 1px dotted #000; outline-offset: 1px; }
+  fieldset { border: 2px groove #c0c0c0; margin: 0 0 8px; padding: 6px 8px; }
+  legend { font: 10px var(--pixel); }
+  .check { font-weight: normal; display: block; margin: 2px 0; }
+
+  #dialog { display: none; position: fixed; top: 30%; left: 50%; width: 320px; max-width: 92vw; margin-left: -160px; z-index: 100; }
+  #dialog.open { display: block; }
+  #dialog .title { background: #000080; color: #fff; font: 11px var(--pixel); padding: 4px 6px; }
+  #dialog .content { padding: 14px; font-size: 15px; }
+
+  @media (max-width: 640px) {
+    .frame, .frame > tbody, .frame > tbody > tr, .frame > tbody > tr > td { display: block; width: 100% !important; }
+    .banner h1 { font-size: 15px; }
+    table.roster th:nth-child(5), table.roster td:nth-child(5) { display: none; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ticker span { animation: none; padding-left: 0; white-space: normal; }
+    .ticker { white-space: normal; }
+    .new { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<table class="frame raised" role="presentation">
+  <tr>
+    <td colspan="3" class="banner">
+      <h1>~* PIXEL VIPERS *~</h1>
+      <p>Retro gaming clan. Est. 1998. We bite in 8 bits!</p>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3" style="padding:4px">
+      <div class="sunken ticker" aria-label="News ticker"><span>*** NEW!!! Friday Night Frag-Fest at 8PM EST *** Recruitment is OPEN *** Vipers took 2nd place in the Winter Warp Zone Tourney *** Server rules updated, read them or else *** GG to everyone who showed up!!! ***</span></div>
+    </td>
+  </tr>
+  <tr>
+    <td class="sunken" width="160">
+      <h2>MENU</h2>
+      <nav aria-label="Main">
+        <ul>
+          <li><a class="btn" href="#news">News</a></li>
+          <li><a class="btn" href="#roster">Roster</a></li>
+          <li><a class="btn" href="#join">Join Us</a></li>
+          <li><a class="btn" href="#rules">Rules</a></li>
+        </ul>
+      </nav>
+      <hr>
+      <p style="font-size:13px">You are visitor number:</p>
+      <div class="counter" aria-label="Visitor count 004217">004217</div>
+      <hr>
+      <p style="font-size:13px"><b>Vipers online:</b><br>3 of 14</p>
+      <div class="construction">UNDER CONSTRUCTION<br>Clan wiki coming soon!</div>
+    </td>
+
+    <td class="sunken" id="news">
+      <h2>CLAN NEWS <span class="new">NEW!</span></h2>
+
+      <div class="post">
+        <h3>Friday Night Frag-Fest!</h3>
+        <span class="date">24 Nov 2026</span>
+        <p>Calling all Vipers! This Friday at 8PM EST we are hosting our monthly LAN-style night on the clan server. Games on the card: Quake III Arena, Unreal Tournament, and Mario Kart 64 for the brave. Bring snacks. Bring headphones. Bring your A-game!</p>
+      </div>
+      <hr>
+      <div class="post">
+        <h3>2nd Place at the Winter Warp Zone Tourney</h3>
+        <span class="date">17 Nov 2026</span>
+        <p>Big congrats to <b>CobraByte</b>, <b>NullPointer</b>, <b>Glitch_Mamba</b> and <b>TurboAsp</b> for taking 2nd place in a field of 32 clans. We were one frag short of the gold. Revenge is coming in the spring season. Match demos are on the <a href="#news">downloads page</a>.</p>
+      </div>
+      <hr>
+      <div class="post">
+        <h3>Server Rules Updated</h3>
+        <span class="date">03 Nov 2026</span>
+        <p>We added two rules: no spawn camping, and no talking trash about anybody's CRT. Please read the <a href="#rules">rules</a>. Admin <b>Sysop_Sidewinder</b> has the ban hammer and is not afraid to use it.</p>
+      </div>
+      <hr>
+      <div class="post">
+        <h3>Welcome New Vipers!</h3>
+        <span class="date">28 Oct 2026</span>
+        <p>Say hello to <b>8BitAdder</b> and <b>ScanlineSally</b>, who passed their trial matches with flying colors. Remember to put [PV] in front of your name tag. Looking good, rookies!</p>
+      </div>
+      <hr>
+
+      <h2 id="roster">THE ROSTER</h2>
+      <p style="font-size:14px">Fourteen strong and always hungry for more. Sorted by rank, then by who owes the most pizza.</p>
+      <table class="roster">
+        <thead>
+          <tr><th scope="col">Pic</th><th scope="col">Handle</th><th scope="col">Rank</th><th scope="col">Main Game</th><th scope="col">Joined</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><svg class="avatar" viewBox="0 0 8 8" role="img" aria-label="Green pixel snake head"><rect width="8" height="8" fill="#000"/><rect x="1" y="1" width="6" height="6" fill="#00aa00"/><rect x="2" y="3" width="1" height="1" fill="#ffff00"/><rect x="5" y="3" width="1" height="1" fill="#ffff00"/><rect x="3" y="5" width="2" height="1" fill="#ff0000"/></svg></td><td class="handle">CobraByte</td><td class="rank-1">Clan Leader</td><td>Quake III Arena</td><td>1998</td></tr>
+          <tr><td><svg class="avatar" viewBox="0 0 8 8" role="img" aria-label="Blue pixel snake head"><rect width="8" height="8" fill="#000"/><rect x="1" y="1" width="6" height="6" fill="#0055cc"/><rect x="2" y="3" width="1" height="1" fill="#00ffff"/><rect x="5" y="3" width="1" height="1" fill="#00ffff"/><rect x="3" y="5" width="2" height="1" fill="#fff"/></svg></td><td class="handle">Sysop_Sidewinder</td><td class="rank-1">Admin</td><td>Unreal Tournament</td><td>1999</td></tr>
+          <tr><td><svg class="avatar" viewBox="0 0 8 8" role="img" aria-label="Magenta pixel snake head"><rect width="8" height="8" fill="#000"/><rect x="1" y="1" width="6" height="6" fill="#aa00aa"/><rect x="2" y="3" width="1" height="1" fill="#ffff00"/><rect x="5" y="3" width="1" height="1" fill="#ffff00"/><rect x="3" y="5" width="2" height="1" fill="#fff"/></svg></td><td class="handle">NullPointer</td><td>Captain</td><td>StarCraft</td><td>2001</td></tr>
+          <tr><td><svg class="avatar" viewBox="0 0 8 8" role="img" aria-label="Orange pixel snake head"><rect width="8" height="8" fill="#000"/><rect x="1" y="1" width="6" height="6" fill="#dd7700"/><rect x="2" y="3" width="1" height="1" fill="#000"/><rect x="5" y="3" width="1" height="1" fill="#000"/><rect x="3" y="5" width="2" height="1" fill="#ff0000"/></svg></td><td class="handle">Glitch_Mamba</td><td>Captain</td><td>Counter-Strike 1.6</td><td>2002</td></tr>
+          <tr><td><svg class="avatar" viewBox="0 0 8 8" role="img" aria-label="Red pixel snake head"><rect width="8" height="8" fill="#000"/><rect x="1" y="1" width="6" height="6" fill="#cc0000"/><rect x="2" y="3" width="1" height="1" fill="#ffff00"/><rect x="5" y="3" width="1" height="1" fill="#ffff00"/><rect x="3" y="5" width="2" height="1" fill="#000"/></svg></td><td class="handle">TurboAsp</td><td>Veteran</td><td>Mario Kart 64</td><td>2004</td></tr>
+          <tr><td><svg class="avatar" viewBox="0 0 8 8" role="img" aria-label="Teal pixel snake head"><rect width="8" height="8" fill="#000"/><rect x="1" y="1" width="6" height="6" fill="#008080"/><rect x="2" y="3" width="1" height="1" fill="#fff"/><rect x="5" y="3" width="1" height="1" fill="#fff"/><rect x="3" y="5" width="2" height="1" fill="#ffff00"/></svg></td><td class="handle">PolyPython</td><td>Veteran</td><td>Super Smash Bros.</td><td>2006</td></tr>
+          <tr><td><svg class="avatar" viewBox="0 0 8 8" role="img" aria-label="Yellow pixel snake head"><rect width="8" height="8" fill="#000"/><rect x="1" y="1" width="6" height="6" fill="#cccc00"/><rect x="2" y="3" width="1" height="1" fill="#000"/><rect x="5" y="3" width="1" height="1" fill="#000"/><rect x="3" y="5" width="2" height="1" fill="#800000"/></svg></td><td class="handle">DialUpDiamondback</td><td>Member</td><td>Diablo II</td><td>2009</td></tr>
+          <tr><td><svg class="avatar" viewBox="0 0 8 8" role="img" aria-label="Purple pixel snake head"><rect width="8" height="8" fill="#000"/><rect x="1" y="1" width="6" height="6" fill="#6600aa"/><rect x="2" y="3" width="1" height="1" fill="#00ff00"/><rect x="5" y="3" width="1" height="1" fill="#00ff00"/><rect x="3" y="5" width="2" height="1" fill="#fff"/></svg></td><td class="handle">8BitAdder</td><td>Rookie</td><td>Tetris Attack</td><td>2026</td></tr>
+          <tr><td><svg class="avatar" viewBox="0 0 8 8" role="img" aria-label="Gray pixel snake head"><rect width="8" height="8" fill="#000"/><rect x="1" y="1" width="6" height="6" fill="#888"/><rect x="2" y="3" width="1" height="1" fill="#ff00ff"/><rect x="5" y="3" width="1" height="1" fill="#ff00ff"/><rect x="3" y="5" width="2" height="1" fill="#000"/></svg></td><td class="handle">ScanlineSally</td><td>Rookie</td><td>Street Fighter II</td><td>2026</td></tr>
+        </tbody>
+      </table>
+      <p style="font-size:13px">...plus five lurkers who only show up for pizza night.</p>
+
+      <hr>
+      <h2 id="rules">HOUSE RULES</h2>
+      <ol style="font-size:15px">
+        <li>Good games only. Win with grace, lose with a rematch.</li>
+        <li>No spawn camping. We are Vipers, not vultures.</li>
+        <li>Keep it PG-13 on voice chat.</li>
+        <li>Wear the [PV] tag with pride.</li>
+      </ol>
+    </td>
+
+    <td class="sunken" width="230" id="join">
+      <h2>JOIN THE VIPERS!</h2>
+      <p style="font-size:14px">Think you have the reflexes? Fill out the application form and a Captain will contact you within 3 days.</p>
+      <form id="apply" action="mailto:recruit@pixelvipers.example" method="post" enctype="text/plain">
+        <label for="handle">Gamer handle:</label>
+        <input id="handle" name="handle" type="text" required>
+
+        <label for="email">E-mail address:</label>
+        <input id="email" name="email" type="email" required>
+
+        <label for="game">Favorite game:</label>
+        <select id="game" name="game">
+          <option>Quake III Arena</option>
+          <option>Unreal Tournament</option>
+          <option>Counter-Strike 1.6</option>
+          <option>StarCraft</option>
+          <option>Mario Kart 64</option>
+          <option>Street Fighter II</option>
+          <option>Other (tell us below)</option>
+        </select>
+
+        <fieldset>
+          <legend>I play on:</legend>
+          <label class="check"><input type="checkbox" name="platform" value="pc"> PC</label>
+          <label class="check"><input type="checkbox" name="platform" value="console"> Console</label>
+          <label class="check"><input type="checkbox" name="platform" value="emu"> Emulator</label>
+        </fieldset>
+
+        <label for="why">Why should we pick you?</label>
+        <textarea id="why" name="why" rows="4"></textarea>
+
+        <button class="btn" type="submit">SEND IT!</button>
+        <button class="btn" type="reset">CLEAR</button>
+      </form>
+      <hr>
+      <p style="font-size:13px">Or e-mail us: <a href="mailto:recruit@pixelvipers.example">recruit@pixelvipers.example</a></p>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3" class="sunken">
+      <div class="webring">&lt;&lt; Prev | Random | Next &gt;&gt; &nbsp; Member of the Retro Clans Webring</div>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <footer>Best viewed with Netscape Navigator 4.0 at 800x600.<br>Last updated: 24 Nov 2026. Webmaster: <a href="mailto:webmaster@pixelvipers.example">Sysop_Sidewinder</a><br>All game names belong to their respective owners. GG!</footer>
+    </td>
+  </tr>
+</table>
+
+<div id="dialog" class="raised" role="alertdialog" aria-labelledby="dtitle" aria-describedby="dmsg">
+  <div class="title" id="dtitle">Pixel Vipers</div>
+  <div class="content">
+    <p id="dmsg">Application received! A Captain will e-mail you soon.</p>
+    <button class="btn" type="button" id="dclose">OK</button>
+  </div>
+</div>
+
+<script>
+  var form = document.getElementById('apply');
+  var dlg = document.getElementById('dialog');
+  form.addEventListener('submit', function (e) {
+    e.preventDefault();
+    var h = document.getElementById('handle').value;
+    document.getElementById('dmsg').textContent = 'Application received from ' + h + '! A Captain will e-mail you soon. Stay sharp, rookie!';
+    dlg.className = 'raised open';
+    document.getElementById('dclose').focus();
+    form.reset();
+  });
+  document.getElementById('dclose').addEventListener('click', function () { dlg.className = 'raised'; });
+</script>
+</body>
+</html>

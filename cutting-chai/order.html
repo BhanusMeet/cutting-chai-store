@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Order at your table - Cutting Chai Co.</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Oswald:wght@500;700&family=Courier+Prime:wght@400;700&family=IBM+Plex+Mono:wght@400;600&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<div class="vhs" role="presentation"><span class="rec">REC</span><span>PLAY &#9654; &nbsp; SP</span><span>04:17 PM &nbsp; 12 NOV 1994</span></div>
+<div class="checker" aria-hidden="true"></div>
+<nav class="topnav" aria-label="Main">
+  <a class="brand" href="index.html">Cutting Chai Co.</a>
+  <a href="index.html#menu">The Menu</a><a href="index.html#story">Our Story</a><a class="go" href="order.html" aria-current="page">Order Now</a>
+</nav>
+
+<div class="page">
+  <div id="shop">
+    <header class="order-title">
+      <p>Table service &middot; no waiting in line</p>
+      <h1>Order at your table</h1>
+    </header>
+    <div class="order-wrap">
+      <section aria-labelledby="menu-h">
+        <h2 id="menu-h" class="sr-only">Menu</h2>
+        <div class="tabs" id="tabs" role="group" aria-label="Menu sections"></div>
+        <div class="dishes" id="dishes"></div>
+      </section>
+      <aside id="cart" aria-label="Your ticket"></aside>
+    </div>
+  </div>
+
+  <section id="tracker" class="tracker" hidden aria-labelledby="track-h"></section>
+
+  <footer>
+    <div class="checker" aria-hidden="true"></div>
+    <div class="route-strip">KETTLE ON &middot; CUTTING &middot; MASALA &middot; IRANI &middot; ALL STOPS TO YOUR TABLE</div>
+    <p class="fine">No payment needed here &middot; settle at the counter &middot; Brewed in Bombay</p>
+  </footer>
+</div>
+
+<div class="bar" id="bar"><span id="bar-text"></span><a href="#cart">View ticket</a></div>
+<div class="sr-only" id="live" aria-live="polite"></div>
+
+<noscript><p class="note" style="padding:20px">Ordering needs JavaScript. Please order at the counter.</p></noscript>
+<script src="js/menu.js"></script>
+<script src="js/order.js"></script>
+</body>
+</html>

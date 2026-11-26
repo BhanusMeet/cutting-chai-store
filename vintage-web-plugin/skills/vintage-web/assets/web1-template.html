@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Welcome to My Homepage!</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --desk: #008080;
+    --face: #c0c0c0;
+    --hi: #ffffff;
+    --lo: #404040;
+    --mid: #808080;
+    --ink: #000000;
+    --pixel: "Press Start 2P", "Courier New", monospace;
+    --term: "VT323", "Courier New", monospace;
+    --body: "Times New Roman", Times, serif;
+  }
+  * { border-radius: 0; box-sizing: border-box; }
+  body {
+    margin: 0; padding: 12px;
+    background: var(--desk);
+    color: var(--ink);
+    font: 16px/1.4 var(--body);
+  }
+
+  /* classic links */
+  a:link    { color: #0000ee; }
+  a:visited { color: #551a8b; }
+  a:hover   { color: #ff0000; background: #ffff00; }
+  a:active  { color: #ff0000; }
+  a:focus-visible { outline: 1px dotted #000; outline-offset: 2px; }
+
+  /* CRT scanlines: fixed, subtle, never blocks clicks */
+  body::after {
+    content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 99;
+    background: repeating-linear-gradient(to bottom, rgba(0,0,0,.06) 0 1px, transparent 1px 3px);
+  }
+
+  /* bevels */
+  .raised { background: var(--face); border: 2px solid; border-color: var(--hi) var(--lo) var(--lo) var(--hi);
+            box-shadow: inset -1px -1px 0 var(--mid), inset 1px 1px 0 #dfdfdf; }
+  .sunken { background: #fff; border: 2px solid; border-color: var(--lo) var(--hi) var(--hi) var(--lo);
+            box-shadow: inset 1px 1px 0 var(--mid); }
+
+  .btn {
+    font: 14px var(--pixel); color: var(--ink); padding: 8px 12px; cursor: pointer;
+    background: var(--face); border: 2px solid; border-color: var(--hi) var(--lo) var(--lo) var(--hi);
+    box-shadow: inset -1px -1px 0 var(--mid), inset 1px 1px 0 #dfdfdf; text-decoration: none; display: inline-block;
+  }
+  .btn:active { border-color: var(--lo) var(--hi) var(--hi) var(--lo); padding: 9px 11px 7px 13px; }
+  .btn:focus-visible { outline: 1px dotted #000; outline-offset: -5px; }
+
+  .frame { width: 100%; max-width: 860px; margin: 0 auto; border-collapse: separate; border-spacing: 4px; }
+  .frame > tbody > tr > td { vertical-align: top; padding: 10px; }
+  .banner { text-align: center; background: #000080; color: #ffff00; padding: 14px 8px; }
+  .banner h1 { margin: 0; font: 22px/1.5 var(--pixel); letter-spacing: 1px; }
+  .banner p { margin: 6px 0 0; font: 22px var(--term); color: #00ffff; }
+
+  h2 { font: 13px/1.6 var(--pixel); margin: 0 0 8px; background: #000080; color: #fff; padding: 6px 8px; }
+  nav ul { list-style: none; margin: 0; padding: 0; }
+  nav li { margin: 0 0 6px; }
+  nav .btn { width: 100%; font-size: 11px; }
+
+  /* marquee ticker */
+  .ticker { background: #000; color: #00ff00; font: 24px var(--term); overflow: hidden; white-space: nowrap; padding: 2px 0; }
+  .ticker span { display: inline-block; padding-left: 100%; animation: scroll 22s steps(160) infinite; }
+  @keyframes scroll { to { transform: translateX(-100%); } }
+
+  .counter { display: inline-block; background: #000; color: #00ff00; font: 22px var(--term); letter-spacing: 3px; padding: 2px 8px; }
+  .new { background: #ff00ff; color: #ffff00; font: 9px var(--pixel); padding: 2px 4px; animation: blink 1s steps(1) infinite; }
+  @keyframes blink { 50% { visibility: hidden; } }
+  .construction { background: #ffff00; border: 3px solid #000; text-align: center; font: 11px/1.6 var(--pixel); padding: 8px; }
+  hr { border: 0; border-top: 2px solid var(--mid); border-bottom: 2px solid var(--hi); margin: 14px 0; }
+  .webring { text-align: center; font: 18px var(--term); }
+  footer { text-align: center; font-size: 13px; }
+  input[type=text], textarea { font: 18px var(--term); width: 100%; padding: 4px; margin-bottom: 6px; }
+
+  @media (max-width: 640px) {
+    .frame, .frame > tbody, .frame > tbody > tr, .frame > tbody > tr > td { display: block; width: 100% !important; }
+    .banner h1 { font-size: 15px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .ticker span { animation: none; padding-left: 0; white-space: normal; }
+    .new { animation: none; }
+  }
+</style>
+</head>
+<body>
+
+<table class="frame raised" role="presentation">
+  <tr>
+    <td colspan="3" class="banner">
+      <h1>~* Welcome to My Homepage *~</h1>
+      <p>Your guide to the Information Superhighway since 1997!</p>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3" style="padding:4px">
+      <div class="sunken ticker" aria-label="News ticker"><span>*** NEW!!! Page redesigned for 800x600 *** Sign my guestbook *** Webmaster is online (probably) *** Thanks for visiting! ***</span></div>
+    </td>
+  </tr>
+  <tr>
+    <td class="sunken" width="150">
+      <h2>MENU</h2>
+      <nav aria-label="Main">
+        <ul>
+          <li><a class="btn" href="#home">Home</a></li>
+          <li><a class="btn" href="#about">About Me</a></li>
+          <li><a class="btn" href="#links">Cool Links</a></li>
+          <li><a class="btn" href="#guestbook">Guestbook</a></li>
+        </ul>
+      </nav>
+      <hr>
+      <p style="font-size:13px">You are visitor number:</p>
+      <div class="counter" aria-label="Visitor count 000142">000142</div>
+    </td>
+    <td class="sunken" id="home">
+      <h2>WHAT'S NEW <span class="new">NEW!</span></h2>
+      <p>Hello and welcome! This site is <b>hand-coded</b> in Notepad. Please look around and visit the <a href="#links">links page</a>. Visit the <a href="https://example.com/">old homepage</a> to see how far we have come.</p>
+      <div class="construction">UNDER CONSTRUCTION<br>Pardon our dust!</div>
+      <hr>
+      <h2 id="about">ABOUT ME</h2>
+      <p>I like computers, music and long walks on the World Wide Web. Email me, I answer every message!</p>
+    </td>
+    <td class="sunken" width="170" id="guestbook">
+      <h2>GUESTBOOK</h2>
+      <form onsubmit="return false">
+        <label for="n" style="font-size:13px">Your name:</label>
+        <input id="n" type="text">
+        <label for="m" style="font-size:13px">Message:</label>
+        <textarea id="m" rows="4"></textarea>
+        <button class="btn" type="submit">SIGN IT!</button>
+      </form>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3" class="sunken" id="links">
+      <div class="webring">&lt;&lt; Prev | Random | Next &gt;&gt; &nbsp; Member of the Cool Sites Webring</div>
+    </td>
+  </tr>
+  <tr>
+    <td colspan="3">
+      <footer>Best viewed with Netscape Navigator 4.0 at 800x600.<br>Last updated: 24 Nov 2026. Webmaster: <a href="mailto:webmaster@example.com">webmaster</a></footer>
+    </td>
+  </tr>
+</table>
+
+</body>
+</html>

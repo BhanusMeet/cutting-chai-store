@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #faf9f5;
+      --surface: #ffffff;
+      --border: #e8e6dc;
+      --text: #141413;
+      --text-muted: #b0aea5;
+      --accent: #d97757;
+      --accent-hover: #c4613f;
+      --green: #788c5d;
+      --green-bg: #eef2e8;
+      --red: #c44;
+      --red-bg: #fceaea;
+      --header-bg: #141413;
+      --header-text: #faf9f5;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .header .instructions {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    .header .progress {
+      font-size: 0.875rem;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* ---- Main content ---- */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- Sections ---- */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+    .section-header {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .section-body {
+      padding: 1rem;
+    }
+
+    /* ---- Config badge ---- */
+    .config-badge {
+      display: inline-block;
+      padding: 0.2rem 0.625rem;
+      border-radius: 9999px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+    }
+    .config-badge.config-primary {
+      background: rgba(33, 150, 243, 0.12);
+      color: #1976d2;
+    }
+    .config-badge.config-baseline {
+      background: rgba(255, 193, 7, 0.15);
+      color: #f57f17;
+    }
+
+    /* ---- Prompt ---- */
+    .prompt-text {
+      white-space: pre-wrap;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    /* ---- Outputs ---- */
+    .output-file {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .output-file + .output-file {
+      margin-top: 1rem;
+    }
+    .output-file-header {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-file-header .dl-btn {
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    .output-file-header .dl-btn:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .output-file-content {
+      padding: 0.75rem;
+      overflow-x: auto;
+    }
+    .output-file-content pre {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    .output-file-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .output-file-content iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .output-file-content table {
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      width: 100%;
+    }
+    .output-file-content table td,
+    .output-file-content table th {
+      border: 1px solid var(--border);
+      padding: 0.375rem 0.5rem;
+      text-align: left;
+    }
+    .output-file-content table th {
+      background: var(--bg);
+      font-weight: 600;
+    }
+    .output-file-content .download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    .output-file-content .download-link:hover {
+      background: var(--border);
+    }
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ---- Feedback ---- */
+    .prev-feedback {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.625rem 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .prev-feedback-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+    .feedback-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      resize: vertical;
+      color: var(--text);
+    }
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .feedback-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      min-height: 1.1em;
+    }
+
+    /* ---- Grades (collapsible) ---- */
+    .grades-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .grades-toggle:hover {
+      color: var(--accent);
+    }
+    .grades-toggle .arrow {
+      margin-right: 0.5rem;
+      transition: transform 0.15s;
+      font-size: 0.75rem;
+    }
+    .grades-toggle .arrow.open {
+      transform: rotate(90deg);
+    }
+    .grades-content {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .grades-content.open {
+      display: block;
+    }
+    .grades-summary {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .grade-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .grade-pass { background: var(--green-bg); color: var(--green); }
+    .grade-fail { background: var(--red-bg); color: var(--red); }
+    .assertion-list {
+      list-style: none;
+    }
+    .assertion-item {
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+    .assertion-item:last-child { border-bottom: none; }
+    .assertion-status {
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .assertion-status.pass { color: var(--green); }
+    .assertion-status.fail { color: var(--red); }
+    .assertion-evidence {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      padding-left: 1.5rem;
+    }
+
+    /* ---- View tabs ---- */
+    .view-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .view-tab {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+    /* ---- Benchmark view ---- */
+    .benchmark-view {
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .benchmark-table {
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .benchmark-table th, .benchmark-table td {
+      padding: 0.625rem 0.75rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .benchmark-table th {
+      font-family: 'Poppins', sans-serif;
+      background: var(--header-bg);
+      color: var(--header-text);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .benchmark-table tr:hover { background: var(--bg); }
+    .benchmark-table tr.benchmark-row-with { background: rgba(33, 150, 243, 0.06); }
+    .benchmark-table tr.benchmark-row-without { background: rgba(255, 193, 7, 0.06); }
+    .benchmark-table tr.benchmark-row-with:hover { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-without:hover { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-table tr.benchmark-row-avg { font-weight: 600; border-top: 2px solid var(--border); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-with { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-without { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-delta-positive { color: var(--green); font-weight: 600; }
+    .benchmark-delta-negative { color: var(--red); font-weight: 600; }
+    .benchmark-notes {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .benchmark-notes h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    .benchmark-notes ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+    .benchmark-notes li {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      margin-bottom: 0.375rem;
+    }
+    .benchmark-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* ---- Navigation ---- */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .done-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .done-btn:hover {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .done-btn.ready {
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .done-btn.ready:hover {
+      background: var(--accent-hover);
+    }
+    /* ---- Done overlay ---- */
+    .done-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .done-overlay.visible {
+      display: flex;
+    }
+    .done-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem 3rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+    }
+    .done-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .done-card p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .done-card .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .done-card button {
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .done-card button:hover {
+      background: var(--bg);
+    }
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .toast.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height:100vh; display:flex; flex-direction:column;">
+    <div class="header">
+      <div>
+        <h1>Eval Review: <span id="skill-name"></span></h1>
+        <div class="instructions">Review each output and leave feedback below. Navigate with arrow keys or buttons. When done, copy feedback and paste into Claude Code.</div>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- View tabs (only shown when benchmark data exists) -->
+    <div class="view-tabs" id="view-tabs" style="display:none;">
+      <button class="view-tab active" onclick="switchView('outputs')">Outputs</button>
+      <button class="view-tab" onclick="switchView('benchmark')">Benchmark</button>
+    </div>
+
+    <!-- Outputs panel (qualitative review) -->
+    <div class="view-panel active" id="panel-outputs">
+    <div class="main">
+      <!-- Prompt -->
+      <div class="section">
+        <div class="section-header">Prompt <span class="config-badge" id="config-badge" style="display:none;"></span></div>
+        <div class="section-body">
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+      </div>
+
+      <!-- Outputs -->
+      <div class="section">
+        <div class="section-header">Output</div>
+        <div class="section-body" id="outputs-body">
+          <div class="empty-state">No output files found</div>
+        </div>
+      </div>
+
+      <!-- Previous Output (collapsible) -->
+      <div class="section" id="prev-outputs-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="togglePrevOutputs()">
+            <span class="arrow" id="prev-outputs-arrow">&#9654;</span>
+            Previous Output
+          </div>
+        </div>
+        <div class="grades-content" id="prev-outputs-content"></div>
+      </div>
+
+      <!-- Grades (collapsible) -->
+      <div class="section" id="grades-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="toggleGrades()">
+            <span class="arrow" id="grades-arrow">&#9654;</span>
+            Formal Grades
+          </div>
+        </div>
+        <div class="grades-content" id="grades-content"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="section">
+        <div class="section-header">Your Feedback</div>
+        <div class="section-body">
+          <textarea
+            class="feedback-textarea"
+            id="feedback"
+            placeholder="What do you think of this output? Any issues, suggestions, or things that look great?"
+          ></textarea>
+          <div class="feedback-status" id="feedback-status"></div>
+          <div class="prev-feedback" id="prev-feedback" style="display:none;">
+            <div class="prev-feedback-label">Previous feedback</div>
+            <div id="prev-feedback-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav" id="outputs-nav">
+      <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">&#8592; Previous</button>
+      <button class="done-btn" id="done-btn" onclick="showDoneDialog()">Submit All Reviews</button>
+      <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next &#8594;</button>
+    </div>
+    </div><!-- end panel-outputs -->
+
+    <!-- Benchmark panel (quantitative stats) -->
+    <div class="view-panel" id="panel-benchmark">
+      <div class="benchmark-view" id="benchmark-content">
+        <div class="benchmark-empty">No benchmark data available. Run a benchmark to see quantitative results here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done overlay -->
+  <div class="done-overlay" id="done-overlay">
+    <div class="done-card">
+      <h2>Review Complete</h2>
+      <p>Your feedback has been saved. Go back to your Claude Code session and tell Claude you're done reviewing.</p>
+      <div class="btn-row">
+        <button onclick="closeDoneDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---- Embedded data (injected by generate_review.py) ----
+    const EMBEDDED_DATA = {"skill_name": "vintage-web", "runs": [{"id": "apothecary-heritage-with_skill", "prompt": "I need a vintage-style homepage for Holloway & Sons Apothecary, a family business since 1912. show a few products, our story, and a way to order. index.html please", "eval_id": null, "outputs": [{"name": "index.html", "type": "text", "content": "\u003c!DOCTYPE html>\n\u003chtml lang=\"en\">\n\u003chead>\n\u003cmeta charset=\"utf-8\">\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\u003ctitle>Holloway &amp; Sons Apothecary &mdash; Est. 1912\u003c/title>\n\u003clink rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n\u003clink href=\"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Libre+Baskerville:ital@0;1&family=Courier+Prime&display=swap\" rel=\"stylesheet\">\n\u003cstyle>\n  :root {\n    --paper: #F4ECD8;\n    --paper-dark: #EADFC4;\n    --ink: #2B2520;\n    --faded: #5A4E42;\n    --stamp: #9B2C20;\n    --display: \"Playfair Display\", Didot, Georgia, serif;\n    --text: \"Libre Baskerville\", Baskerville, Georgia, serif;\n    --type: \"Courier Prime\", \"Courier New\", monospace;\n  }\n  * { border-radius: 0; box-sizing: border-box; }\n  body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.65 var(--text); }\n\n  /* paper grain: felt, not seen */\n  body::before {\n    content: \"\"; position: fixed; inset: 0; pointer-events: none; z-index: 50;\n    mix-blend-mode: multiply; opacity: .45;\n    background-image: url(\"data:image/svg+xml;utf8,\u003csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'>\u003cfilter id='n' x='0' y='0' width='100%25' height='100%25'>\u003cfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/>\u003cfeColorMatrix values='0 0 0 0 0.17  0 0 0 0 0.15  0 0 0 0 0.12  0 0 0 0.55 0'/>\u003c/filter>\u003crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/>\u003c/svg>\");\n  }\n\n  a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 3px; }\n  a:hover { color: var(--stamp); }\n  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 2px solid var(--stamp); outline-offset: 3px; }\n\n  .sheet { max-width: 1080px; margin: 0 auto; padding: 28px 32px 40px; }\n\n  .dateline { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 16px;\n              font: 13px var(--type); letter-spacing: .15em; text-transform: uppercase;\n              border-top: 4px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 6px 0; }\n  .masthead { text-align: center; position: relative; padding: 18px 0 10px; border-bottom: 3px double var(--ink); }\n  .masthead h1 { margin: 0; font: 900 clamp(2.1rem, 7vw, 4.6rem)/1.02 var(--display); letter-spacing: .02em; text-transform: uppercase; }\n  .masthead .amp { font-style: italic; font-weight: 400; }\n  .masthead .motto { font: italic 400 1.05rem var(--display); color: var(--faded); margin: 6px 0 0; }\n  .masthead .stamp { position: absolute; right: 2%; top: 14px; }\n  nav.sections { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 28px; padding: 8px 0;\n                 border-bottom: 1px solid var(--ink); font-variant: small-caps; letter-spacing: .12em; font-size: 1.05rem; }\n  nav.sections a { text-decoration: none; }\n\n  .stamp { display: inline-block; border: 3px double var(--stamp); color: var(--stamp);\n           padding: .35rem .8rem; font: 700 .8rem var(--type); letter-spacing: .2em; text-transform: uppercase;\n           transform: rotate(-6deg); filter: url(#rough); mix-blend-mode: multiply; opacity: .88; }\n\n  section { padding-top: 8px; }\n  h2.head { font: 900 clamp(1.8rem, 4.5vw, 2.8rem)/1.08 var(--display); margin: 22px 0 6px; }\n  .deck { font: italic 400 1.2rem/1.4 var(--display); color: var(--faded); margin: 0 0 6px; }\n  .byline { font: 13px var(--type); letter-spacing: .15em; text-transform: uppercase; border-top: 1px solid var(--ink);\n            border-bottom: 1px solid var(--ink); padding: 4px 0; margin: 10px 0 18px; }\n  .columns { column-count: 3; column-gap: 2rem; column-rule: 1px solid var(--ink); text-align: justify; hyphens: auto; }\n  .columns p { margin: 0 0 1em; }\n  .columns.drop p:first-of-type::first-letter { float: left; font: 900 4.1rem/.82 var(--display); padding: 6px 8px 0 0; }\n  .columns h3 { font: 700 1.2rem var(--display); margin: 0 0 .4rem; text-align: left; font-variant: small-caps; letter-spacing: .06em; }\n  blockquote.pull { margin: 0 0 1em; padding: .6em 0; border-top: 3px double var(--ink); border-bottom: 3px double var(--ink);\n                    font: italic 700 1.3rem/1.35 var(--display); text-align: center; break-inside: avoid; }\n\n  figure { margin: 0 0 1em; break-inside: avoid; }\n  figure .photo { display: block; width: 100%; aspect-ratio: 4/3; background: var(--paper-dark); border: 1px solid var(--ink);\n                  outline: 6px solid var(--paper); filter: sepia(.5) contrast(1.05); }\n  figure .photo svg { display: block; width: 100%; height: 100%; }\n  figcaption { font: 12px/1.5 var(--type); letter-spacing: .08em; text-transform: uppercase; margin-top: 10px; color: var(--faded); }\n\n  /* catalogue plates */\n  .catalogue { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }\n  .plate { padding: 18px 22px 22px; border-right: 1px solid var(--ink); position: relative; }\n  .plate:last-child { border-right: 0; }\n  .plate .no { font: 12px var(--type); letter-spacing: .2em; text-transform: uppercase; color: var(--faded); }\n  .plate h3 { font: 700 1.35rem/1.15 var(--display); margin: 4px 0 2px; }\n  .plate .sub { font: italic 400 1rem var(--display); color: var(--faded); margin: 0 0 10px; }\n  .plate p { margin: 10px 0; font-size: .95rem; line-height: 1.55; }\n  .plate .price { font: 700 1.05rem var(--type); letter-spacing: .1em; border-top: 3px double var(--ink); padding-top: 8px; margin-top: 12px; }\n  .plate .status { display: inline-block; margin: 0; font: 700 .72rem var(--type); letter-spacing: .18em; text-transform: uppercase; color: var(--stamp); border: 1px solid var(--stamp); padding: 1px 8px; }\n\n  /* order form */\n  .order { display: grid; grid-template-columns: 1fr 1.3fr; gap: 0; border-top: 3px double var(--ink); border-bottom: 3px double var(--ink); }\n  .order .side { padding: 20px 28px 20px 0; border-right: 1px solid var(--ink); }\n  .order .side h3 { font: 700 1.3rem var(--display); font-variant: small-caps; letter-spacing: .06em; margin: 0 0 8px; }\n  .order .side ol { padding-left: 1.3em; margin: 0 0 14px; }\n  .order .side li { margin-bottom: 6px; }\n  .order form { padding: 20px 0 20px 28px; }\n  label { display: block; font: 12px var(--type); letter-spacing: .15em; text-transform: uppercase; margin: 0 0 4px; }\n  .field { margin-bottom: 14px; }\n  input[type=text], input[type=email], select, textarea { width: 100%; background: var(--paper-dark); color: var(--ink);\n      border: 1px solid var(--ink); border-bottom: 2px solid var(--ink); padding: .5rem .6rem; font: 16px var(--text); }\n  textarea { min-height: 80px; resize: vertical; }\n  .row { display: grid; grid-template-columns: 1fr 90px; gap: 14px; }\n  .btn { display: inline-block; background: transparent; color: var(--ink); border: 2px solid var(--ink); padding: .55rem 1.1rem;\n         font: 700 .85rem var(--type); letter-spacing: .15em; text-transform: uppercase; text-decoration: none; cursor: pointer; }\n  .btn:hover { background: var(--ink); color: var(--paper); }\n  .notice { border-top: 3px double var(--ink); border-bottom: 1px solid var(--ink); padding: 8px 0 12px; margin-top: 18px; font-size: .92rem; }\n  .notice h4 { margin: 0 0 4px; font: 700 1rem var(--display); font-variant: small-caps; letter-spacing: .08em; }\n\n  .ornament { text-align: center; letter-spacing: .8em; color: var(--faded); margin: 26px 0; }\n  footer { border-top: 3px double var(--ink); padding-top: 12px; font: 12px/1.7 var(--type); letter-spacing: .12em; text-transform: uppercase; text-align: center; color: var(--faded); }\n\n  @media (max-width: 900px) {\n    .columns { column-count: 2; }\n    .catalogue { grid-template-columns: 1fr; }\n    .plate { border-right: 0; border-bottom: 1px solid var(--ink); }\n    .plate:last-child { border-bottom: 0; }\n  }\n  @media (max-width: 700px) {\n    .order { grid-template-columns: 1fr; }\n    .order .side { border-right: 0; border-bottom: 1px solid var(--ink); padding-right: 0; }\n    .order form { padding-left: 0; }\n  }\n  @media (max-width: 600px) {\n    .sheet { padding: 16px; }\n    .columns { column-count: 1; column-rule: none; }\n    .masthead .stamp { position: static; margin-top: 10px; }\n  }\n\u003c/style>\n\u003c/head>\n\u003cbody>\n\n\u003csvg width=\"0\" height=\"0\" style=\"position:absolute\" aria-hidden=\"true\" focusable=\"false\">\n  \u003cfilter id=\"rough\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\">\n    \u003cfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.05\" numOctaves=\"2\" seed=\"4\" result=\"t\"/>\n    \u003cfeDisplacementMap in=\"SourceGraphic\" in2=\"t\" scale=\"2.6\"/>\n  \u003c/filter>\n\u003c/svg>\n\n\u003cdiv class=\"sheet\">\n  \u003cdiv class=\"dateline\">\n    \u003cspan>Third Generation &middot; Family Owned\u003c/span>\n    \u003cspan>Compounded on the Premises\u003c/span>\n    \u003cspan>Open Monday to Saturday\u003c/span>\n  \u003c/div>\n\n  \u003cheader class=\"masthead\">\n    \u003ch1>Holloway \u003cspan class=\"amp\">&amp;\u003c/span> Sons\u003c/h1>\n    \u003cp class=\"motto\">&ldquo;Apothecaries &amp; Purveyors of Honest Remedies Since 1912&rdquo;\u003c/p>\n    \u003cspan class=\"stamp\">Est. 1912\u003c/span>\n  \u003c/header>\n\n  \u003cnav class=\"sections\" aria-label=\"Sections\">\n    \u003ca href=\"#goods\">Goods &amp; Wares\u003c/a>\u003ca href=\"#story\">Our Story\u003c/a>\u003ca href=\"#order\">Place an Order\u003c/a>\u003ca href=\"#house\">The House\u003c/a>\n  \u003c/nav>\n\n  \u003cmain>\n    \u003csection id=\"goods\">\n      \u003ch2 class=\"head\">Goods &amp; Wares of the Season\u003c/h2>\n      \u003cp class=\"deck\">Three favourites from the dispensary, made up in small batches to the old recipes.\u003c/p>\n      \u003cp class=\"byline\">Catalogue &sect; I &middot; Prices in Dollars, Carriage Extra\u003c/p>\n\n      \u003cdiv class=\"catalogue\">\n        \u003carticle class=\"plate\">\n          \u003cspan class=\"no\">Plate No. 1\u003c/span>\n          \u003ch3>Holloway&rsquo;s Chest Balsam\u003c/h3>\n          \u003cp class=\"sub\">For the winter cough\u003c/p>\n          \u003cfigure>\n            \u003cdiv class=\"photo\" role=\"img\" aria-label=\"Engraved illustration of an amber glass bottle with a cork stopper\">\n              \u003csvg viewBox=\"0 0 200 150\" aria-hidden=\"true\">\u003crect x=\"82\" y=\"22\" width=\"36\" height=\"16\" fill=\"#5A4E42\"/>\u003crect x=\"88\" y=\"38\" width=\"24\" height=\"16\" fill=\"#2B2520\"/>\u003cpath d=\"M88 54 L62 80 V132 H138 V80 L112 54 Z\" fill=\"#A8863B\" stroke=\"#2B2520\" stroke-width=\"3\"/>\u003crect x=\"72\" y=\"88\" width=\"56\" height=\"34\" fill=\"#F4ECD8\" stroke=\"#2B2520\" stroke-width=\"2\"/>\u003cline x1=\"78\" y1=\"100\" x2=\"122\" y2=\"100\" stroke=\"#2B2520\" stroke-width=\"2\"/>\u003cline x1=\"78\" y1=\"108\" x2=\"122\" y2=\"108\" stroke=\"#2B2520\" stroke-width=\"1\"/>\u003c/svg>\n            \u003c/div>\n            \u003cfigcaption>Fig. 1 &mdash; Four-ounce bottle, hand labelled.\u003c/figcaption>\n          \u003c/figure>\n          \u003cp>Honey, horehound and black cherry bark, steeped slowly and sealed under cork. A spoonful soothes the throat and settles the night.\u003c/p>\n          \u003cp class=\"status\">In Stock\u003c/p>\n          \u003cp class=\"price\">$14.00 &middot; 4 fl. oz.\u003c/p>\n        \u003c/article>\n\n        \u003carticle class=\"plate\">\n          \u003cspan class=\"no\">Plate No. 2\u003c/span>\n          \u003ch3>Lavender &amp; Clove Salve\u003c/h3>\n          \u003cp class=\"sub\">For tired hands and aching joints\u003c/p>\n          \u003cfigure>\n            \u003cdiv class=\"photo\" role=\"img\" aria-label=\"Engraved illustration of a round tin with a lid and a sprig of lavender\">\n              \u003csvg viewBox=\"0 0 200 150\" aria-hidden=\"true\">\u003crect x=\"50\" y=\"62\" width=\"100\" height=\"14\" fill=\"#2B2520\"/>\u003crect x=\"54\" y=\"76\" width=\"92\" height=\"44\" fill=\"#A8863B\" stroke=\"#2B2520\" stroke-width=\"3\"/>\u003crect x=\"62\" y=\"88\" width=\"76\" height=\"20\" fill=\"#F4ECD8\" stroke=\"#2B2520\" stroke-width=\"2\"/>\u003cline x1=\"170\" y1=\"130\" x2=\"170\" y2=\"60\" stroke=\"#2B2520\" stroke-width=\"3\"/>\u003crect x=\"166\" y=\"46\" width=\"8\" height=\"10\" fill=\"#2F4A5C\"/>\u003crect x=\"166\" y=\"34\" width=\"8\" height=\"10\" fill=\"#2F4A5C\"/>\u003crect x=\"166\" y=\"22\" width=\"8\" height=\"10\" fill=\"#2F4A5C\"/>\u003c/svg>\n            \u003c/div>\n            \u003cfigcaption>Fig. 2 &mdash; Tin of one ounce, with lavender sprig.\u003c/figcaption>\n          \u003c/figure>\n          \u003cp>Beeswax, almond oil and a measure of clove, worked by hand into a firm, fragrant salve. Favoured by gardeners, bakers and grandmothers alike.\u003c/p>\n          \u003cp class=\"status\">In Stock\u003c/p>\n          \u003cp class=\"price\">$9.50 &middot; 1 oz. tin\u003c/p>\n        \u003c/article>\n\n        \u003carticle class=\"plate\">\n          \u003cspan class=\"no\">Plate No. 3\u003c/span>\n          \u003ch3>Founder&rsquo;s Digestive Bitters\u003c/h3>\n          \u003cp class=\"sub\">After the heavy supper\u003c/p>\n          \u003cfigure>\n            \u003cdiv class=\"photo\" role=\"img\" aria-label=\"Engraved illustration of a tall dark bottle with a long neck and label\">\n              \u003csvg viewBox=\"0 0 200 150\" aria-hidden=\"true\">\u003crect x=\"92\" y=\"10\" width=\"16\" height=\"12\" fill=\"#5A4E42\"/>\u003cpath d=\"M94 22 H106 V60 L124 76 V136 H76 V76 L94 60 Z\" fill=\"#2F4A5C\" stroke=\"#2B2520\" stroke-width=\"3\"/>\u003crect x=\"82\" y=\"84\" width=\"36\" height=\"40\" fill=\"#F4ECD8\" stroke=\"#2B2520\" stroke-width=\"2\"/>\u003cline x1=\"87\" y1=\"96\" x2=\"113\" y2=\"96\" stroke=\"#2B2520\" stroke-width=\"2\"/>\u003cline x1=\"87\" y1=\"104\" x2=\"113\" y2=\"104\" stroke=\"#2B2520\" stroke-width=\"1\"/>\u003cline x1=\"87\" y1=\"110\" x2=\"113\" y2=\"110\" stroke=\"#2B2520\" stroke-width=\"1\"/>\u003c/svg>\n            \u003c/div>\n            \u003cfigcaption>Fig. 3 &mdash; Eight-ounce bottle, the founder&rsquo;s recipe.\u003c/figcaption>\n          \u003c/figure>\n          \u003cp>Gentian, orange peel and dandelion root, first set down by Josiah Holloway in 1912 and never improved upon. Taken in water before or after dining.\u003c/p>\n          \u003cp class=\"status\">Limited &middot; Small Batch\u003c/p>\n          \u003cp class=\"price\">$18.00 &middot; 8 fl. oz.\u003c/p>\n        \u003c/article>\n      \u003c/div>\n    \u003c/section>\n\n    \u003cp class=\"ornament\" aria-hidden=\"true\">&#10086; &#10086; &#10086;\u003c/p>\n\n    \u003csection id=\"story\">\n      \u003ch2 class=\"head\">A Family Trade, Handed Down Since 1912\u003c/h2>\n      \u003cp class=\"deck\">Three generations behind one counter, and not a single recipe forgotten.\u003c/p>\n      \u003cp class=\"byline\">Our Story &middot; By the Proprietors\u003c/p>\n\n      \u003cdiv class=\"columns drop\">\n        \u003cp>In the spring of 1912, Josiah Holloway hung a green and gold sign above a narrow shopfront on Mercer Street and opened his dispensary to a town that needed one. He kept a ledger, a set of brass scales and a firm belief that a remedy ought to be made by someone who would look you in the eye the next morning.\u003c/p>\n        \u003cp>His son Edmund came to the counter in 1938, after the lean years, and with him came the shelves of amber glass that still line the back wall. Through two wars and a good many hard winters, the shop never closed its door to a neighbour in need, whether or not the neighbour could pay that week.\u003c/p>\n        \u003cblockquote class=\"pull\">&ldquo;A remedy ought to be made by someone who will look you in the eye.&rdquo;\u003c/blockquote>\n        \u003cp>Today the third generation, Margaret and Thomas Holloway, work the same oak counter and the same brass scales. The recipes are written in the original ledger, and we follow them to the grain. We have added a few things over the years, but we have taken nothing away.\u003c/p>\n        \u003cp>Everything we sell is compounded in small batches on the premises, bottled by hand, and labelled in our own writing. We use honest ingredients, we say plainly what is in every jar, and we answer for every one we sell.\u003c/p>\n        \u003cfigure>\n          \u003cdiv class=\"photo\" role=\"img\" aria-label=\"Photograph of the apothecary shop interior with shelves of glass bottles and a long wooden counter\">\n            \u003csvg viewBox=\"0 0 200 150\" aria-hidden=\"true\">\u003crect x=\"0\" y=\"0\" width=\"200\" height=\"150\" fill=\"#EADFC4\"/>\u003crect x=\"10\" y=\"14\" width=\"180\" height=\"4\" fill=\"#2B2520\"/>\u003crect x=\"10\" y=\"50\" width=\"180\" height=\"4\" fill=\"#2B2520\"/>\u003crect x=\"10\" y=\"86\" width=\"180\" height=\"4\" fill=\"#2B2520\"/>\u003cg fill=\"#A8863B\" stroke=\"#2B2520\" stroke-width=\"1.5\">\u003crect x=\"20\" y=\"2\" width=\"14\" height=\"12\"/>\u003crect x=\"42\" y=\"4\" width=\"12\" height=\"10\"/>\u003crect x=\"64\" y=\"1\" width=\"16\" height=\"13\"/>\u003crect x=\"92\" y=\"4\" width=\"12\" height=\"10\"/>\u003crect x=\"116\" y=\"2\" width=\"14\" height=\"12\"/>\u003crect x=\"146\" y=\"4\" width=\"12\" height=\"10\"/>\u003crect x=\"168\" y=\"2\" width=\"14\" height=\"12\"/>\u003c/g>\u003cg fill=\"#2F4A5C\" stroke=\"#2B2520\" stroke-width=\"1.5\">\u003crect x=\"24\" y=\"38\" width=\"12\" height=\"12\"/>\u003crect x=\"50\" y=\"36\" width=\"16\" height=\"14\"/>\u003crect x=\"82\" y=\"38\" width=\"12\" height=\"12\"/>\u003crect x=\"108\" y=\"36\" width=\"14\" height=\"14\"/>\u003crect x=\"140\" y=\"38\" width=\"12\" height=\"12\"/>\u003crect x=\"166\" y=\"36\" width=\"16\" height=\"14\"/>\u003c/g>\u003cg fill=\"#9B2C20\" stroke=\"#2B2520\" stroke-width=\"1.5\">\u003crect x=\"22\" y=\"74\" width=\"14\" height=\"12\"/>\u003crect x=\"60\" y=\"72\" width=\"12\" height=\"14\"/>\u003crect x=\"96\" y=\"74\" width=\"16\" height=\"12\"/>\u003crect x=\"130\" y=\"72\" width=\"12\" height=\"14\"/>\u003crect x=\"162\" y=\"74\" width=\"14\" height=\"12\"/>\u003c/g>\u003crect x=\"0\" y=\"112\" width=\"200\" height=\"38\" fill=\"#5A4E42\"/>\u003crect x=\"0\" y=\"108\" width=\"200\" height=\"6\" fill=\"#2B2520\"/>\u003c/svg>\n          \u003c/div>\n          \u003cfigcaption>Fig. 4 &mdash; The dispensary, Mercer Street.\u003c/figcaption>\n        \u003c/figure>\n      \u003c/div>\n    \u003c/section>\n\n    \u003cp class=\"ornament\" aria-hidden=\"true\">&#10086; &#10086; &#10086;\u003c/p>\n\n    \u003csection id=\"order\">\n      \u003ch2 class=\"head\">Place an Order\u003c/h2>\n      \u003cp class=\"deck\">By post, by telephone, or by the form below. We pack every parcel ourselves.\u003c/p>\n      \u003cp class=\"byline\">Order Desk &sect; II &middot; Dispatched Within Three Working Days\u003c/p>\n\n      \u003cdiv class=\"order\">\n        \u003cdiv class=\"side\">\n          \u003ch3>How to Order\u003c/h3>\n          \u003col>\n            \u003cli>Choose your goods from the catalogue above.\u003c/li>\n            \u003cli>Fill in the form, or telephone the shop during opening hours.\u003c/li>\n            \u003cli>We confirm your order by letter or email, with the carriage charge.\u003c/li>\n            \u003cli>Payment is taken upon confirmation. Your parcel follows promptly.\u003c/li>\n          \u003c/ol>\n          \u003cp>\u003cstrong>By telephone:\u003c/strong>\u003cbr>(555) 014-1912\u003cbr>\u003cstrong>By post:\u003c/strong>\u003cbr>14 Mercer Street, Old Town\u003c/p>\n          \u003caside class=\"notice\">\n            \u003ch4>Notice\u003c/h4>\n            \u003cp>Our remedies are traditional preparations and are not intended to diagnose or cure illness. Consult your physician where in doubt.\u003c/p>\n          \u003c/aside>\n        \u003c/div>\n\n        \u003cform action=\"mailto:orders@hollowayandsons.example\" method=\"post\" enctype=\"text/plain\">\n          \u003cdiv class=\"field\">\n            \u003clabel for=\"name\">Your Name\u003c/label>\n            \u003cinput type=\"text\" id=\"name\" name=\"name\" required autocomplete=\"name\">\n          \u003c/div>\n          \u003cdiv class=\"field\">\n            \u003clabel for=\"email\">Email Address\u003c/label>\n            \u003cinput type=\"email\" id=\"email\" name=\"email\" required autocomplete=\"email\">\n          \u003c/div>\n          \u003cdiv class=\"row\">\n            \u003cdiv class=\"field\">\n              \u003clabel for=\"item\">Goods Desired\u003c/label>\n              \u003cselect id=\"item\" name=\"item\">\n                \u003coption>Holloway&rsquo;s Chest Balsam &mdash; $14.00\u003c/option>\n                \u003coption>Lavender &amp; Clove Salve &mdash; $9.50\u003c/option>\n                \u003coption>Founder&rsquo;s Digestive Bitters &mdash; $18.00\u003c/option>\n              \u003c/select>\n            \u003c/div>\n            \u003cdiv class=\"field\">\n              \u003clabel for=\"qty\">Qty.\u003c/label>\n              \u003cinput type=\"text\" id=\"qty\" name=\"quantity\" value=\"1\" inputmode=\"numeric\">\n            \u003c/div>\n          \u003c/div>\n          \u003cdiv class=\"field\">\n            \u003clabel for=\"addr\">Delivery Address &amp; Remarks\u003c/label>\n            \u003ctextarea id=\"addr\" name=\"address\">\u003c/textarea>\n          \u003c/div>\n          \u003cbutton class=\"btn\" type=\"submit\">Send the Order\u003c/button>\n        \u003c/form>\n      \u003c/div>\n    \u003c/section>\n\n    \u003cp class=\"ornament\" aria-hidden=\"true\">&#10086; &#10086; &#10086;\u003c/p>\n  \u003c/main>\n\n  \u003cfooter id=\"house\">\n    Holloway &amp; Sons Apothecary &middot; 14 Mercer Street, Old Town &middot; Monday to Saturday, 9 till 6\u003cbr>\n    Set in Playfair Display &amp; Libre Baskerville &middot; Printed on the premises\u003cbr>\n    &copy; 1912&ndash;2026 Holloway &amp; Sons &middot; All rights reserved\n  \u003c/footer>\n\u003c/div>\n\n\u003c/body>\n\u003c/html>\n"}], "grading": {"expectations": [{"text": "index.html contains no gradients, no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": true, "evidence": "no violations"}, {"text": "index.html uses #F4ECD8 as the page background and #2B2520 as the text color", "passed": true, "evidence": "all of #F4ECD8 and #2B2520 present"}, {"text": "index.html uses Playfair Display (or a Didot/Georgia serif) for headings and Courier for typewriter details", "passed": true, "evidence": "all of serif display + Courier present"}, {"text": "index.html overlays a paper grain texture made with an SVG filter (feTurbulence)", "passed": true, "evidence": "found 'feTurbulence'"}, {"text": "index.html includes at least one stamp-style badge (double border, rotated, uppercase)", "passed": true, "evidence": "all of stamp + rotation present"}, {"text": "index.html presents text in multi-column print-style layout with column rules", "passed": true, "evidence": "found 'column-count'"}], "summary": {"passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0}}}, {"id": "apothecary-heritage-without_skill", "prompt": "I need a vintage-style homepage for Holloway & Sons Apothecary, a family business since 1912. show a few products, our story, and a way to order. index.html please", "eval_id": null, "outputs": [{"name": "index.html", "type": "text", "content": "\u003c!DOCTYPE html>\n\u003chtml lang=\"en\">\n\u003chead>\n\u003cmeta charset=\"utf-8\">\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\u003ctitle>Holloway &amp; Sons Apothecary \u00e2\u20ac\u201d Est. 1912\u003c/title>\n\u003cmeta name=\"description\" content=\"Holloway & Sons Apothecary: tonics, salves and remedies, compounded by one family since 1912.\">\n\u003clink rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n\u003clink rel=\"preconnect\" href=\"https://fonts.gstatic.com\" crossorigin>\n\u003clink href=\"https://fonts.googleapis.com/css2?family=IM+Fell+English:ital@0;1&family=Playfair+Display:wght@500;700;900&family=Special+Elite&display=swap\" rel=\"stylesheet\">\n\u003cstyle>\n:root{\n  --paper:#f1e6cc; --paper-deep:#e6d6b0; --ink:#2b1d12; --ink-soft:#5a4430;\n  --green:#2f4a3a; --green-deep:#1f3327; --brass:#9c7a2e; --wine:#7a2a22;\n}\n*{box-sizing:border-box;margin:0;padding:0}\nhtml{scroll-behavior:smooth}\nbody{\n  background:var(--paper);\n  background-image:\n    radial-gradient(ellipse at top,rgba(255,250,235,.6),transparent 60%),\n    repeating-linear-gradient(0deg,rgba(90,68,48,.03) 0 2px,transparent 2px 4px);\n  color:var(--ink);\n  font-family:'IM Fell English',Georgia,serif;\n  font-size:1.15rem;line-height:1.7;\n}\nh1,h2,h3{font-family:'Playfair Display',Georgia,serif;line-height:1.15;color:var(--green-deep)}\na{color:inherit}\n.wrap{max-width:1050px;margin:0 auto;padding:0 24px}\n.rule{height:12px;border:0;border-top:3px double var(--brass);border-bottom:1px solid var(--brass);margin:0}\n.orn{text-align:center;color:var(--brass);letter-spacing:.6em;font-size:1.1rem;margin:.4rem 0}\n\n/* nav */\nnav{background:var(--green-deep);color:var(--paper);border-bottom:4px solid var(--brass);position:sticky;top:0;z-index:10}\nnav .wrap{display:flex;justify-content:space-between;align-items:center;flex-wrap:wrap;gap:8px;padding-top:12px;padding-bottom:12px}\nnav .mark{font-family:'Playfair Display',serif;font-weight:700;font-size:1.15rem;letter-spacing:.04em}\nnav ul{list-style:none;display:flex;gap:22px;flex-wrap:wrap}\nnav a{text-decoration:none;font-variant:small-caps;letter-spacing:.12em;font-size:1.05rem}\nnav a:hover,nav a:focus-visible{color:#e6c46a;outline:none;text-decoration:underline}\n\n/* hero */\nheader.hero{text-align:center;padding:64px 0 48px}\n.frame{border:3px double var(--green);outline:1px solid var(--brass);outline-offset:6px;padding:48px 28px;background:rgba(255,250,235,.45);margin:8px}\n.est{font-family:'Special Elite',monospace;letter-spacing:.35em;text-transform:uppercase;font-size:.85rem;color:var(--wine)}\n.hero h1{font-size:clamp(2.4rem,7vw,4.8rem);font-weight:900;margin:.4rem 0;letter-spacing:.02em}\n.hero h1 em{font-style:italic;font-weight:500;color:var(--wine);font-size:.6em;display:block}\n.tag{font-style:italic;font-size:1.35rem;color:var(--ink-soft);max-width:34ch;margin:1rem auto 1.8rem}\n.btn{display:inline-block;background:var(--green);color:var(--paper);padding:.8rem 2rem;text-decoration:none;font-variant:small-caps;letter-spacing:.14em;font-size:1.15rem;border:2px solid var(--green-deep);box-shadow:0 0 0 3px var(--paper),0 0 0 4px var(--brass);cursor:pointer;font-family:inherit;transition:background .2s}\n.btn:hover,.btn:focus-visible{background:var(--wine);outline:none}\n\nsection{padding:64px 0}\n.title{text-align:center;margin-bottom:40px}\n.title h2{font-size:clamp(1.9rem,4vw,2.8rem)}\n.title p{font-style:italic;color:var(--ink-soft)}\n\n/* products */\n.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(250px,1fr));gap:28px}\n.label{background:var(--paper-deep);border:2px solid var(--ink);outline:1px solid var(--ink);outline-offset:-8px;padding:30px 24px;text-align:center;box-shadow:5px 5px 0 rgba(43,29,18,.2);display:flex;flex-direction:column}\n.label svg{width:70px;height:90px;margin:0 auto 10px}\n.label h3{font-size:1.4rem}\n.label .sub{font-family:'Special Elite',monospace;font-size:.75rem;letter-spacing:.2em;text-transform:uppercase;color:var(--wine);margin:.3rem 0 .8rem}\n.label p{font-size:1.02rem;flex:1}\n.price{font-family:'Playfair Display',serif;font-weight:700;font-size:1.4rem;margin-top:14px;color:var(--green-deep)}\n\n/* story */\n.story{background:var(--green-deep);color:var(--paper)}\n.story h2{color:#e6c46a}\n.story .cols{display:grid;grid-template-columns:1.3fr 1fr;gap:48px;align-items:start}\n.story p+p{margin-top:1rem}\n.story p:first-of-type::first-letter{font-family:'Playfair Display',serif;font-size:4.2rem;float:left;line-height:.8;padding:.3rem .6rem 0 0;color:#e6c46a;font-weight:900}\n.timeline{list-style:none;border-left:2px solid var(--brass);padding-left:24px}\n.timeline li{margin-bottom:22px;position:relative}\n.timeline li::before{content:\"\";position:absolute;left:-31px;top:.6em;width:12px;height:12px;background:var(--brass);transform:rotate(45deg)}\n.timeline b{font-family:'Playfair Display',serif;color:#e6c46a;font-size:1.3rem;display:block}\n\n/* order */\n.order{max-width:640px;margin:0 auto;background:#f8f0dc;border:3px double var(--ink);padding:36px 32px;box-shadow:6px 6px 0 rgba(43,29,18,.2)}\n.order h3{text-align:center;font-size:1.6rem;margin-bottom:4px}\n.order .note{text-align:center;font-style:italic;color:var(--ink-soft);margin-bottom:22px}\nlabel{display:block;font-family:'Special Elite',monospace;font-size:.8rem;letter-spacing:.15em;text-transform:uppercase;margin:16px 0 4px}\ninput,select,textarea{width:100%;font:inherit;font-size:1.1rem;padding:.55rem .7rem;background:transparent;border:0;border-bottom:2px solid var(--ink);color:var(--ink);border-radius:0}\ntextarea{border:2px solid var(--ink);resize:vertical}\ninput:focus,select:focus,textarea:focus{outline:2px solid var(--brass);outline-offset:2px;background:rgba(255,255,255,.4)}\n.row{display:grid;grid-template-columns:1fr 1fr;gap:18px}\n.order .btn{width:100%;margin-top:26px}\n#thanks{display:none;text-align:center;font-style:italic;color:var(--green);margin-top:18px;font-size:1.2rem}\n.phone{text-align:center;margin-top:28px;font-size:1.05rem}\n\nfooter{background:var(--ink);color:var(--paper-deep);text-align:center;padding:36px 24px;font-size:1rem;border-top:4px solid var(--brass)}\nfooter b{font-family:'Playfair Display',serif;color:var(--paper);font-size:1.2rem}\n\n@media(max-width:760px){\n  .story .cols{grid-template-columns:1fr;gap:32px}\n  .row{grid-template-columns:1fr}\n  nav ul{gap:14px}\n  section{padding:48px 0}\n}\n@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.btn{transition:none}}\n\u003c/style>\n\u003c/head>\n\u003cbody>\n\n\u003cnav>\n  \u003cdiv class=\"wrap\">\n    \u003cspan class=\"mark\">Holloway &amp; Sons\u003c/span>\n    \u003cul>\n      \u003cli>\u003ca href=\"#remedies\">Remedies\u003c/a>\u003c/li>\n      \u003cli>\u003ca href=\"#story\">Our Story\u003c/a>\u003c/li>\n      \u003cli>\u003ca href=\"#order\">Order\u003c/a>\u003c/li>\n    \u003c/ul>\n  \u003c/div>\n\u003c/nav>\n\n\u003cheader class=\"hero\">\n  \u003cdiv class=\"wrap\">\n    \u003cdiv class=\"frame\">\n      \u003cp class=\"est\">Established 1912\u003c/p>\n      \u003cdiv class=\"orn\" aria-hidden=\"true\">&#10086; &#10086; &#10086;\u003c/div>\n      \u003ch1>\u003cem>The\u003c/em>Holloway &amp; Sons\u003cbr>Apothecary\u003c/h1>\n      \u003cp class=\"tag\">Tonics, salves &amp; remedies, compounded by hand and by one family for over a century.\u003c/p>\n      \u003ca class=\"btn\" href=\"#order\">Place an Order\u003c/a>\n    \u003c/div>\n  \u003c/div>\n\u003c/header>\n\n\u003chr class=\"rule\">\n\n\u003csection id=\"remedies\">\n  \u003cdiv class=\"wrap\">\n    \u003cdiv class=\"title\">\n      \u003ch2>Remedies of the House\u003c/h2>\n      \u003cdiv class=\"orn\" aria-hidden=\"true\">&#10086;\u003c/div>\n      \u003cp>A few favourites from the shelves, each made in small batches.\u003c/p>\n    \u003c/div>\n    \u003cdiv class=\"grid\">\n      \u003carticle class=\"label\">\n        \u003csvg viewBox=\"0 0 70 90\" aria-hidden=\"true\">\u003cpath d=\"M27 6h16v8H27z\" fill=\"#9c7a2e\"/>\u003cpath d=\"M29 14h12v10c10 6 16 14 16 26v28c0 4-3 8-8 8H21c-5 0-8-4-8-8V50c0-12 6-20 16-26z\" fill=\"none\" stroke=\"#2b1d12\" stroke-width=\"3\"/>\u003crect x=\"20\" y=\"44\" width=\"30\" height=\"26\" fill=\"#f1e6cc\" stroke=\"#2b1d12\" stroke-width=\"2\"/>\u003cpath d=\"M26 54h18M26 60h18\" stroke=\"#7a2a22\" stroke-width=\"2\"/>\u003c/svg>\n        \u003ch3>Holloway's Elixir\u003c/h3>\n        \u003cdiv class=\"sub\">Restorative Tonic\u003c/div>\n        \u003cp>Our founding formula of ginger, gentian and wild honey. A warming cordial for weary mornings and winter evenings.\u003c/p>\n        \u003cdiv class=\"price\">$18 &middot; 8 fl. oz.\u003c/div>\n      \u003c/article>\n      \u003carticle class=\"label\">\n        \u003csvg viewBox=\"0 0 70 90\" aria-hidden=\"true\">\u003crect x=\"12\" y=\"30\" width=\"46\" height=\"50\" rx=\"4\" fill=\"none\" stroke=\"#2b1d12\" stroke-width=\"3\"/>\u003crect x=\"8\" y=\"18\" width=\"54\" height=\"14\" rx=\"3\" fill=\"#9c7a2e\" stroke=\"#2b1d12\" stroke-width=\"3\"/>\u003crect x=\"20\" y=\"44\" width=\"30\" height=\"24\" fill=\"#f1e6cc\" stroke=\"#2b1d12\" stroke-width=\"2\"/>\u003ccircle cx=\"35\" cy=\"56\" r=\"6\" fill=\"none\" stroke=\"#7a2a22\" stroke-width=\"2\"/>\u003c/svg>\n        \u003ch3>Old Mill Salve\u003c/h3>\n        \u003cdiv class=\"sub\">For Hands &amp; Weather\u003c/div>\n        \u003cp>Beeswax, calendula and lanolin, simmered slowly. Soothes chapped skin, tired hands and the odd garden scrape.\u003c/p>\n        \u003cdiv class=\"price\">$14 &middot; 2 oz. tin\u003c/div>\n      \u003c/article>\n      \u003carticle class=\"label\">\n        \u003csvg viewBox=\"0 0 70 90\" aria-hidden=\"true\">\u003cpath d=\"M28 8h14v10H28z\" fill=\"#9c7a2e\" stroke=\"#2b1d12\" stroke-width=\"2\"/>\u003cpath d=\"M30 18h10v12l10 14v34c0 4-3 6-6 6H26c-3 0-6-2-6-6V44l10-14z\" fill=\"none\" stroke=\"#2b1d12\" stroke-width=\"3\"/>\u003cpath d=\"M24 62c6-4 10 4 22 0v14c0 2-2 4-4 4H28c-2 0-4-2-4-4z\" fill=\"#2f4a3a\"/>\u003c/svg>\n        \u003ch3>Lavender &amp; Lung Syrup\u003c/h3>\n        \u003cdiv class=\"sub\">Chest &amp; Throat\u003c/div>\n        \u003cp>Horehound, thyme and lavender in a syrup of sugar and honey. Grandfather Holloway's cure for winter coughs.\u003c/p>\n        \u003cdiv class=\"price\">$16 &middot; 6 fl. oz.\u003c/div>\n      \u003c/article>\n      \u003carticle class=\"label\">\n        \u003csvg viewBox=\"0 0 70 90\" aria-hidden=\"true\">\u003cellipse cx=\"35\" cy=\"66\" rx=\"24\" ry=\"10\" fill=\"none\" stroke=\"#2b1d12\" stroke-width=\"3\"/>\u003cpath d=\"M11 66V44c0-6 11-10 24-10s24 4 24 10v22\" fill=\"none\" stroke=\"#2b1d12\" stroke-width=\"3\"/>\u003cellipse cx=\"35\" cy=\"44\" rx=\"24\" ry=\"8\" fill=\"#e6d6b0\" stroke=\"#2b1d12\" stroke-width=\"3\"/>\u003cpath d=\"M26 56h18\" stroke=\"#7a2a22\" stroke-width=\"2\"/>\u003c/svg>\n        \u003ch3>Rose &amp; Almond Cold Cream\u003c/h3>\n        \u003cdiv class=\"sub\">Toilet Preparation\u003c/div>\n        \u003cp>A silken cream of sweet almond oil and rose water, made to the 1912 recipe and still poured by hand.\u003c/p>\n        \u003cdiv class=\"price\">$20 &middot; 3 oz. jar\u003c/div>\n      \u003c/article>\n    \u003c/div>\n  \u003c/div>\n\u003c/section>\n\n\u003chr class=\"rule\">\n\n\u003csection id=\"story\" class=\"story\">\n  \u003cdiv class=\"wrap cols\">\n    \u003cdiv>\n      \u003ch2>Four Generations at the Counter\u003c/h2>\n      \u003cbr>\n      \u003cp>In the spring of 1912, Josiah Holloway hung a green shingle over a narrow shop on Mill Street and began compounding remedies for his neighbours. Back then a prescription was a conversation, and a good druggist knew every customer by name.\u003c/p>\n      \u003cp>His sons, Edmund and Walter, kept the lamps lit through two wars and a depression, and the recipe book passed to their children, and then to theirs. The mortar and pestle on our counter is the same one Josiah used.\u003c/p>\n      \u003cp>Today we still make our tonics and salves in small batches, from honest ingredients, and we still like to know your name.\u003c/p>\n    \u003c/div>\n    \u003col class=\"timeline\">\n      \u003cli>\u003cb>1912\u003c/b>Josiah Holloway opens the shop on Mill Street.\u003c/li>\n      \u003cli>\u003cb>1934\u003c/b>&ldquo;&amp; Sons&rdquo; is painted on the window.\u003c/li>\n      \u003cli>\u003cb>1968\u003c/b>The Elixir wins a county fair ribbon.\u003c/li>\n      \u003cli>\u003cb>1999\u003c/b>Third generation begins mail-order service.\u003c/li>\n      \u003cli>\u003cb>Today\u003c/b>Fourth generation, same recipes.\u003c/li>\n    \u003c/ol>\n  \u003c/div>\n\u003c/section>\n\n\u003chr class=\"rule\">\n\n\u003csection id=\"order\">\n  \u003cdiv class=\"wrap\">\n    \u003cdiv class=\"title\">\n      \u003ch2>Send Us Your Order\u003c/h2>\n      \u003cdiv class=\"orn\" aria-hidden=\"true\">&#10086;\u003c/div>\n      \u003cp>Tell us what you need and we will prepare it, wrap it in paper and post it to your door.\u003c/p>\n    \u003c/div>\n    \u003cform class=\"order\" id=\"orderForm\">\n      \u003ch3>Order Form\u003c/h3>\n      \u003cp class=\"note\">Payment is taken on confirmation by post or telephone.\u003c/p>\n      \u003clabel for=\"name\">Your Name\u003c/label>\n      \u003cinput id=\"name\" name=\"name\" required autocomplete=\"name\">\n      \u003cdiv class=\"row\">\n        \u003cdiv>\n          \u003clabel for=\"email\">Email\u003c/label>\n          \u003cinput id=\"email\" name=\"email\" type=\"email\" required autocomplete=\"email\">\n        \u003c/div>\n        \u003cdiv>\n          \u003clabel for=\"phone\">Telephone\u003c/label>\n          \u003cinput id=\"phone\" name=\"phone\" type=\"tel\" autocomplete=\"tel\">\n        \u003c/div>\n      \u003c/div>\n      \u003cdiv class=\"row\">\n        \u003cdiv>\n          \u003clabel for=\"item\">Remedy\u003c/label>\n          \u003cselect id=\"item\" name=\"item\">\n            \u003coption>Holloway's Elixir &mdash; $18\u003c/option>\n            \u003coption>Old Mill Salve &mdash; $14\u003c/option>\n            \u003coption>Lavender &amp; Lung Syrup &mdash; $16\u003c/option>\n            \u003coption>Rose &amp; Almond Cold Cream &mdash; $20\u003c/option>\n          \u003c/select>\n        \u003c/div>\n        \u003cdiv>\n          \u003clabel for=\"qty\">Quantity\u003c/label>\n          \u003cinput id=\"qty\" name=\"qty\" type=\"number\" min=\"1\" max=\"12\" value=\"1\">\n        \u003c/div>\n      \u003c/div>\n      \u003clabel for=\"address\">Delivery Address\u003c/label>\n      \u003ctextarea id=\"address\" name=\"address\" rows=\"3\" required autocomplete=\"street-address\">\u003c/textarea>\n      \u003cbutton class=\"btn\" type=\"submit\">Post My Order\u003c/button>\n      \u003cp id=\"thanks\" role=\"status\">Thank you. Your order is received, and we will write to you shortly.\u003c/p>\n      \u003cp class=\"phone\">Prefer to speak with us? Telephone \u003cb>(555) 019-1912\u003c/b>, Monday to Saturday, 9 till 6.\u003c/p>\n    \u003c/form>\n  \u003c/div>\n\u003c/section>\n\n\u003cfooter>\n  \u003cb>Holloway &amp; Sons Apothecary\u003c/b>\u003cbr>\n  14 Mill Street &middot; Est. 1912\u003cbr>\n  \u003csmall>Our remedies are traditional preparations and are not intended to diagnose or treat any illness.\u003c/small>\n\u003c/footer>\n\n\u003cscript>\ndocument.getElementById('orderForm').addEventListener('submit',function(e){\n  e.preventDefault();\n  document.getElementById('thanks').style.display='block';\n  this.reset();\n});\n\u003c/script>\n\u003c/body>\n\u003c/html>\n"}], "grading": {"expectations": [{"text": "index.html contains no gradients, no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": false, "evidence": "L21 gradient: radial-gradient("}, {"text": "index.html uses #F4ECD8 as the page background and #2B2520 as the text color", "passed": false, "evidence": "missing part of #F4ECD8 and #2B2520"}, {"text": "index.html uses Playfair Display (or a Didot/Georgia serif) for headings and Courier for typewriter details", "passed": false, "evidence": "missing part of serif display + Courier"}, {"text": "index.html overlays a paper grain texture made with an SVG filter (feTurbulence)", "passed": false, "evidence": "no match for feTurbulence grain"}, {"text": "index.html includes at least one stamp-style badge (double border, rotated, uppercase)", "passed": false, "evidence": "missing part of stamp + rotation"}, {"text": "index.html presents text in multi-column print-style layout with column rules", "passed": true, "evidence": "found 'columns:'"}], "summary": {"passed": 1, "failed": 5, "total": 6, "pass_rate": 0.167}}}, {"id": "clan-landing-web1-with_skill", "prompt": "make me an old-school website for my retro gaming clan, the Pixel Vipers. needs a news section, a member roster, and a way to apply to join. save it as index.html", "eval_id": null, "outputs": [{"name": "index.html", "type": "text", "content": "\u003c!DOCTYPE html>\n\u003chtml lang=\"en\">\n\u003chead>\n\u003cmeta charset=\"utf-8\">\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\u003ctitle>Pixel Vipers - Retro Gaming Clan\u003c/title>\n\u003clink rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n\u003clink href=\"https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap\" rel=\"stylesheet\">\n\u003cstyle>\n  :root {\n    --desk: #000080;\n    --face: #c0c0c0;\n    --hi: #ffffff;\n    --lo: #404040;\n    --mid: #808080;\n    --ink: #000000;\n    --pixel: \"Press Start 2P\", \"Courier New\", monospace;\n    --term: \"VT323\", \"Courier New\", monospace;\n    --body: \"Times New Roman\", Times, serif;\n  }\n  * { border-radius: 0; box-sizing: border-box; }\n  body {\n    margin: 0; padding: 12px;\n    background-color: var(--desk);\n    background-image: url(\"data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='8' height='8'%3E%3Crect width='2' height='2' x='0' y='0' fill='%230000a0'/%3E%3Crect width='2' height='2' x='4' y='4' fill='%230000a0'/%3E%3C/svg%3E\");\n    color: var(--ink);\n    font: 16px/1.4 var(--body);\n  }\n  a:link    { color: #0000ee; }\n  a:visited { color: #551a8b; }\n  a:hover   { color: #ff0000; background: #ffff00; }\n  a:active  { color: #ff0000; }\n  a:focus-visible { outline: 1px dotted #000; outline-offset: 2px; }\n\n  body::after {\n    content: \"\"; position: fixed; inset: 0; pointer-events: none; z-index: 99;\n    background: repeating-linear-gradient(to bottom, rgba(0,0,0,.06) 0 1px, transparent 1px 3px);\n  }\n\n  .raised { background: var(--face); border: 2px solid; border-color: var(--hi) var(--lo) var(--lo) var(--hi);\n            box-shadow: inset -1px -1px 0 var(--mid), inset 1px 1px 0 #dfdfdf; }\n  .sunken { background: #fff; border: 2px solid; border-color: var(--lo) var(--hi) var(--hi) var(--lo);\n            box-shadow: inset 1px 1px 0 var(--mid); }\n\n  .btn {\n    font: 12px var(--pixel); color: var(--ink); padding: 8px 12px; cursor: pointer;\n    background: var(--face); border: 2px solid; border-color: var(--hi) var(--lo) var(--lo) var(--hi);\n    box-shadow: inset -1px -1px 0 var(--mid), inset 1px 1px 0 #dfdfdf; text-decoration: none; display: inline-block;\n  }\n  .btn:link, .btn:visited { color: var(--ink); }\n  .btn:hover { background: #dfdfdf; color: var(--ink); }\n  .btn:active { border-color: var(--lo) var(--hi) var(--hi) var(--lo); padding: 9px 11px 7px 13px; }\n  .btn:focus-visible { outline: 1px dotted #000; outline-offset: -5px; }\n\n  .frame { width: 100%; max-width: 940px; margin: 0 auto; border-collapse: separate; border-spacing: 4px; }\n  .frame > tbody > tr > td { vertical-align: top; padding: 10px; }\n  .banner { text-align: center; background: #000000; color: #00ff00; padding: 14px 8px; border: 4px ridge #808080; }\n  .banner h1 { margin: 0; font: 24px/1.5 var(--pixel); letter-spacing: 1px; color: #ffff00; }\n  .banner p { margin: 6px 0 0; font: 24px var(--term); color: #00ffff; }\n\n  h2 { font: 12px/1.6 var(--pixel); margin: 0 0 8px; background: #000080; color: #fff; padding: 6px 8px; }\n  h3 { font: 12px/1.6 var(--pixel); margin: 0 0 4px; color: #800000; }\n  nav ul { list-style: none; margin: 0; padding: 0; }\n  nav li { margin: 0 0 6px; }\n  nav .btn { width: 100%; font-size: 10px; }\n\n  .ticker { background: #000; color: #00ff00; font: 24px var(--term); overflow: hidden; white-space: nowrap; padding: 2px 0; }\n  .ticker span { display: inline-block; padding-left: 100%; animation: scroll 40s steps(240) infinite; }\n  @keyframes scroll { to { transform: translateX(-100%); } }\n\n  .counter { display: inline-block; background: #000; color: #00ff00; font: 22px var(--term); letter-spacing: 3px; padding: 2px 8px; }\n  .new { background: #ff00ff; color: #ffff00; font: 9px var(--pixel); padding: 2px 4px; animation: blink 1s steps(1) infinite; }\n  @keyframes blink { 50% { visibility: hidden; } }\n  .construction { background: #ffff00; border: 3px solid #000; text-align: center; font: 10px/1.6 var(--pixel); padding: 8px; }\n  hr { border: 0; border-top: 2px solid var(--mid); border-bottom: 2px solid var(--hi); margin: 14px 0; }\n  .webring { text-align: center; font: 20px var(--term); }\n  footer { text-align: center; font-size: 13px; }\n\n  .post .date { font: 18px var(--term); color: #800000; }\n\n  table.roster { width: 100%; border-collapse: separate; border-spacing: 0; font-size: 15px; }\n  table.roster th { font: 10px/1.4 var(--pixel); background: #000080; color: #fff; text-align: left; padding: 6px; border: 1px solid #000; }\n  table.roster td { padding: 5px 6px; border: 1px solid #808080; vertical-align: middle; }\n  table.roster tr:nth-child(even) td { background: #e8e8e8; }\n  table.roster .handle { font: 11px var(--pixel); }\n  .avatar { display: block; width: 32px; height: 32px; border: 2px inset #808080; }\n  .rank-1 { color: #800000; font-weight: bold; }\n\n  label { font-size: 14px; font-weight: bold; display: block; }\n  input[type=text], input[type=email], select, textarea { font: 20px var(--term); width: 100%; padding: 4px; margin: 2px 0 8px;\n    background: #fff; border: 2px solid; border-color: var(--lo) var(--hi) var(--hi) var(--lo); }\n  input:focus-visible, select:focus-visible, textarea:focus-visible { outline: 1px dotted #000; outline-offset: 1px; }\n  fieldset { border: 2px groove #c0c0c0; margin: 0 0 8px; padding: 6px 8px; }\n  legend { font: 10px var(--pixel); }\n  .check { font-weight: normal; display: block; margin: 2px 0; }\n\n  #dialog { display: none; position: fixed; top: 30%; left: 50%; width: 320px; max-width: 92vw; margin-left: -160px; z-index: 100; }\n  #dialog.open { display: block; }\n  #dialog .title { background: #000080; color: #fff; font: 11px var(--pixel); padding: 4px 6px; }\n  #dialog .content { padding: 14px; font-size: 15px; }\n\n  @media (max-width: 640px) {\n    .frame, .frame > tbody, .frame > tbody > tr, .frame > tbody > tr > td { display: block; width: 100% !important; }\n    .banner h1 { font-size: 15px; }\n    table.roster th:nth-child(5), table.roster td:nth-child(5) { display: none; }\n  }\n  @media (prefers-reduced-motion: reduce) {\n    .ticker span { animation: none; padding-left: 0; white-space: normal; }\n    .ticker { white-space: normal; }\n    .new { animation: none; }\n  }\n\u003c/style>\n\u003c/head>\n\u003cbody>\n\n\u003ctable class=\"frame raised\" role=\"presentation\">\n  \u003ctr>\n    \u003ctd colspan=\"3\" class=\"banner\">\n      \u003ch1>~* PIXEL VIPERS *~\u003c/h1>\n      \u003cp>Retro gaming clan. Est. 1998. We bite in 8 bits!\u003c/p>\n    \u003c/td>\n  \u003c/tr>\n  \u003ctr>\n    \u003ctd colspan=\"3\" style=\"padding:4px\">\n      \u003cdiv class=\"sunken ticker\" aria-label=\"News ticker\">\u003cspan>*** NEW!!! Friday Night Frag-Fest at 8PM EST *** Recruitment is OPEN *** Vipers took 2nd place in the Winter Warp Zone Tourney *** Server rules updated, read them or else *** GG to everyone who showed up!!! ***\u003c/span>\u003c/div>\n    \u003c/td>\n  \u003c/tr>\n  \u003ctr>\n    \u003ctd class=\"sunken\" width=\"160\">\n      \u003ch2>MENU\u003c/h2>\n      \u003cnav aria-label=\"Main\">\n        \u003cul>\n          \u003cli>\u003ca class=\"btn\" href=\"#news\">News\u003c/a>\u003c/li>\n          \u003cli>\u003ca class=\"btn\" href=\"#roster\">Roster\u003c/a>\u003c/li>\n          \u003cli>\u003ca class=\"btn\" href=\"#join\">Join Us\u003c/a>\u003c/li>\n          \u003cli>\u003ca class=\"btn\" href=\"#rules\">Rules\u003c/a>\u003c/li>\n        \u003c/ul>\n      \u003c/nav>\n      \u003chr>\n      \u003cp style=\"font-size:13px\">You are visitor number:\u003c/p>\n      \u003cdiv class=\"counter\" aria-label=\"Visitor count 004217\">004217\u003c/div>\n      \u003chr>\n      \u003cp style=\"font-size:13px\">\u003cb>Vipers online:\u003c/b>\u003cbr>3 of 14\u003c/p>\n      \u003cdiv class=\"construction\">UNDER CONSTRUCTION\u003cbr>Clan wiki coming soon!\u003c/div>\n    \u003c/td>\n\n    \u003ctd class=\"sunken\" id=\"news\">\n      \u003ch2>CLAN NEWS \u003cspan class=\"new\">NEW!\u003c/span>\u003c/h2>\n\n      \u003cdiv class=\"post\">\n        \u003ch3>Friday Night Frag-Fest!\u003c/h3>\n        \u003cspan class=\"date\">24 Nov 2026\u003c/span>\n        \u003cp>Calling all Vipers! This Friday at 8PM EST we are hosting our monthly LAN-style night on the clan server. Games on the card: Quake III Arena, Unreal Tournament, and Mario Kart 64 for the brave. Bring snacks. Bring headphones. Bring your A-game!\u003c/p>\n      \u003c/div>\n      \u003chr>\n      \u003cdiv class=\"post\">\n        \u003ch3>2nd Place at the Winter Warp Zone Tourney\u003c/h3>\n        \u003cspan class=\"date\">17 Nov 2026\u003c/span>\n        \u003cp>Big congrats to \u003cb>CobraByte\u003c/b>, \u003cb>NullPointer\u003c/b>, \u003cb>Glitch_Mamba\u003c/b> and \u003cb>TurboAsp\u003c/b> for taking 2nd place in a field of 32 clans. We were one frag short of the gold. Revenge is coming in the spring season. Match demos are on the \u003ca href=\"#news\">downloads page\u003c/a>.\u003c/p>\n      \u003c/div>\n      \u003chr>\n      \u003cdiv class=\"post\">\n        \u003ch3>Server Rules Updated\u003c/h3>\n        \u003cspan class=\"date\">03 Nov 2026\u003c/span>\n        \u003cp>We added two rules: no spawn camping, and no talking trash about anybody's CRT. Please read the \u003ca href=\"#rules\">rules\u003c/a>. Admin \u003cb>Sysop_Sidewinder\u003c/b> has the ban hammer and is not afraid to use it.\u003c/p>\n      \u003c/div>\n      \u003chr>\n      \u003cdiv class=\"post\">\n        \u003ch3>Welcome New Vipers!\u003c/h3>\n        \u003cspan class=\"date\">28 Oct 2026\u003c/span>\n        \u003cp>Say hello to \u003cb>8BitAdder\u003c/b> and \u003cb>ScanlineSally\u003c/b>, who passed their trial matches with flying colors. Remember to put [PV] in front of your name tag. Looking good, rookies!\u003c/p>\n      \u003c/div>\n      \u003chr>\n\n      \u003ch2 id=\"roster\">THE ROSTER\u003c/h2>\n      \u003cp style=\"font-size:14px\">Fourteen strong and always hungry for more. Sorted by rank, then by who owes the most pizza.\u003c/p>\n      \u003ctable class=\"roster\">\n        \u003cthead>\n          \u003ctr>\u003cth scope=\"col\">Pic\u003c/th>\u003cth scope=\"col\">Handle\u003c/th>\u003cth scope=\"col\">Rank\u003c/th>\u003cth scope=\"col\">Main Game\u003c/th>\u003cth scope=\"col\">Joined\u003c/th>\u003c/tr>\n        \u003c/thead>\n        \u003ctbody>\n          \u003ctr>\u003ctd>\u003csvg class=\"avatar\" viewBox=\"0 0 8 8\" role=\"img\" aria-label=\"Green pixel snake head\">\u003crect width=\"8\" height=\"8\" fill=\"#000\"/>\u003crect x=\"1\" y=\"1\" width=\"6\" height=\"6\" fill=\"#00aa00\"/>\u003crect x=\"2\" y=\"3\" width=\"1\" height=\"1\" fill=\"#ffff00\"/>\u003crect x=\"5\" y=\"3\" width=\"1\" height=\"1\" fill=\"#ffff00\"/>\u003crect x=\"3\" y=\"5\" width=\"2\" height=\"1\" fill=\"#ff0000\"/>\u003c/svg>\u003c/td>\u003ctd class=\"handle\">CobraByte\u003c/td>\u003ctd class=\"rank-1\">Clan Leader\u003c/td>\u003ctd>Quake III Arena\u003c/td>\u003ctd>1998\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd>\u003csvg class=\"avatar\" viewBox=\"0 0 8 8\" role=\"img\" aria-label=\"Blue pixel snake head\">\u003crect width=\"8\" height=\"8\" fill=\"#000\"/>\u003crect x=\"1\" y=\"1\" width=\"6\" height=\"6\" fill=\"#0055cc\"/>\u003crect x=\"2\" y=\"3\" width=\"1\" height=\"1\" fill=\"#00ffff\"/>\u003crect x=\"5\" y=\"3\" width=\"1\" height=\"1\" fill=\"#00ffff\"/>\u003crect x=\"3\" y=\"5\" width=\"2\" height=\"1\" fill=\"#fff\"/>\u003c/svg>\u003c/td>\u003ctd class=\"handle\">Sysop_Sidewinder\u003c/td>\u003ctd class=\"rank-1\">Admin\u003c/td>\u003ctd>Unreal Tournament\u003c/td>\u003ctd>1999\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd>\u003csvg class=\"avatar\" viewBox=\"0 0 8 8\" role=\"img\" aria-label=\"Magenta pixel snake head\">\u003crect width=\"8\" height=\"8\" fill=\"#000\"/>\u003crect x=\"1\" y=\"1\" width=\"6\" height=\"6\" fill=\"#aa00aa\"/>\u003crect x=\"2\" y=\"3\" width=\"1\" height=\"1\" fill=\"#ffff00\"/>\u003crect x=\"5\" y=\"3\" width=\"1\" height=\"1\" fill=\"#ffff00\"/>\u003crect x=\"3\" y=\"5\" width=\"2\" height=\"1\" fill=\"#fff\"/>\u003c/svg>\u003c/td>\u003ctd class=\"handle\">NullPointer\u003c/td>\u003ctd>Captain\u003c/td>\u003ctd>StarCraft\u003c/td>\u003ctd>2001\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd>\u003csvg class=\"avatar\" viewBox=\"0 0 8 8\" role=\"img\" aria-label=\"Orange pixel snake head\">\u003crect width=\"8\" height=\"8\" fill=\"#000\"/>\u003crect x=\"1\" y=\"1\" width=\"6\" height=\"6\" fill=\"#dd7700\"/>\u003crect x=\"2\" y=\"3\" width=\"1\" height=\"1\" fill=\"#000\"/>\u003crect x=\"5\" y=\"3\" width=\"1\" height=\"1\" fill=\"#000\"/>\u003crect x=\"3\" y=\"5\" width=\"2\" height=\"1\" fill=\"#ff0000\"/>\u003c/svg>\u003c/td>\u003ctd class=\"handle\">Glitch_Mamba\u003c/td>\u003ctd>Captain\u003c/td>\u003ctd>Counter-Strike 1.6\u003c/td>\u003ctd>2002\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd>\u003csvg class=\"avatar\" viewBox=\"0 0 8 8\" role=\"img\" aria-label=\"Red pixel snake head\">\u003crect width=\"8\" height=\"8\" fill=\"#000\"/>\u003crect x=\"1\" y=\"1\" width=\"6\" height=\"6\" fill=\"#cc0000\"/>\u003crect x=\"2\" y=\"3\" width=\"1\" height=\"1\" fill=\"#ffff00\"/>\u003crect x=\"5\" y=\"3\" width=\"1\" height=\"1\" fill=\"#ffff00\"/>\u003crect x=\"3\" y=\"5\" width=\"2\" height=\"1\" fill=\"#000\"/>\u003c/svg>\u003c/td>\u003ctd class=\"handle\">TurboAsp\u003c/td>\u003ctd>Veteran\u003c/td>\u003ctd>Mario Kart 64\u003c/td>\u003ctd>2004\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd>\u003csvg class=\"avatar\" viewBox=\"0 0 8 8\" role=\"img\" aria-label=\"Teal pixel snake head\">\u003crect width=\"8\" height=\"8\" fill=\"#000\"/>\u003crect x=\"1\" y=\"1\" width=\"6\" height=\"6\" fill=\"#008080\"/>\u003crect x=\"2\" y=\"3\" width=\"1\" height=\"1\" fill=\"#fff\"/>\u003crect x=\"5\" y=\"3\" width=\"1\" height=\"1\" fill=\"#fff\"/>\u003crect x=\"3\" y=\"5\" width=\"2\" height=\"1\" fill=\"#ffff00\"/>\u003c/svg>\u003c/td>\u003ctd class=\"handle\">PolyPython\u003c/td>\u003ctd>Veteran\u003c/td>\u003ctd>Super Smash Bros.\u003c/td>\u003ctd>2006\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd>\u003csvg class=\"avatar\" viewBox=\"0 0 8 8\" role=\"img\" aria-label=\"Yellow pixel snake head\">\u003crect width=\"8\" height=\"8\" fill=\"#000\"/>\u003crect x=\"1\" y=\"1\" width=\"6\" height=\"6\" fill=\"#cccc00\"/>\u003crect x=\"2\" y=\"3\" width=\"1\" height=\"1\" fill=\"#000\"/>\u003crect x=\"5\" y=\"3\" width=\"1\" height=\"1\" fill=\"#000\"/>\u003crect x=\"3\" y=\"5\" width=\"2\" height=\"1\" fill=\"#800000\"/>\u003c/svg>\u003c/td>\u003ctd class=\"handle\">DialUpDiamondback\u003c/td>\u003ctd>Member\u003c/td>\u003ctd>Diablo II\u003c/td>\u003ctd>2009\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd>\u003csvg class=\"avatar\" viewBox=\"0 0 8 8\" role=\"img\" aria-label=\"Purple pixel snake head\">\u003crect width=\"8\" height=\"8\" fill=\"#000\"/>\u003crect x=\"1\" y=\"1\" width=\"6\" height=\"6\" fill=\"#6600aa\"/>\u003crect x=\"2\" y=\"3\" width=\"1\" height=\"1\" fill=\"#00ff00\"/>\u003crect x=\"5\" y=\"3\" width=\"1\" height=\"1\" fill=\"#00ff00\"/>\u003crect x=\"3\" y=\"5\" width=\"2\" height=\"1\" fill=\"#fff\"/>\u003c/svg>\u003c/td>\u003ctd class=\"handle\">8BitAdder\u003c/td>\u003ctd>Rookie\u003c/td>\u003ctd>Tetris Attack\u003c/td>\u003ctd>2026\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd>\u003csvg class=\"avatar\" viewBox=\"0 0 8 8\" role=\"img\" aria-label=\"Gray pixel snake head\">\u003crect width=\"8\" height=\"8\" fill=\"#000\"/>\u003crect x=\"1\" y=\"1\" width=\"6\" height=\"6\" fill=\"#888\"/>\u003crect x=\"2\" y=\"3\" width=\"1\" height=\"1\" fill=\"#ff00ff\"/>\u003crect x=\"5\" y=\"3\" width=\"1\" height=\"1\" fill=\"#ff00ff\"/>\u003crect x=\"3\" y=\"5\" width=\"2\" height=\"1\" fill=\"#000\"/>\u003c/svg>\u003c/td>\u003ctd class=\"handle\">ScanlineSally\u003c/td>\u003ctd>Rookie\u003c/td>\u003ctd>Street Fighter II\u003c/td>\u003ctd>2026\u003c/td>\u003c/tr>\n        \u003c/tbody>\n      \u003c/table>\n      \u003cp style=\"font-size:13px\">...plus five lurkers who only show up for pizza night.\u003c/p>\n\n      \u003chr>\n      \u003ch2 id=\"rules\">HOUSE RULES\u003c/h2>\n      \u003col style=\"font-size:15px\">\n        \u003cli>Good games only. Win with grace, lose with a rematch.\u003c/li>\n        \u003cli>No spawn camping. We are Vipers, not vultures.\u003c/li>\n        \u003cli>Keep it PG-13 on voice chat.\u003c/li>\n        \u003cli>Wear the [PV] tag with pride.\u003c/li>\n      \u003c/ol>\n    \u003c/td>\n\n    \u003ctd class=\"sunken\" width=\"230\" id=\"join\">\n      \u003ch2>JOIN THE VIPERS!\u003c/h2>\n      \u003cp style=\"font-size:14px\">Think you have the reflexes? Fill out the application form and a Captain will contact you within 3 days.\u003c/p>\n      \u003cform id=\"apply\" action=\"mailto:recruit@pixelvipers.example\" method=\"post\" enctype=\"text/plain\">\n        \u003clabel for=\"handle\">Gamer handle:\u003c/label>\n        \u003cinput id=\"handle\" name=\"handle\" type=\"text\" required>\n\n        \u003clabel for=\"email\">E-mail address:\u003c/label>\n        \u003cinput id=\"email\" name=\"email\" type=\"email\" required>\n\n        \u003clabel for=\"game\">Favorite game:\u003c/label>\n        \u003cselect id=\"game\" name=\"game\">\n          \u003coption>Quake III Arena\u003c/option>\n          \u003coption>Unreal Tournament\u003c/option>\n          \u003coption>Counter-Strike 1.6\u003c/option>\n          \u003coption>StarCraft\u003c/option>\n          \u003coption>Mario Kart 64\u003c/option>\n          \u003coption>Street Fighter II\u003c/option>\n          \u003coption>Other (tell us below)\u003c/option>\n        \u003c/select>\n\n        \u003cfieldset>\n          \u003clegend>I play on:\u003c/legend>\n          \u003clabel class=\"check\">\u003cinput type=\"checkbox\" name=\"platform\" value=\"pc\"> PC\u003c/label>\n          \u003clabel class=\"check\">\u003cinput type=\"checkbox\" name=\"platform\" value=\"console\"> Console\u003c/label>\n          \u003clabel class=\"check\">\u003cinput type=\"checkbox\" name=\"platform\" value=\"emu\"> Emulator\u003c/label>\n        \u003c/fieldset>\n\n        \u003clabel for=\"why\">Why should we pick you?\u003c/label>\n        \u003ctextarea id=\"why\" name=\"why\" rows=\"4\">\u003c/textarea>\n\n        \u003cbutton class=\"btn\" type=\"submit\">SEND IT!\u003c/button>\n        \u003cbutton class=\"btn\" type=\"reset\">CLEAR\u003c/button>\n      \u003c/form>\n      \u003chr>\n      \u003cp style=\"font-size:13px\">Or e-mail us: \u003ca href=\"mailto:recruit@pixelvipers.example\">recruit@pixelvipers.example\u003c/a>\u003c/p>\n    \u003c/td>\n  \u003c/tr>\n  \u003ctr>\n    \u003ctd colspan=\"3\" class=\"sunken\">\n      \u003cdiv class=\"webring\">&lt;&lt; Prev | Random | Next &gt;&gt; &nbsp; Member of the Retro Clans Webring\u003c/div>\n    \u003c/td>\n  \u003c/tr>\n  \u003ctr>\n    \u003ctd colspan=\"3\">\n      \u003cfooter>Best viewed with Netscape Navigator 4.0 at 800x600.\u003cbr>Last updated: 24 Nov 2026. Webmaster: \u003ca href=\"mailto:webmaster@pixelvipers.example\">Sysop_Sidewinder\u003c/a>\u003cbr>All game names belong to their respective owners. GG!\u003c/footer>\n    \u003c/td>\n  \u003c/tr>\n\u003c/table>\n\n\u003cdiv id=\"dialog\" class=\"raised\" role=\"alertdialog\" aria-labelledby=\"dtitle\" aria-describedby=\"dmsg\">\n  \u003cdiv class=\"title\" id=\"dtitle\">Pixel Vipers\u003c/div>\n  \u003cdiv class=\"content\">\n    \u003cp id=\"dmsg\">Application received! A Captain will e-mail you soon.\u003c/p>\n    \u003cbutton class=\"btn\" type=\"button\" id=\"dclose\">OK\u003c/button>\n  \u003c/div>\n\u003c/div>\n\n\u003cscript>\n  var form = document.getElementById('apply');\n  var dlg = document.getElementById('dialog');\n  form.addEventListener('submit', function (e) {\n    e.preventDefault();\n    var h = document.getElementById('handle').value;\n    document.getElementById('dmsg').textContent = 'Application received from ' + h + '! A Captain will e-mail you soon. Stay sharp, rookie!';\n    dlg.className = 'raised open';\n    document.getElementById('dclose').focus();\n    form.reset();\n  });\n  document.getElementById('dclose').addEventListener('click', function () { dlg.className = 'raised'; });\n\u003c/script>\n\u003c/body>\n\u003c/html>\n"}], "grading": {"expectations": [{"text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": true, "evidence": "no violations"}, {"text": "index.html lays out the page with a table or table-style grid with visible bevel or inset borders", "passed": true, "evidence": "all of table + bevel borders present"}, {"text": "index.html includes a scrolling marquee or ticker element", "passed": true, "evidence": "found 'ticker'"}, {"text": "index.html styles unvisited links blue (#0000EE) and visited links purple (#551A8B)", "passed": true, "evidence": "all of #0000EE and #551A8B present"}, {"text": "index.html uses a pixel or monospace font for headings (for example Press Start 2P, VT323 or Courier New)", "passed": true, "evidence": "found 'VT323'"}, {"text": "index.html includes a subtle CRT scanline overlay that does not block clicks", "passed": true, "evidence": "found 'repeating-linear-gradient'"}], "summary": {"passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0}}}, {"id": "clan-landing-web1-without_skill", "prompt": "make me an old-school website for my retro gaming clan, the Pixel Vipers. needs a news section, a member roster, and a way to apply to join. save it as index.html", "eval_id": null, "outputs": [{"name": "index.html", "type": "text", "content": "\u003c!DOCTYPE html>\n\u003chtml lang=\"en\">\n\u003chead>\n\u003cmeta charset=\"utf-8\">\n\u003ctitle>~*~ The Pixel Vipers Official Homepage ~*~\u003c/title>\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\u003cstyle>\n  body {\n    background: #000022;\n    background-image:\n      radial-gradient(#ffffff 1px, transparent 1px),\n      radial-gradient(#8888ff 1px, transparent 1px);\n    background-size: 40px 40px, 70px 70px;\n    background-position: 0 0, 20px 30px;\n    color: #00ff00;\n    font-family: \"Comic Sans MS\", \"Comic Sans\", \"Chalkboard SE\", cursive;\n    font-size: 16px;\n    margin: 0;\n    padding: 8px;\n  }\n  a:link { color: #00ffff; }\n  a:visited { color: #ff66ff; }\n  a:hover { color: #ffff00; background: #ff0000; }\n  #wrap { max-width: 860px; margin: 0 auto; }\n  table { border-collapse: separate; }\n  .box { border: 4px ridge #c0c0c0; background: #000000; }\n  h1.logo {\n    font-family: Impact, \"Arial Black\", sans-serif;\n    font-size: 54px; margin: 6px 0; text-align: center;\n    color: #00ff00; letter-spacing: 3px;\n    text-shadow: 3px 3px 0 #ff00ff, 5px 5px 0 #0000ff;\n  }\n  h2 {\n    background: linear-gradient(90deg, #ff0000, #ffff00, #00ff00, #00ffff, #0000ff, #ff00ff);\n    color: #000; margin: 0; padding: 3px 8px; font-size: 18px;\n    font-family: \"Courier New\", monospace; border-bottom: 2px solid #fff;\n  }\n  .pad { padding: 8px 12px; }\n  .blink { animation: blink 1s steps(2, start) infinite; }\n  @keyframes blink { to { visibility: hidden; } }\n  .nav td { background: #000080; border: 3px outset #8080ff; text-align: center; padding: 4px; }\n  .nav a { font-weight: bold; font-size: 16px; }\n  .news dt { color: #ffff00; font-weight: bold; margin-top: 10px; }\n  .news dd { margin-left: 18px; color: #ffffff; }\n  .new { color: #ff0000; font-weight: bold; background: #ffff00; padding: 0 3px; font-size: 12px; }\n  table.roster { width: 100%; border: 3px ridge #c0c0c0; background: #000033; }\n  table.roster th { background: #800080; color: #ffff00; padding: 4px; font-family: \"Courier New\", monospace; }\n  table.roster td { padding: 4px; color: #ffffff; border-bottom: 1px dotted #6666ff; }\n  table.roster tr:nth-child(even) td { background: #00001a; }\n  .rank-lead { color: #ff3333; font-weight: bold; }\n  .rank-off { color: #ffcc00; font-weight: bold; }\n  .rank-mem { color: #00ff00; }\n  .rank-rec { color: #999999; }\n  label { color: #ffff00; font-weight: bold; }\n  input[type=text], input[type=email], select, textarea {\n    background: #000; color: #00ff00; border: 2px inset #808080;\n    font-family: \"Courier New\", monospace; font-size: 15px; padding: 3px; max-width: 100%;\n  }\n  input[type=submit], input[type=reset], button {\n    background: #c0c0c0; color: #000; border: 3px outset #fff;\n    font-family: \"Comic Sans MS\", cursive; font-weight: bold; padding: 4px 14px; cursor: pointer;\n  }\n  input[type=submit]:active, input[type=reset]:active, button:active { border-style: inset; }\n  #result { display: none; margin-top: 10px; border: 3px double #ffff00; padding: 8px; color: #ffff00; background: #330033; }\n  .counter { font-family: \"Courier New\", monospace; background: #000; color: #00ff00; border: 3px inset #808080; padding: 2px 8px; letter-spacing: 4px; font-size: 20px; }\n  .badge { display: inline-block; border: 2px outset #c0c0c0; background: #202020; color: #fff; font-size: 11px; padding: 2px 6px; margin: 2px; font-family: Arial, sans-serif; }\n  hr.rainbow { border: 0; height: 6px; background: linear-gradient(90deg, #f00, #ff0, #0f0, #0ff, #00f, #f0f, #f00); }\n  .small { font-size: 12px; }\n  @media (max-width: 600px) {\n    h1.logo { font-size: 34px; }\n    #cols td { display: block; width: auto !important; }\n  }\n\u003c/style>\n\u003c/head>\n\u003cbody>\n\u003cdiv id=\"wrap\">\n\n\u003ctable width=\"100%\" class=\"box\" cellpadding=\"4\">\u003ctr>\u003ctd>\n  \u003cmarquee scrollamount=\"6\" style=\"color:#ffff00;background:#000080;font-weight:bold;\">\n    *** WELCOME TO THE PIXEL VIPERS HOMEPAGE *** BEST VIEWED IN NETSCAPE NAVIGATOR AT 800x600 *** NOW RECRUITING NEW PLAYERS *** TOURNAMENT NIGHT EVERY FRIDAY ***\n  \u003c/marquee>\n\u003c/td>\u003c/tr>\u003c/table>\n\n\u003ch1 class=\"logo\">&gt;&gt; PIXEL VIPERS &lt;&lt;\u003c/h1>\n\u003cp align=\"center\" style=\"margin:0;\">\n  \u003cspan class=\"blink\" style=\"color:#ff00ff;font-size:20px;\">~ Strike Fast. Respawn Faster. ~\u003c/span>\u003cbr>\n  \u003cspan style=\"color:#ffffff;\">The #1 retro gaming clan on the Information Superhighway since 1998!\u003c/span>\n\u003c/p>\n\u003chr class=\"rainbow\">\n\n\u003ctable width=\"100%\" class=\"nav\" cellspacing=\"3\">\u003ctr>\n  \u003ctd>\u003ca href=\"#news\">[ NEWS ]\u003c/a>\u003c/td>\n  \u003ctd>\u003ca href=\"#roster\">[ ROSTER ]\u003c/a>\u003c/td>\n  \u003ctd>\u003ca href=\"#join\">[ JOIN US ]\u003c/a>\u003c/td>\n  \u003ctd>\u003ca href=\"#guestbook\">[ GUESTBOOK ]\u003c/a>\u003c/td>\n\u003c/tr>\u003c/table>\n\u003cbr>\n\n\u003ctable width=\"100%\" id=\"cols\" cellspacing=\"6\" cellpadding=\"0\">\u003ctr valign=\"top\">\n\n\u003c!-- SIDEBAR -->\n\u003ctd width=\"190\">\n  \u003cdiv class=\"box\">\n    \u003ch2>Clan Info\u003c/h2>\n    \u003cdiv class=\"pad small\">\n      \u003cb style=\"color:#ffff00;\">Founded:\u003c/b> 1998\u003cbr>\n      \u003cb style=\"color:#ffff00;\">Motto:\u003c/b> \"Insert Coin. Bite.\"\u003cbr>\n      \u003cb style=\"color:#ffff00;\">Servers:\u003c/b> Quake, Starcraft, Unreal Tournament, Mario Kart 64\u003cbr>\n      \u003cb style=\"color:#ffff00;\">Meetings:\u003c/b> Fridays 8pm Pacific on our IRC channel #pixelvipers\u003cbr>\n    \u003c/div>\n  \u003c/div>\n  \u003cbr>\n  \u003cdiv class=\"box\">\n    \u003ch2>Games We Play\u003c/h2>\n    \u003cdiv class=\"pad small\">\n      &raquo; Quake II\u003cbr>\n      &raquo; Unreal Tournament\u003cbr>\n      &raquo; Starcraft\u003cbr>\n      &raquo; GoldenEye 007\u003cbr>\n      &raquo; Mario Kart 64\u003cbr>\n      &raquo; Street Fighter II\u003cbr>\n      &raquo; Tetris (ranked!)\n    \u003c/div>\n  \u003c/div>\n  \u003cbr>\n  \u003cdiv class=\"box\">\n    \u003ch2>You Are Visitor\u003c/h2>\n    \u003cdiv class=\"pad\" align=\"center\">\n      \u003cspan class=\"counter\" id=\"counter\">001337\u003c/span>\u003cbr>\n      \u003cspan class=\"small\">since the dawn of time\u003c/span>\n    \u003c/div>\n  \u003c/div>\n  \u003cbr>\n  \u003cdiv class=\"box\">\u003cdiv class=\"pad\" align=\"center\">\n    \u003cspan class=\"badge\">Made with Notepad\u003c/span>\n    \u003cspan class=\"badge\">Netscape Now!\u003c/span>\n    \u003cspan class=\"badge\">56k friendly\u003c/span>\n    \u003cspan class=\"badge\">No frames!\u003c/span>\n  \u003c/div>\u003c/div>\n\u003c/td>\n\n\u003c!-- MAIN -->\n\u003ctd>\n  \u003cdiv class=\"box\" id=\"news\">\n    \u003ch2>:: LATEST NEWS ::\u003c/h2>\n    \u003cdiv class=\"pad\">\n      \u003cdl class=\"news\">\n        \u003cdt>11/21/2026 \u003cspan class=\"new blink\">NEW!\u003c/span> - Friday Tournament Results\u003c/dt>\n        \u003cdd>Congrats to \u003cb>ViperKing\u003c/b> for a 14-win streak in Street Fighter II! Hadoken Hannah took second. Full brackets coming as soon as we figure out how to scan the napkin.\u003c/dd>\n\n        \u003cdt>11/15/2026 - Clan Server Upgrade\u003c/dt>\n        \u003cdd>The Quake II server now runs on a REAL dedicated machine (Pentium III, 256MB RAM!). Lag is officially dead. Please stop unplugging it to charge your phone, Dave.\u003c/dd>\n\n        \u003cdt>11/02/2026 - Mario Kart 64 Cup Season 4\u003c/dt>\n        \u003cdd>Sign-ups are open. Blue shells are legal. Friendships are not guaranteed.\u003c/dd>\n\n        \u003cdt>10/20/2026 - Welcome New Recruits!\u003c/dt>\n        \u003cdd>Give a big Pixel Vipers hello to \u003cb>N00bSl4yer\u003c/b>, \u003cb>CRT_Queen\u003c/b> and \u003cb>BitRot\u003c/b>. Be nice. Teach them the secret handshake (Up Up Down Down).\u003c/dd>\n      \u003c/dl>\n      \u003cp align=\"right\" class=\"small\">\u003ca href=\"#top\">[ older news in the archive - coming soon ]\u003c/a>\u003c/p>\n    \u003c/div>\n  \u003c/div>\n  \u003cbr>\n\n  \u003cdiv class=\"box\" id=\"roster\">\n    \u003ch2>:: MEMBER ROSTER ::\u003c/h2>\n    \u003cdiv class=\"pad\">\n      \u003ctable class=\"roster\" cellspacing=\"0\">\n        \u003ctr>\u003cth>Handle\u003c/th>\u003cth>Rank\u003c/th>\u003cth>Main Game\u003c/th>\u003cth>Joined\u003c/th>\u003c/tr>\n        \u003ctr>\u003ctd>ViperKing\u003c/td>\u003ctd class=\"rank-lead\">Clan Leader\u003c/td>\u003ctd>Street Fighter II\u003c/td>\u003ctd>1998\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>Hadoken_Hannah\u003c/td>\u003ctd class=\"rank-lead\">Co-Leader\u003c/td>\u003ctd>Street Fighter II\u003c/td>\u003ctd>1999\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>FragMaster_Z\u003c/td>\u003ctd class=\"rank-off\">Officer\u003c/td>\u003ctd>Quake II\u003c/td>\u003ctd>1999\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>Sn4keEyes\u003c/td>\u003ctd class=\"rank-off\">Officer\u003c/td>\u003ctd>GoldenEye 007\u003c/td>\u003ctd>2001\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>PixelPrincess\u003c/td>\u003ctd class=\"rank-mem\">Member\u003c/td>\u003ctd>Mario Kart 64\u003c/td>\u003ctd>2003\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>DialUp_Dave\u003c/td>\u003ctd class=\"rank-mem\">Member\u003c/td>\u003ctd>Starcraft\u003c/td>\u003ctd>2005\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>CRT_Queen\u003c/td>\u003ctd class=\"rank-mem\">Member\u003c/td>\u003ctd>Unreal Tournament\u003c/td>\u003ctd>2026\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>BitRot\u003c/td>\u003ctd class=\"rank-rec\">Recruit\u003c/td>\u003ctd>Tetris\u003c/td>\u003ctd>2026\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>N00bSl4yer\u003c/td>\u003ctd class=\"rank-rec\">Recruit\u003c/td>\u003ctd>Quake II\u003c/td>\u003ctd>2026\u003c/td>\u003c/tr>\n      \u003c/table>\n      \u003cp class=\"small\" style=\"color:#aaa;\">Rank key: \u003cspan class=\"rank-lead\">Leaders\u003c/span> / \u003cspan class=\"rank-off\">Officers\u003c/span> / \u003cspan class=\"rank-mem\">Members\u003c/span> / \u003cspan class=\"rank-rec\">Recruits\u003c/span>\u003c/p>\n    \u003c/div>\n  \u003c/div>\n  \u003cbr>\n\n  \u003cdiv class=\"box\" id=\"join\">\n    \u003ch2>:: JOIN THE PIXEL VIPERS ::\u003c/h2>\n    \u003cdiv class=\"pad\">\n      \u003cp>Think you have what it takes? Fill out the application below. An officer will review it and contact you within \u003cb>3-5 business days\u003c/b>. No cheaters, no rage-quitters, no spoilers.\u003c/p>\n      \u003cform id=\"applyForm\" action=\"#\" method=\"post\">\n        \u003ctable cellpadding=\"4\">\n          \u003ctr>\u003ctd align=\"right\">\u003clabel for=\"handle\">Gamer Handle:\u003c/label>\u003c/td>\n              \u003ctd>\u003cinput type=\"text\" id=\"handle\" name=\"handle\" size=\"26\" maxlength=\"24\" required>\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd align=\"right\">\u003clabel for=\"email\">E-mail:\u003c/label>\u003c/td>\n              \u003ctd>\u003cinput type=\"email\" id=\"email\" name=\"email\" size=\"26\" required>\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd align=\"right\">\u003clabel for=\"game\">Main Game:\u003c/label>\u003c/td>\n              \u003ctd>\u003cselect id=\"game\" name=\"game\">\n                \u003coption>Quake II\u003c/option>\u003coption>Unreal Tournament\u003c/option>\u003coption>Starcraft\u003c/option>\n                \u003coption>GoldenEye 007\u003c/option>\u003coption>Mario Kart 64\u003c/option>\u003coption>Street Fighter II\u003c/option>\n                \u003coption>Tetris\u003c/option>\u003coption>Other (tell us below)\u003c/option>\u003c/select>\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd align=\"right\">\u003clabel for=\"skill\">Skill Level:\u003c/label>\u003c/td>\n              \u003ctd>\n                \u003cinput type=\"radio\" name=\"skill\" value=\"Noob\" id=\"s1\">\u003clabel for=\"s1\"> Noob\u003c/label>\n                \u003cinput type=\"radio\" name=\"skill\" value=\"Decent\" id=\"s2\" checked>\u003clabel for=\"s2\"> Decent\u003c/label>\n                \u003cinput type=\"radio\" name=\"skill\" value=\"Pro\" id=\"s3\">\u003clabel for=\"s3\"> Pro\u003c/label>\n                \u003cinput type=\"radio\" name=\"skill\" value=\"Legend\" id=\"s4\">\u003clabel for=\"s4\"> Legend\u003c/label>\n              \u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd align=\"right\" valign=\"top\">\u003clabel for=\"why\">Why you?\u003c/label>\u003c/td>\n              \u003ctd>\u003ctextarea id=\"why\" name=\"why\" rows=\"5\" cols=\"38\" placeholder=\"Tell us about your best frag, high score, or most epic rage-quit...\">\u003c/textarea>\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd>\u003c/td>\u003ctd>\n              \u003cinput type=\"checkbox\" id=\"rules\" required>\u003clabel for=\"rules\"> I swear on my joystick to follow the Clan Rules\u003c/label>\n          \u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd>\u003c/td>\u003ctd>\n              \u003cinput type=\"submit\" value=\"Send Application!\">\n              \u003cinput type=\"reset\" value=\"Clear\">\n          \u003c/td>\u003c/tr>\n        \u003c/table>\n      \u003c/form>\n      \u003cdiv id=\"result\" role=\"status\">\u003c/div>\n      \u003cp class=\"small\" style=\"color:#aaa;\">Clan Rules: 1) Be cool. 2) No camping the spawn point. 3) Always say \"gg\". 4) Blue shells are a fact of life.\u003c/p>\n    \u003c/div>\n  \u003c/div>\n  \u003cbr>\n\n  \u003cdiv class=\"box\" id=\"guestbook\">\n    \u003ch2>:: GUESTBOOK ::\u003c/h2>\n    \u003cdiv class=\"pad\" align=\"center\">\n      \u003cimg alt=\"\" width=\"1\" height=\"1\" style=\"display:none\">\n      \u003cspan style=\"font-size:28px;\" class=\"blink\">&#9888;\u003c/span>\n      \u003cb style=\"color:#ffff00;\"> THIS PAGE IS UNDER CONSTRUCTION \u003c/b>\n      \u003cspan style=\"font-size:28px;\" class=\"blink\">&#9888;\u003c/span>\u003cbr>\n      \u003cspan class=\"small\">Our guestbook is being rebuilt. Please sign it next time!\u003c/span>\n    \u003c/div>\n  \u003c/div>\n\u003c/td>\n\u003c/tr>\u003c/table>\n\n\u003chr class=\"rainbow\">\n\u003cp align=\"center\" class=\"small\" style=\"color:#ffffff;\">\n  &copy; 1998-2026 The Pixel Vipers. All your base are belong to us.\u003cbr>\n  Last updated: 11/24/2026 &nbsp;|&nbsp; Webmaster: ViperKing\u003cbr>\n  \u003ca href=\"#top\">[ Back to top ]\u003c/a>\n\u003c/p>\n\n\u003c/div>\n\n\u003cscript>\n  // fake hit counter\n  (function () {\n    var n = 1337, key = \"pv_hits\";\n    try { n = parseInt(localStorage.getItem(key) || \"1337\", 10) + 1; localStorage.setItem(key, n); } catch (e) {}\n    document.getElementById(\"counter\").textContent = (\"000000\" + n).slice(-6);\n  })();\n\n  document.getElementById(\"applyForm\").addEventListener(\"submit\", function (e) {\n    e.preventDefault();\n    var f = e.target;\n    var out = document.getElementById(\"result\");\n    var handle = f.handle.value.replace(/\u003c/g, \"&lt;\");\n    out.style.display = \"block\";\n    out.innerHTML = \"\u003cb>*** APPLICATION RECEIVED ***\u003c/b>\u003cbr>Thanks, \u003cb>\" + handle +\n      \"\u003c/b>! The Vipers officers will check out your application soon. \" +\n      \"(Demo form: connect it to a mail script or form service to receive real submissions.)\";\n    f.reset();\n    out.scrollIntoView({ behavior: \"smooth\", block: \"nearest\" });\n  });\n\u003c/script>\n\u003c/body>\n\u003c/html>\n"}], "grading": {"expectations": [{"text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": false, "evidence": "L11 gradient: radial-gradient(; L12 gradient: radial-gradient(; L34 gradient: linear-gradient(; L67 gradient: linear-gradient("}, {"text": "index.html lays out the page with a table or table-style grid with visible bevel or inset borders", "passed": true, "evidence": "all of table + bevel borders present"}, {"text": "index.html includes a scrolling marquee or ticker element", "passed": true, "evidence": "found '\u003cmarquee'"}, {"text": "index.html styles unvisited links blue (#0000EE) and visited links purple (#551A8B)", "passed": false, "evidence": "missing part of #0000EE and #551A8B"}, {"text": "index.html uses a pixel or monospace font for headings (for example Press Start 2P, VT323 or Courier New)", "passed": true, "evidence": "found 'Courier'"}, {"text": "index.html includes a subtle CRT scanline overlay that does not block clicks", "passed": false, "evidence": "no match for scanline overlay"}], "summary": {"passed": 3, "failed": 3, "total": 6, "pass_rate": 0.5}}}, {"id": "ember-oak-pricing-tiers-with_skill", "prompt": "build a retro looking landing page for Ember & Oak coffee roasters. hero section, 3 pricing tiers for our monthly subscription, and a big signup button. save as index.html", "eval_id": null, "outputs": [{"name": "index.html", "type": "text", "content": "\u003c!DOCTYPE html>\n\u003chtml lang=\"en\">\n\u003chead>\n\u003cmeta charset=\"utf-8\">\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\u003ctitle>Ember &amp; Oak Coffee Roasters &mdash; The Monthly Subscription\u003c/title>\n\u003clink rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n\u003clink href=\"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Libre+Baskerville:ital@0;1&family=Courier+Prime&display=swap\" rel=\"stylesheet\">\n\u003cstyle>\n  :root {\n    --paper: #F4ECD8;\n    --paper-dark: #EADFC4;\n    --ink: #2B2520;\n    --faded: #5A4E42;\n    --stamp: #9B2C20;\n    --display: \"Playfair Display\", Didot, Georgia, serif;\n    --text: \"Libre Baskerville\", Baskerville, Georgia, serif;\n    --type: \"Courier Prime\", \"Courier New\", monospace;\n  }\n  * { border-radius: 0; box-sizing: border-box; }\n  body { margin: 0; background: var(--paper); color: var(--ink); font: 17px/1.65 var(--text); }\n\n  /* paper grain: felt, not seen */\n  body::before {\n    content: \"\"; position: fixed; inset: 0; pointer-events: none; z-index: 50;\n    mix-blend-mode: multiply; opacity: .45;\n    background-image: url(\"data:image/svg+xml;utf8,\u003csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'>\u003cfilter id='n' x='0' y='0' width='100%25' height='100%25'>\u003cfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/>\u003cfeColorMatrix values='0 0 0 0 0.17  0 0 0 0 0.15  0 0 0 0 0.12  0 0 0 0.55 0'/>\u003c/filter>\u003crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/>\u003c/svg>\");\n  }\n\n  a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 3px; }\n  a:hover { color: var(--stamp); }\n  a:focus-visible, button:focus-visible { outline: 2px solid var(--stamp); outline-offset: 3px; }\n\n  .sheet { max-width: 1080px; margin: 0 auto; padding: 28px 32px 40px; }\n\n  .dateline { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 16px;\n              font: 13px var(--type); letter-spacing: .15em; text-transform: uppercase;\n              border-top: 4px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 6px 0; }\n  .masthead { text-align: center; position: relative; padding: 18px 0 10px; border-bottom: 3px double var(--ink); }\n  .masthead h1 { margin: 0; font: 900 clamp(2.2rem, 8vw, 5rem)/1 var(--display); letter-spacing: .02em; text-transform: uppercase; }\n  .masthead .motto { font: italic 400 1.05rem var(--display); color: var(--faded); margin: 6px 0 0; }\n  .masthead .stamp { position: absolute; right: 1%; top: 14px; }\n  nav.sections { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 28px; padding: 8px 0;\n                 border-bottom: 1px solid var(--ink); font-variant: small-caps; letter-spacing: .12em; font-size: 1.05rem; }\n  nav.sections a { text-decoration: none; }\n\n  .stamp { display: inline-block; border: 3px double var(--stamp); color: var(--stamp);\n           padding: .35rem .8rem; font: 700 .8rem var(--type); letter-spacing: .2em; text-transform: uppercase;\n           transform: rotate(-6deg); filter: url(#rough); mix-blend-mode: multiply; opacity: .88; }\n\n  /* hero */\n  .hero h2 { font: 900 clamp(1.9rem, 5.5vw, 3.6rem)/1.08 var(--display); margin: 24px 0 6px; text-align: center; }\n  .deck { font: italic 400 1.25rem/1.4 var(--display); color: var(--faded); margin: 0 auto 6px; text-align: center; max-width: 40em; }\n  .byline { font: 13px var(--type); letter-spacing: .15em; text-transform: uppercase; border-top: 1px solid var(--ink);\n            border-bottom: 1px solid var(--ink); padding: 4px 0; margin: 10px 0 18px; text-align: center; }\n  .columns { column-count: 3; column-gap: 2rem; column-rule: 1px solid var(--ink); text-align: justify; hyphens: auto; }\n  .columns p { margin: 0 0 1em; }\n  .columns p:first-of-type::first-letter { float: left; font: 900 4.1rem/.82 var(--display); padding: 6px 8px 0 0; }\n  blockquote.pull { margin: 0 0 1em; padding: .6em 0; border-top: 3px double var(--ink); border-bottom: 3px double var(--ink);\n                    font: italic 700 1.3rem/1.35 var(--display); text-align: center; break-inside: avoid; }\n  figure { margin: 0 0 1em; break-inside: avoid; }\n  figure .photo { display: block; width: 100%; aspect-ratio: 4/3; background: var(--paper-dark); border: 1px solid var(--ink);\n                  outline: 6px solid var(--paper); filter: sepia(.5) contrast(1.05); }\n  figcaption { font: 12px/1.5 var(--type); letter-spacing: .08em; text-transform: uppercase; margin-top: 8px; color: var(--faded); }\n\n  .ornament { text-align: center; letter-spacing: .8em; color: var(--faded); margin: 26px 0; }\n\n  /* section heads */\n  h2.section { font: 900 clamp(1.6rem, 4vw, 2.4rem)/1.1 var(--display); text-align: center; margin: 0 0 4px; font-variant: small-caps; letter-spacing: .04em; }\n\n  /* pricing: ruled catalogue plates */\n  .tiers { display: grid; grid-template-columns: repeat(3, 1fr); margin-top: 20px; border-top: 4px solid var(--ink); border-bottom: 1px solid var(--ink); }\n  .tier { padding: 18px 22px 24px; border-right: 1px solid var(--ink); position: relative; display: flex; flex-direction: column; }\n  .tier:last-child { border-right: 0; }\n  .tier.pick { background: var(--paper-dark); border-left: 3px double var(--ink); border-right: 3px double var(--ink); }\n  .tier .plate { font: 13px var(--type); letter-spacing: .18em; text-transform: uppercase; color: var(--faded); margin: 0; }\n  .tier h3 { font: 900 1.8rem/1.1 var(--display); margin: 4px 0 2px; }\n  .tier .tag { font: italic 400 1rem var(--display); color: var(--faded); margin: 0 0 10px; }\n  .tier .price { font: 700 2.6rem/1 var(--type); border-top: 3px double var(--ink); border-bottom: 1px solid var(--ink); padding: 10px 0; margin: 0 0 12px; }\n  .tier .price small { font-size: .9rem; letter-spacing: .12em; text-transform: uppercase; }\n  .tier ul { list-style: none; margin: 0 0 18px; padding: 0; flex: 1; }\n  .tier li { padding: 6px 0 6px 1.4em; border-bottom: 1px dotted var(--faded); position: relative; font-size: .95rem; line-height: 1.45; }\n  .tier li::before { content: \"\\00A7\"; position: absolute; left: 0; color: var(--stamp); font-family: var(--display); font-weight: 700; }\n  .tier .stamp { position: absolute; top: 12px; right: 12px; font-size: .7rem; }\n\n  .btn { display: inline-block; background: transparent; color: var(--ink); border: 2px solid var(--ink); padding: .55rem 1.1rem;\n         font: 700 .85rem var(--type); letter-spacing: .15em; text-transform: uppercase; text-decoration: none; cursor: pointer; text-align: center; }\n  .btn:hover, .btn:focus-visible { background: var(--ink); color: var(--paper); }\n\n  /* the big signup */\n  .signup { margin-top: 10px; text-align: center; border-top: 4px solid var(--ink); border-bottom: 4px solid var(--ink); padding: 34px 20px 38px; position: relative; }\n  .signup::before { content: \"\"; position: absolute; inset: 6px; border: 1px solid var(--ink); pointer-events: none; }\n  .signup h2 { font: 900 clamp(1.8rem, 5vw, 3rem)/1.1 var(--display); margin: 0 0 6px; }\n  .signup p { margin: 0 auto 22px; max-width: 34em; }\n  .btn-big { display: inline-block; background: var(--ink); color: var(--paper); border: 4px double var(--paper); outline: 3px solid var(--ink);\n             padding: 1.1rem 2.6rem; font: 700 clamp(1.15rem, 3.4vw, 1.8rem) var(--type); letter-spacing: .2em; text-transform: uppercase;\n             text-decoration: none; box-shadow: 6px 6px 0 var(--stamp); position: relative; z-index: 1; }\n  .btn-big:hover, .btn-big:focus-visible { background: var(--stamp); color: var(--paper); outline-color: var(--stamp); box-shadow: 2px 2px 0 var(--ink); }\n  .btn-big:focus-visible { outline: 3px solid var(--stamp); outline-offset: 4px; }\n  .btn-big:active { transform: translate(4px, 4px); box-shadow: 2px 2px 0 var(--stamp); }\n  .fine { font: 12px/1.6 var(--type); letter-spacing: .12em; text-transform: uppercase; color: var(--faded); margin-top: 22px !important; }\n\n  footer { border-top: 3px double var(--ink); padding-top: 12px; margin-top: 30px; font: 12px/1.7 var(--type); letter-spacing: .12em; text-transform: uppercase; text-align: center; color: var(--faded); }\n\n  @media (max-width: 900px) {\n    .columns { column-count: 2; }\n    .tiers { grid-template-columns: 1fr; }\n    .tier { border-right: 0; border-bottom: 1px solid var(--ink); }\n    .tier.pick { border-left: 0; border-right: 0; border-top: 3px double var(--ink); border-bottom: 3px double var(--ink); }\n    .tier:last-child { border-bottom: 0; }\n  }\n  @media (max-width: 600px) {\n    .sheet { padding: 16px; }\n    .columns { column-count: 1; column-rule: none; }\n    .masthead .stamp { position: static; margin-top: 10px; }\n    .btn-big { padding: 1rem 1.2rem; letter-spacing: .12em; width: 100%; }\n  }\n\u003c/style>\n\u003c/head>\n\u003cbody>\n\n\u003csvg width=\"0\" height=\"0\" style=\"position:absolute\" aria-hidden=\"true\" focusable=\"false\">\n  \u003cfilter id=\"rough\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\">\n    \u003cfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.05\" numOctaves=\"2\" seed=\"4\" result=\"t\"/>\n    \u003cfeDisplacementMap in=\"SourceGraphic\" in2=\"t\" scale=\"2.6\"/>\n  \u003c/filter>\n\u003c/svg>\n\n\u003cdiv class=\"sheet\">\n  \u003cdiv class=\"dateline\">\n    \u003cspan>Vol. I &middot; No. 11\u003c/span>\n    \u003cspan>Tuesday, 24 November 2026\u003c/span>\n    \u003cspan>Delivered Monthly\u003c/span>\n  \u003c/div>\n\n  \u003cheader class=\"masthead\">\n    \u003ch1>Ember &amp; Oak\u003c/h1>\n    \u003cp class=\"motto\">&ldquo;Coffee Roasters &mdash; Small Batches, Slowly Done&rdquo;\u003c/p>\n    \u003cspan class=\"stamp\">Roasted Fresh\u003c/span>\n  \u003c/header>\n\n  \u003cnav class=\"sections\" aria-label=\"Sections\">\n    \u003ca href=\"#house\">The House\u003c/a>\u003ca href=\"#subscription\">Subscription\u003c/a>\u003ca href=\"#enroll\">Enrol\u003c/a>\n  \u003c/nav>\n\n  \u003cmain>\n    \u003carticle class=\"hero\" id=\"house\">\n      \u003ch2>Fresh-Roasted Coffee, Delivered to Your Door Each Month\u003c/h2>\n      \u003cp class=\"deck\">Roasted over oak embers in small lots, packed the same morning, and posted to you at the peak of flavour.\u003c/p>\n      \u003cp class=\"byline\">By Our Head Roaster &middot; A Notice to the Discerning Drinker\u003c/p>\n\n      \u003cdiv class=\"columns\">\n        \u003cp>There is a particular hour, just after the second crack, when a good roast turns from green to gold to the deep brown of old furniture, and the whole shop smells of toasted sugar and woodsmoke. It is that hour we wish to put in your cup.\u003c/p>\n        \u003cp>Every bag of Ember &amp; Oak is roasted in lots of no more than twelve kilos, over a fire tended by hand. We buy only from growers we have met, and we pay them fairly. Nothing sits upon a shelf; your parcel leaves our door within a day of the roast.\u003c/p>\n        \u003cblockquote class=\"pull\">&ldquo;Roasted this morning, on your doorstep within the week.&rdquo;\u003c/blockquote>\n        \u003cfigure>\n          \u003cdiv class=\"photo\" role=\"img\" aria-label=\"Photograph of burlap sacks of green coffee beside the oak-fired roaster\">\u003c/div>\n          \u003cfigcaption>Fig. 1 &mdash; The roasting floor at dawn.\u003c/figcaption>\n        \u003c/figure>\n        \u003cp>Choose a parcel below and we shall do the rest: a fresh bag, or several, arrives each month, ground to your liking or left whole. Pause, change or cancel at any time by sending us a line; no questions, and no ceremony.\u003c/p>\n      \u003c/div>\n    \u003c/article>\n\n    \u003cp class=\"ornament\" aria-hidden=\"true\">&#10086; &#10086; &#10086;\u003c/p>\n\n    \u003csection id=\"subscription\" aria-labelledby=\"sub-h\">\n      \u003ch2 class=\"section\" id=\"sub-h\">The Monthly Subscription\u003c/h2>\n      \u003cp class=\"deck\">Three parcels to suit every household. Carriage paid.\u003c/p>\n\n      \u003cdiv class=\"tiers\">\n        \u003carticle class=\"tier\">\n          \u003cp class=\"plate\">Plate No. 1\u003c/p>\n          \u003ch3>The Morning Cup\u003c/h3>\n          \u003cp class=\"tag\">For the solitary drinker\u003c/p>\n          \u003cp class=\"price\">$16 \u003csmall>/ month\u003c/small>\u003c/p>\n          \u003cul>\n            \u003cli>One 12 oz bag, freshly roasted\u003c/li>\n            \u003cli>The roaster&rsquo;s choice of single origin\u003c/li>\n            \u003cli>Whole bean or ground\u003c/li>\n            \u003cli>Free carriage\u003c/li>\n          \u003c/ul>\n          \u003ca class=\"btn\" href=\"#enroll\">Select No. 1\u003c/a>\n        \u003c/article>\n\n        \u003carticle class=\"tier pick\">\n          \u003cspan class=\"stamp\">Most Popular\u003c/span>\n          \u003cp class=\"plate\">Plate No. 2\u003c/p>\n          \u003ch3>The Household\u003c/h3>\n          \u003cp class=\"tag\">For the family table\u003c/p>\n          \u003cp class=\"price\">$29 \u003csmall>/ month\u003c/small>\u003c/p>\n          \u003cul>\n            \u003cli>Two 12 oz bags, a single origin and a house blend\u003c/li>\n            \u003cli>Tasting notes in the roaster&rsquo;s own hand\u003c/li>\n            \u003cli>Whole bean or ground\u003c/li>\n            \u003cli>Free carriage and a pause whenever you please\u003c/li>\n          \u003c/ul>\n          \u003ca class=\"btn\" href=\"#enroll\">Select No. 2\u003c/a>\n        \u003c/article>\n\n        \u003carticle class=\"tier\">\n          \u003cp class=\"plate\">Plate No. 3\u003c/p>\n          \u003ch3>The Cellar Reserve\u003c/h3>\n          \u003cp class=\"tag\">For the connoisseur\u003c/p>\n          \u003cp class=\"price\">$54 \u003csmall>/ month\u003c/small>\u003c/p>\n          \u003cul>\n            \u003cli>Four 12 oz bags, including one limited reserve lot\u003c/li>\n            \u003cli>First notice of each new harvest\u003c/li>\n            \u003cli>A printed brewing card with every parcel\u003c/li>\n            \u003cli>Free carriage and priority roasting\u003c/li>\n          \u003c/ul>\n          \u003ca class=\"btn\" href=\"#enroll\">Select No. 3\u003c/a>\n        \u003c/article>\n      \u003c/div>\n    \u003c/section>\n\n    \u003cp class=\"ornament\" aria-hidden=\"true\">&#10086; &#10086; &#10086;\u003c/p>\n\n    \u003csection class=\"signup\" id=\"enroll\" aria-labelledby=\"enroll-h\">\n      \u003ch2 id=\"enroll-h\">Enrol Yourself Upon Our Roll\u003c/h2>\n      \u003cp>Your first parcel is roasted the day you subscribe. Cancel by letter or by post at any time.\u003c/p>\n      \u003ca class=\"btn-big\" href=\"#enroll\">Sign Up Today\u003c/a>\n      \u003cp class=\"fine\">No contract &middot; Cancel any month &middot; Satisfaction guaranteed\u003c/p>\n    \u003c/section>\n  \u003c/main>\n\n  \u003cfooter>\n    Set in Playfair Display &amp; Libre Baskerville &middot; Roasted on the premises\u003cbr>\n    &copy; 2026 Ember &amp; Oak Coffee Roasters &middot; All rights reserved\n  \u003c/footer>\n\u003c/div>\n\n\u003c/body>\n\u003c/html>\n"}], "grading": {"expectations": [{"text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": true, "evidence": "no violations"}, {"text": "index.html shows exactly three subscription pricing tiers and a prominent signup button", "passed": true, "evidence": "report: three plates, $16/$29/$54, plus a large Sign Up Today button"}, {"text": "index.html commits to a single vintage mode (either 90s Web 1.0 or Classic Editorial/Heritage) without mixing elements of both", "passed": true, "evidence": "report: Mode 2 Editorial/Heritage; page has no 90s markers"}, {"text": "the signup button has square corners and a flat or beveled look, not a pill or glossy gradient", "passed": true, "evidence": "no radius/gradient violations"}, {"text": "the final response names which vintage mode was chosen", "passed": true, "evidence": "final message: 'Mode chosen: Mode 2, Classic Editorial/Heritage'"}], "summary": {"passed": 5, "failed": 0, "total": 5, "pass_rate": 1.0}}}, {"id": "ember-oak-pricing-tiers-without_skill", "prompt": "build a retro looking landing page for Ember & Oak coffee roasters. hero section, 3 pricing tiers for our monthly subscription, and a big signup button. save as index.html", "eval_id": null, "outputs": [{"name": "index.html", "type": "text", "content": "\u003c!doctype html>\n\u003chtml lang=\"en\">\n\u003chead>\n\u003cmeta charset=\"utf-8\">\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\u003ctitle>Ember &amp; Oak Coffee Roasters - Monthly Subscription\u003c/title>\n\u003cstyle>\n  :root{\n    --cream:#f3e6c8; --paper:#ead8ae; --brown:#3b2314; --oak:#7a4a24;\n    --ember:#d2491f; --mustard:#e0a526; --teal:#2f6b63;\n  }\n  *{box-sizing:border-box}\n  body{margin:0;background:var(--cream);color:var(--brown);\n    font-family:\"Courier New\",Courier,monospace;line-height:1.5;\n    background-image:radial-gradient(rgba(59,35,20,.08) 1px,transparent 1px);background-size:6px 6px}\n  h1,h2,h3,.logo{font-family:Georgia,\"Times New Roman\",serif;font-weight:900;margin:0}\n  .wrap{max-width:1050px;margin:0 auto;padding:0 20px}\n  nav{background:var(--brown);color:var(--cream);border-bottom:6px double var(--mustard)}\n  nav .wrap{display:flex;justify-content:space-between;align-items:center;padding:14px 20px}\n  .logo{font-size:1.5rem;letter-spacing:2px;text-transform:uppercase}\n  .logo span{color:var(--ember)}\n  nav a{color:var(--mustard);text-decoration:none;text-transform:uppercase;letter-spacing:2px;font-size:.85rem}\n  .hero{text-align:center;padding:70px 20px 60px;border-bottom:4px solid var(--brown);\n    background:repeating-linear-gradient(90deg,var(--paper) 0 40px,var(--cream) 40px 80px)}\n  .badge{display:inline-block;border:3px double var(--brown);padding:6px 16px;text-transform:uppercase;\n    letter-spacing:3px;font-size:.8rem;background:var(--cream);transform:rotate(-2deg)}\n  .hero h1{font-size:clamp(2.6rem,8vw,5.5rem);line-height:1;margin:26px 0 16px;text-transform:uppercase;\n    color:var(--ember);text-shadow:4px 4px 0 var(--brown)}\n  .hero p{max-width:560px;margin:0 auto 28px;font-size:1.1rem}\n  .stripes{height:18px;background:linear-gradient(var(--ember) 0 6px,var(--mustard) 6px 12px,var(--teal) 12px 18px)}\n  .btn{display:inline-block;background:var(--ember);color:var(--cream);text-decoration:none;\n    font-family:Georgia,serif;font-weight:900;text-transform:uppercase;letter-spacing:3px;\n    border:4px solid var(--brown);box-shadow:8px 8px 0 var(--brown);padding:18px 38px;font-size:1.3rem;\n    transition:transform .1s,box-shadow .1s}\n  .btn:hover{transform:translate(4px,4px);box-shadow:4px 4px 0 var(--brown)}\n  .btn:active{transform:translate(8px,8px);box-shadow:0 0 0 var(--brown)}\n  section.pricing{padding:70px 0}\n  .title{text-align:center;margin-bottom:44px}\n  .title h2{font-size:2.4rem;text-transform:uppercase;letter-spacing:2px}\n  .title p{margin:8px 0 0}\n  .grid{display:grid;grid-template-columns:repeat(3,1fr);gap:28px;align-items:stretch}\n  .tier{background:var(--paper);border:4px solid var(--brown);box-shadow:8px 8px 0 var(--brown);\n    padding:28px 24px;text-align:center;position:relative;display:flex;flex-direction:column}\n  .tier.featured{background:var(--mustard);transform:translateY(-14px)}\n  .flag{position:absolute;top:-16px;left:50%;transform:translateX(-50%);background:var(--ember);color:var(--cream);\n    border:3px solid var(--brown);padding:2px 14px;font-size:.75rem;letter-spacing:2px;text-transform:uppercase;white-space:nowrap}\n  .tier h3{font-size:1.6rem;text-transform:uppercase;letter-spacing:2px}\n  .tier .sub{font-size:.85rem;font-style:italic}\n  .price{font-family:Georgia,serif;font-weight:900;font-size:3.6rem;margin:16px 0 0;color:var(--ember)}\n  .featured .price{color:var(--brown)}\n  .price sup{font-size:1.4rem;vertical-align:top;position:relative;top:10px}\n  .per{border-bottom:3px dashed var(--brown);padding-bottom:16px;margin-bottom:16px;font-size:.85rem;text-transform:uppercase;letter-spacing:2px}\n  .tier ul{list-style:none;margin:0 0 24px;padding:0;text-align:left;flex:1}\n  .tier li{padding:6px 0 6px 26px;position:relative}\n  .tier li:before{content:\"\\2605\";position:absolute;left:0;color:var(--ember)}\n  .featured li:before{color:var(--brown)}\n  .btn.small{font-size:1rem;padding:12px 20px;box-shadow:5px 5px 0 var(--brown);background:var(--brown);color:var(--cream);border-color:var(--brown)}\n  .featured .btn.small{background:var(--ember)}\n  .signup{background:var(--brown);color:var(--cream);text-align:center;padding:80px 20px;border-top:6px double var(--mustard)}\n  .signup h2{font-size:clamp(2rem,5vw,3.4rem);text-transform:uppercase;color:var(--mustard);margin-bottom:12px}\n  .signup p{max-width:520px;margin:0 auto 36px}\n  .btn.big{font-size:clamp(1.5rem,5vw,2.4rem);padding:28px 56px;border-color:var(--cream);\n    box-shadow:10px 10px 0 var(--ember);background:var(--mustard);color:var(--brown)}\n  .btn.big:hover{box-shadow:5px 5px 0 var(--ember);transform:translate(5px,5px)}\n  footer{background:#24140b;color:var(--paper);text-align:center;padding:24px;font-size:.8rem;letter-spacing:2px;text-transform:uppercase}\n  @media(max-width:820px){.grid{grid-template-columns:1fr}.tier.featured{transform:none}.hero{padding:50px 16px}}\n\u003c/style>\n\u003c/head>\n\u003cbody>\n\u003cnav>\u003cdiv class=\"wrap\">\u003cdiv class=\"logo\">Ember \u003cspan>&amp;\u003c/span> Oak\u003c/div>\u003ca href=\"#pricing\">Plans\u003c/a>\u003c/div>\u003c/nav>\n\n\u003cheader class=\"hero\">\n  \u003cspan class=\"badge\">Small-batch roasters &bull; Est. 1974 style\u003c/span>\n  \u003ch1>Fresh Roasted,\u003cbr>Right To Your Door\u003c/h1>\n  \u003cp>Slow-roasted over oak embers and shipped within 48 hours. Join our monthly coffee subscription and never run dry again.\u003c/p>\n  \u003ca class=\"btn\" href=\"#signup\">Start My Subscription\u003c/a>\n\u003c/header>\n\u003cdiv class=\"stripes\">\u003c/div>\n\n\u003csection class=\"pricing\" id=\"pricing\">\n  \u003cdiv class=\"wrap\">\n    \u003cdiv class=\"title\">\u003ch2>Pick Your Pour\u003c/h2>\u003cp>Three plans. Skip or cancel any month, no questions asked.\u003c/p>\u003c/div>\n    \u003cdiv class=\"grid\">\n      \u003carticle class=\"tier\">\n        \u003ch3>Sipper\u003c/h3>\u003cdiv class=\"sub\">For the casual cup\u003c/div>\n        \u003cdiv class=\"price\">\u003csup>$\u003c/sup>14\u003c/div>\u003cdiv class=\"per\">per month\u003c/div>\n        \u003cul>\u003cli>One 12 oz bag\u003c/li>\u003cli>Rotating house roast\u003c/li>\u003cli>Free shipping\u003c/li>\u003cli>Tasting notes card\u003c/li>\u003c/ul>\n        \u003ca class=\"btn small\" href=\"#signup\">Choose Sipper\u003c/a>\n      \u003c/article>\n      \u003carticle class=\"tier featured\">\n        \u003cdiv class=\"flag\">Most Popular\u003c/div>\n        \u003ch3>Daily Grind\u003c/h3>\u003cdiv class=\"sub\">For the devoted drinker\u003c/div>\n        \u003cdiv class=\"price\">\u003csup>$\u003c/sup>26\u003c/div>\u003cdiv class=\"per\">per month\u003c/div>\n        \u003cul>\u003cli>Two 12 oz bags\u003c/li>\u003cli>Single-origin &amp; blends\u003c/li>\u003cli>Free shipping\u003c/li>\u003cli>10% off shop orders\u003c/li>\u003cli>Early access to limited roasts\u003c/li>\u003c/ul>\n        \u003ca class=\"btn small\" href=\"#signup\">Choose Daily Grind\u003c/a>\n      \u003c/article>\n      \u003carticle class=\"tier\">\n        \u003ch3>Roastmaster\u003c/h3>\u003cdiv class=\"sub\">For the true coffee fiend\u003c/div>\n        \u003cdiv class=\"price\">\u003csup>$\u003c/sup>48\u003c/div>\u003cdiv class=\"per\">per month\u003c/div>\n        \u003cul>\u003cli>Four 12 oz bags\u003c/li>\u003cli>Reserve &amp; micro-lot roasts\u003c/li>\u003cli>Free priority shipping\u003c/li>\u003cli>20% off shop orders\u003c/li>\u003cli>Free Ember &amp; Oak mug\u003c/li>\u003c/ul>\n        \u003ca class=\"btn small\" href=\"#signup\">Choose Roastmaster\u003c/a>\n      \u003c/article>\n    \u003c/div>\n  \u003c/div>\n\u003c/section>\n\n\u003csection class=\"signup\" id=\"signup\">\n  \u003ch2>Your Next Cup Awaits\u003c/h2>\n  \u003cp>Sign up in under a minute. Your first bag ships this week.\u003c/p>\n  \u003ca class=\"btn big\" href=\"#signup\">Sign Up Now\u003c/a>\n\u003c/section>\n\n\u003cfooter>&copy; Ember &amp; Oak Coffee Roasters &bull; Roasted with care\u003c/footer>\n\u003c/body>\n\u003c/html>\n"}], "grading": {"expectations": [{"text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": false, "evidence": "L15 gradient: radial-gradient(; L30 gradient: linear-gradient("}, {"text": "index.html shows exactly three subscription pricing tiers and a prominent signup button", "passed": true, "evidence": "report: three tiers $14/$26/$48 and a very large Sign Up Now button"}, {"text": "index.html commits to a single vintage mode (either 90s Web 1.0 or Classic Editorial/Heritage) without mixing elements of both", "passed": false, "evidence": "report: chose '1970s Americana coffee-house' with mustard/teal palette, halftone dots, hard offset shadows; neither defined mode"}, {"text": "the signup button has square corners and a flat or beveled look, not a pill or glossy gradient", "passed": false, "evidence": "L15 gradient; L30 gradient"}, {"text": "the final response names which vintage mode was chosen", "passed": false, "evidence": "final message names a style (1970s Americana) but not one of the two modes"}], "summary": {"passed": 1, "failed": 4, "total": 5, "pass_rate": 0.2}}}], "previous_feedback": {}, "previous_outputs": {}, "benchmark": {"metadata": {"skill_name": "vintage-web", "skill_path": "\u003cpath/to/skill>", "executor_model": "\u003cmodel-name>", "analyzer_model": "\u003cmodel-name>", "timestamp": "2026-11-24T08:35:14Z", "evals_run": ["apothecary-heritage", "clan-landing-web1", "ember-oak-pricing-tiers"], "runs_per_configuration": 1}, "runs": [{"eval_id": "apothecary-heritage", "eval_name": "apothecary-heritage", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 6, "failed": 0, "total": 6, "time_seconds": 72.5, "tokens": 103987, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "index.html contains no gradients, no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": true, "evidence": "no violations"}, {"text": "index.html uses #F4ECD8 as the page background and #2B2520 as the text color", "passed": true, "evidence": "all of #F4ECD8 and #2B2520 present"}, {"text": "index.html uses Playfair Display (or a Didot/Georgia serif) for headings and Courier for typewriter details", "passed": true, "evidence": "all of serif display + Courier present"}, {"text": "index.html overlays a paper grain texture made with an SVG filter (feTurbulence)", "passed": true, "evidence": "found 'feTurbulence'"}, {"text": "index.html includes at least one stamp-style badge (double border, rotated, uppercase)", "passed": true, "evidence": "all of stamp + rotation present"}, {"text": "index.html presents text in multi-column print-style layout with column rules", "passed": true, "evidence": "found 'column-count'"}], "notes": []}, {"eval_id": "clan-landing-web1", "eval_name": "clan-landing-web1", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 6, "failed": 0, "total": 6, "time_seconds": 107.3, "tokens": 109747, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": true, "evidence": "no violations"}, {"text": "index.html lays out the page with a table or table-style grid with visible bevel or inset borders", "passed": true, "evidence": "all of table + bevel borders present"}, {"text": "index.html includes a scrolling marquee or ticker element", "passed": true, "evidence": "found 'ticker'"}, {"text": "index.html styles unvisited links blue (#0000EE) and visited links purple (#551A8B)", "passed": true, "evidence": "all of #0000EE and #551A8B present"}, {"text": "index.html uses a pixel or monospace font for headings (for example Press Start 2P, VT323 or Courier New)", "passed": true, "evidence": "found 'VT323'"}, {"text": "index.html includes a subtle CRT scanline overlay that does not block clicks", "passed": true, "evidence": "found 'repeating-linear-gradient'"}], "notes": []}, {"eval_id": "ember-oak-pricing-tiers", "eval_name": "ember-oak-pricing-tiers", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 5, "failed": 0, "total": 5, "time_seconds": 56.7, "tokens": 100165, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": true, "evidence": "no violations"}, {"text": "index.html shows exactly three subscription pricing tiers and a prominent signup button", "passed": true, "evidence": "report: three plates, $16/$29/$54, plus a large Sign Up Today button"}, {"text": "index.html commits to a single vintage mode (either 90s Web 1.0 or Classic Editorial/Heritage) without mixing elements of both", "passed": true, "evidence": "report: Mode 2 Editorial/Heritage; page has no 90s markers"}, {"text": "the signup button has square corners and a flat or beveled look, not a pill or glossy gradient", "passed": true, "evidence": "no radius/gradient violations"}, {"text": "the final response names which vintage mode was chosen", "passed": true, "evidence": "final message: 'Mode chosen: Mode 2, Classic Editorial/Heritage'"}], "notes": []}, {"eval_id": "apothecary-heritage", "eval_name": "apothecary-heritage", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.167, "passed": 1, "failed": 5, "total": 6, "time_seconds": 47.3, "tokens": 81979, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "index.html contains no gradients, no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": false, "evidence": "L21 gradient: radial-gradient("}, {"text": "index.html uses #F4ECD8 as the page background and #2B2520 as the text color", "passed": false, "evidence": "missing part of #F4ECD8 and #2B2520"}, {"text": "index.html uses Playfair Display (or a Didot/Georgia serif) for headings and Courier for typewriter details", "passed": false, "evidence": "missing part of serif display + Courier"}, {"text": "index.html overlays a paper grain texture made with an SVG filter (feTurbulence)", "passed": false, "evidence": "no match for feTurbulence grain"}, {"text": "index.html includes at least one stamp-style badge (double border, rotated, uppercase)", "passed": false, "evidence": "missing part of stamp + rotation"}, {"text": "index.html presents text in multi-column print-style layout with column rules", "passed": true, "evidence": "found 'columns:'"}], "notes": []}, {"eval_id": "clan-landing-web1", "eval_name": "clan-landing-web1", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.5, "passed": 3, "failed": 3, "total": 6, "time_seconds": 48.0, "tokens": 89691, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": false, "evidence": "L11 gradient: radial-gradient(; L12 gradient: radial-gradient(; L34 gradient: linear-gradient(; L67 gradient: linear-gradient("}, {"text": "index.html lays out the page with a table or table-style grid with visible bevel or inset borders", "passed": true, "evidence": "all of table + bevel borders present"}, {"text": "index.html includes a scrolling marquee or ticker element", "passed": true, "evidence": "found '\u003cmarquee'"}, {"text": "index.html styles unvisited links blue (#0000EE) and visited links purple (#551A8B)", "passed": false, "evidence": "missing part of #0000EE and #551A8B"}, {"text": "index.html uses a pixel or monospace font for headings (for example Press Start 2P, VT323 or Courier New)", "passed": true, "evidence": "found 'Courier'"}, {"text": "index.html includes a subtle CRT scanline overlay that does not block clicks", "passed": false, "evidence": "no match for scanline overlay"}], "notes": []}, {"eval_id": "ember-oak-pricing-tiers", "eval_name": "ember-oak-pricing-tiers", "configuration": "without_skill", "run_number": 1, "result": {"pass_rate": 0.2, "passed": 1, "failed": 4, "total": 5, "time_seconds": 29.7, "tokens": 87229, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": false, "evidence": "L15 gradient: radial-gradient(; L30 gradient: linear-gradient("}, {"text": "index.html shows exactly three subscription pricing tiers and a prominent signup button", "passed": true, "evidence": "report: three tiers $14/$26/$48 and a very large Sign Up Now button"}, {"text": "index.html commits to a single vintage mode (either 90s Web 1.0 or Classic Editorial/Heritage) without mixing elements of both", "passed": false, "evidence": "report: chose '1970s Americana coffee-house' with mustard/teal palette, halftone dots, hard offset shadows; neither defined mode"}, {"text": "the signup button has square corners and a flat or beveled look, not a pill or glossy gradient", "passed": false, "evidence": "L15 gradient; L30 gradient"}, {"text": "the final response names which vintage mode was chosen", "passed": false, "evidence": "final message names a style (1970s Americana) but not one of the two modes"}], "notes": []}], "run_summary": {"with_skill": {"pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0}, "time_seconds": {"mean": 78.8333, "stddev": 25.8877, "min": 56.7, "max": 107.3}, "tokens": {"mean": 104633.0, "stddev": 4823.5535, "min": 100165, "max": 109747}}, "without_skill": {"pass_rate": {"mean": 0.289, "stddev": 0.1835, "min": 0.167, "max": 0.5}, "time_seconds": {"mean": 41.6667, "stddev": 10.3693, "min": 29.7, "max": 48.0}, "tokens": {"mean": 86299.6667, "stddev": 3939.0965, "min": 81979, "max": 89691}}, "delta": {"pass_rate": "+0.71", "time_seconds": "+37.2", "tokens": "+18333"}}, "notes": ["Baseline scores are partly structural: assertions encode the skill's own palette, grain, stamp and column vocabulary, so the baseline fails them by design. The discriminating signal is the shared 'no banned patterns' assertion: all three baselines used gradients (radial/linear) while all three with-skill pages were clean.", "Baselines did build period-appropriate pages (GeoCities, Edwardian, 1970s Americana) and used hard offset shadows rather than blur; the skill's value is consistency with the two defined modes, not basic vintage taste.", "The ember-oak case is the real stress test: with the skill the pricing tiers and big signup button came out as ruled editorial plates with a square button; baseline mode and naming assertions fail only because it invented a third style.", "The skill costs about 18k more tokens and about 37s more per run (reading SKILL.md, reference, template, running the linter).", "No assertion failed with the skill, so this iteration cannot show where the skill is weak. Visual quality was not checked: no run opened its page in a browser, and the viewer's side-by-side outputs are the human check."]}};
+
+    // ---- State ----
+    let feedbackMap = {};  // run_id -> feedback text
+    let currentIndex = 0;
+    let visitedRuns = new Set();
+
+    // ---- Init ----
+    async function init() {
+      // Load saved feedback from server — but only if this isn't a fresh
+      // iteration (indicated by previous_feedback being present). When
+      // previous feedback exists, the feedback.json on disk is stale from
+      // the prior iteration and should not pre-fill the textareas.
+      const hasPrevious = Object.keys(EMBEDDED_DATA.previous_feedback || {}).length > 0
+        || Object.keys(EMBEDDED_DATA.previous_outputs || {}).length > 0;
+      if (!hasPrevious) {
+        try {
+          const resp = await fetch("/api/feedback");
+          const data = await resp.json();
+          if (data.reviews) {
+            for (const r of data.reviews) feedbackMap[r.run_id] = r.feedback;
+          }
+        } catch { /* first run, no feedback yet */ }
+      }
+
+      document.getElementById("skill-name").textContent = EMBEDDED_DATA.skill_name;
+      showRun(0);
+
+      // Wire up feedback auto-save
+      const textarea = document.getElementById("feedback");
+      let saveTimeout = null;
+      textarea.addEventListener("input", () => {
+        clearTimeout(saveTimeout);
+        document.getElementById("feedback-status").textContent = "";
+        saveTimeout = setTimeout(() => saveCurrentFeedback(), 800);
+      });
+    }
+
+    // ---- Navigation ----
+    function navigate(delta) {
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < EMBEDDED_DATA.runs.length) {
+        saveCurrentFeedback();
+        showRun(newIndex);
+      }
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prev-btn").disabled = currentIndex === 0;
+      document.getElementById("next-btn").disabled =
+        currentIndex === EMBEDDED_DATA.runs.length - 1;
+    }
+
+    // ---- Show a run ----
+    function showRun(index) {
+      currentIndex = index;
+      const run = EMBEDDED_DATA.runs[index];
+
+      // Progress
+      document.getElementById("progress").textContent =
+        `${index + 1} of ${EMBEDDED_DATA.runs.length}`;
+
+      // Prompt
+      document.getElementById("prompt-text").textContent = run.prompt;
+
+      // Config badge
+      const badge = document.getElementById("config-badge");
+      const configMatch = run.id.match(/(with_skill|without_skill|new_skill|old_skill)/);
+      if (configMatch) {
+        const config = configMatch[1];
+        const isBaseline = config === "without_skill" || config === "old_skill";
+        badge.textContent = config.replace(/_/g, " ");
+        badge.className = "config-badge " + (isBaseline ? "config-baseline" : "config-primary");
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Outputs
+      renderOutputs(run);
+
+      // Previous outputs
+      renderPrevOutputs(run);
+
+      // Grades
+      renderGrades(run);
+
+      // Previous feedback
+      const prevFb = (EMBEDDED_DATA.previous_feedback || {})[run.id];
+      const prevEl = document.getElementById("prev-feedback");
+      if (prevFb) {
+        document.getElementById("prev-feedback-text").textContent = prevFb;
+        prevEl.style.display = "block";
+      } else {
+        prevEl.style.display = "none";
+      }
+
+      // Feedback
+      document.getElementById("feedback").value = feedbackMap[run.id] || "";
+      document.getElementById("feedback-status").textContent = "";
+
+      updateNavButtons();
+
+      // Track visited runs and promote done button when all visited
+      visitedRuns.add(index);
+      const doneBtn = document.getElementById("done-btn");
+      if (visitedRuns.size >= EMBEDDED_DATA.runs.length) {
+        doneBtn.classList.add("ready");
+      }
+
+      // Scroll main content to top
+      document.querySelector(".main").scrollTop = 0;
+    }
+
+    // ---- Render outputs ----
+    function renderOutputs(run) {
+      const container = document.getElementById("outputs-body");
+      container.innerHTML = "";
+
+      const outputs = run.outputs || [];
+      if (outputs.length === 0) {
+        container.innerHTML = '<div class="empty-state">No output files</div>';
+        return;
+      }
+
+      for (const file of outputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        // Always show file header with download link
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const content = document.createElement("div");
+        content.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          content.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          content.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          content.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(content, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          content.appendChild(a);
+        } else if (file.type === "error") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          pre.style.color = "var(--red)";
+          content.appendChild(pre);
+        }
+
+        fileDiv.appendChild(content);
+        container.appendChild(fileDiv);
+      }
+    }
+
+    // ---- XLSX rendering via SheetJS ----
+    function renderXlsx(container, b64Data) {
+      try {
+        const raw = Uint8Array.from(atob(b64Data), c => c.charCodeAt(0));
+        const wb = XLSX.read(raw, { type: "array" });
+
+        for (let i = 0; i < wb.SheetNames.length; i++) {
+          const sheetName = wb.SheetNames[i];
+          const ws = wb.Sheets[sheetName];
+
+          if (wb.SheetNames.length > 1) {
+            const sheetLabel = document.createElement("div");
+            sheetLabel.style.cssText =
+              "font-weight:600; font-size:0.8rem; color:#b0aea5; margin-top:0.5rem; margin-bottom:0.25rem;";
+            sheetLabel.textContent = "Sheet: " + sheetName;
+            container.appendChild(sheetLabel);
+          }
+
+          const htmlStr = XLSX.utils.sheet_to_html(ws, { editable: false });
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = htmlStr;
+          container.appendChild(wrapper);
+        }
+      } catch (err) {
+        container.textContent = "Error rendering spreadsheet: " + err.message;
+      }
+    }
+
+    // ---- Grades ----
+    function renderGrades(run) {
+      const section = document.getElementById("grades-section");
+      const content = document.getElementById("grades-content");
+
+      if (!run.grading) {
+        section.style.display = "none";
+        return;
+      }
+
+      const grading = run.grading;
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("grades-arrow").classList.remove("open");
+
+      const summary = grading.summary || {};
+      const expectations = grading.expectations || [];
+
+      let html = '<div style="padding: 1rem;">';
+
+      // Summary line
+      const passRate = summary.pass_rate != null
+        ? Math.round(summary.pass_rate * 100) + "%"
+        : "?";
+      const badgeClass = summary.pass_rate >= 0.8 ? "grade-pass" : summary.pass_rate >= 0.5 ? "" : "grade-fail";
+      html += '<div class="grades-summary">';
+      html += '<span class="grade-badge ' + badgeClass + '">' + passRate + '</span>';
+      html += '<span>' + escapeHtml(summary.passed || 0) + ' passed, ' + escapeHtml(summary.failed || 0) + ' failed of ' + escapeHtml(summary.total || 0) + '</span>';
+      html += '</div>';
+
+      // Assertions list
+      html += '<ul class="assertion-list">';
+      for (const exp of expectations) {
+        const statusClass = exp.passed ? "pass" : "fail";
+        const statusIcon = exp.passed ? "\u2713" : "\u2717";
+        html += '<li class="assertion-item">';
+        html += '<span class="assertion-status ' + statusClass + '">' + statusIcon + '</span>';
+        html += '<span>' + escapeHtml(exp.text) + '</span>';
+        if (exp.evidence) {
+          html += '<div class="assertion-evidence">' + escapeHtml(exp.evidence) + '</div>';
+        }
+        html += '</li>';
+      }
+      html += '</ul>';
+
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function toggleGrades() {
+      const content = document.getElementById("grades-content");
+      const arrow = document.getElementById("grades-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Previous outputs (collapsible) ----
+    function renderPrevOutputs(run) {
+      const section = document.getElementById("prev-outputs-section");
+      const content = document.getElementById("prev-outputs-content");
+      const prevOutputs = (EMBEDDED_DATA.previous_outputs || {})[run.id];
+
+      if (!prevOutputs || prevOutputs.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("prev-outputs-arrow").classList.remove("open");
+
+      // Render the files into the content area
+      content.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.style.padding = "1rem";
+
+      for (const file of prevOutputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const fc = document.createElement("div");
+        fc.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          fc.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          fc.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          fc.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(fc, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          fc.appendChild(a);
+        }
+
+        fileDiv.appendChild(fc);
+        wrapper.appendChild(fileDiv);
+      }
+
+      content.appendChild(wrapper);
+    }
+
+    function togglePrevOutputs() {
+      const content = document.getElementById("prev-outputs-content");
+      const arrow = document.getElementById("prev-outputs-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Feedback (saved to server -> feedback.json) ----
+    function saveCurrentFeedback() {
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // Build reviews array from map
+      const reviews = [];
+      for (const [run_id, feedback] of Object.entries(feedbackMap)) {
+        if (feedback.trim()) {
+          reviews.push({ run_id, feedback, timestamp: new Date().toISOString() });
+        }
+      }
+
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviews, status: "in_progress" }),
+      }).then(() => {
+        document.getElementById("feedback-status").textContent = "Saved";
+      }).catch(() => {
+        // Static mode or server unavailable — no-op on auto-save,
+        // feedback will be downloaded on final submit
+        document.getElementById("feedback-status").textContent = "Will download on submit";
+      });
+    }
+
+    // ---- Done ----
+    function showDoneDialog() {
+      // Save current textarea to feedbackMap (but don't POST yet)
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // POST once with status: complete — include ALL runs so the model
+      // can distinguish "no feedback" (looks good) from "not reviewed"
+      const reviews = [];
+      const ts = new Date().toISOString();
+      for (const r of EMBEDDED_DATA.runs) {
+        reviews.push({ run_id: r.id, feedback: feedbackMap[r.id] || "", timestamp: ts });
+      }
+      const payload = JSON.stringify({ reviews, status: "complete" }, null, 2);
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      }).then(() => {
+        document.getElementById("done-overlay").classList.add("visible");
+      }).catch(() => {
+        // Server not available (static mode) — download as file
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "feedback.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById("done-overlay").classList.add("visible");
+      });
+    }
+
+    function closeDoneDialog() {
+      // Reset status back to in_progress
+      saveCurrentFeedback();
+      document.getElementById("done-overlay").classList.remove("visible");
+    }
+
+    // ---- Toast ----
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2000);
+    }
+
+    // ---- Keyboard nav ----
+    document.addEventListener("keydown", (e) => {
+      // Don't capture when typing in textarea
+      if (e.target.tagName === "TEXTAREA") return;
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        navigate(-1);
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        navigate(1);
+      }
+    });
+
+    // ---- Util ----
+    function getDownloadUri(file) {
+      if (file.data_uri) return file.data_uri;
+      if (file.data_b64) return "data:application/octet-stream;base64," + file.data_b64;
+      if (file.type === "text") return "data:text/plain;charset=utf-8," + encodeURIComponent(file.content);
+      return "#";
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML.replace(/"/g, "&quot;");
+    }
+
+    // ---- View switching ----
+    function switchView(view) {
+      document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelector(`[onclick="switchView('${view}')"]`).classList.add("active");
+      document.getElementById("panel-" + view).classList.add("active");
+    }
+
+    // ---- Benchmark rendering ----
+    function renderBenchmark() {
+      const data = EMBEDDED_DATA.benchmark;
+      if (!data) return;
+
+      // Show the tabs
+      document.getElementById("view-tabs").style.display = "flex";
+
+      const container = document.getElementById("benchmark-content");
+      const summary = data.run_summary || {};
+      const metadata = data.metadata || {};
+      const notes = data.notes || [];
+
+      let html = "";
+
+      // Header
+      html += "<h2 style='font-family: Poppins, sans-serif; margin-bottom: 0.5rem;'>Benchmark Results</h2>";
+      html += "<p style='color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;'>";
+      if (metadata.skill_name) html += "<strong>" + escapeHtml(metadata.skill_name) + "</strong> &mdash; ";
+      if (metadata.timestamp) html += escapeHtml(metadata.timestamp) + " &mdash; ";
+      if (metadata.evals_run) html += "Evals: " + escapeHtml(metadata.evals_run.join(", ")) + " &mdash; ";
+      html += escapeHtml(metadata.runs_per_configuration || "?") + (metadata.runs_per_configuration === 1 ? " run" : " runs") + " per configuration";
+      html += "</p>";
+
+      // Summary table
+      html += '<table class="benchmark-table">';
+
+      function fmtStat(stat, pct) {
+        if (!stat) return "—";
+        const suffix = pct ? "%" : "";
+        const m = pct ? (stat.mean * 100).toFixed(0) : stat.mean.toFixed(1);
+        const s = pct ? (stat.stddev * 100).toFixed(0) : stat.stddev.toFixed(1);
+        return m + suffix + " ± " + s + suffix;
+      }
+
+      function deltaClass(val) {
+        if (!val) return "";
+        const n = parseFloat(val);
+        if (n > 0) return "benchmark-delta-positive";
+        if (n < 0) return "benchmark-delta-negative";
+        return "";
+      }
+
+      // Discover config names dynamically (everything except "delta")
+      const configs = Object.keys(summary).filter(k => k !== "delta");
+      const configA = configs[0] || "config_a";
+      const configB = configs[1] || "config_b";
+      const labelA = configA.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const labelB = configB.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const a = summary[configA] || {};
+      const b = summary[configB] || {};
+      const delta = summary.delta || {};
+      // With a single configuration there is nothing to compare: only its column is shown
+      const compare = cells => configs.length >= 2 ? cells : "";
+
+      html += "<thead><tr><th>Metric</th><th>" + escapeHtml(labelA) + "</th>" + compare("<th>" + escapeHtml(labelB) + "</th><th>Delta</th>") + "</tr></thead>";
+      html += "<tbody>";
+
+      html += "<tr><td><strong>Pass Rate</strong></td>";
+      html += "<td>" + fmtStat(a.pass_rate, true) + "</td>";
+      html += compare("<td>" + fmtStat(b.pass_rate, true) + "</td>");
+      html += compare('<td class="' + deltaClass(delta.pass_rate) + '">' + escapeHtml(delta.pass_rate || "—") + "</td>") + "</tr>";
+
+      // Time (only show row if data exists)
+      if (a.time_seconds || b.time_seconds) {
+        html += "<tr><td><strong>Time (s)</strong></td>";
+        html += "<td>" + fmtStat(a.time_seconds, false) + "</td>";
+        html += compare("<td>" + fmtStat(b.time_seconds, false) + "</td>");
+        html += compare('<td class="' + deltaClass(delta.time_seconds) + '">' + escapeHtml(delta.time_seconds ? delta.time_seconds + "s" : "—") + "</td>") + "</tr>";
+      }
+
+      // Tokens (only show row if data exists)
+      if (a.tokens || b.tokens) {
+        html += "<tr><td><strong>Tokens</strong></td>";
+        html += "<td>" + fmtStat(a.tokens, false) + "</td>";
+        html += compare("<td>" + fmtStat(b.tokens, false) + "</td>");
+        html += compare('<td class="' + deltaClass(delta.tokens) + '">' + escapeHtml(delta.tokens || "—") + "</td>") + "</tr>";
+      }
+
+      html += "</tbody></table>";
+
+      // Per-eval breakdown (if runs data available)
+      const runs = data.runs || [];
+      if (runs.length > 0) {
+        // Numeric ids first, then ids that are names
+        const rank = id => typeof id === "number" ? 0 : 1;
+        const evalIds = [...new Set(runs.map(r => r.eval_id))].sort((a, b) =>
+          rank(a) - rank(b) || (rank(a) ? String(a).localeCompare(String(b)) : a - b));
+
+        html += "<h3 style='font-family: Poppins, sans-serif; margin-bottom: 0.75rem;'>Per-Eval Breakdown</h3>";
+
+        const hasTime = runs.some(r => r.result && r.result.time_seconds != null);
+        const hasErrors = runs.some(r => r.result && r.result.errors > 0);
+
+        for (const evalId of evalIds) {
+          const evalRuns = runs.filter(r => r.eval_id === evalId);
+          const evalName = evalRuns[0] && evalRuns[0].eval_name ? evalRuns[0].eval_name : "Eval " + evalId;
+
+          html += "<h4 style='font-family: Poppins, sans-serif; margin: 1rem 0 0.5rem; color: var(--text);'>" + escapeHtml(evalName) + "</h4>";
+          html += '<table class="benchmark-table">';
+          html += "<thead><tr><th>Config</th><th>Run</th><th>Pass Rate</th>";
+          if (hasTime) html += "<th>Time (s)</th>";
+          if (hasErrors) html += "<th>Crashes During Execution</th>";
+          html += "</tr></thead>";
+          html += "<tbody>";
+
+          // Group by config and render with average rows
+          const configGroups = [...new Set(evalRuns.map(r => r.configuration))];
+          for (let ci = 0; ci < configGroups.length; ci++) {
+            const config = configGroups[ci];
+            const configRuns = evalRuns.filter(r => r.configuration === config);
+            if (configRuns.length === 0) continue;
+
+            const rowClass = ci === 0 ? "benchmark-row-with" : "benchmark-row-without";
+            const configLabel = escapeHtml(config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
+
+            for (const run of configRuns) {
+              const r = run.result || {};
+              const prClass = r.pass_rate >= 0.8 ? "benchmark-delta-positive" : r.pass_rate < 0.5 ? "benchmark-delta-negative" : "";
+              html += '<tr class="' + rowClass + '">';
+              html += "<td>" + configLabel + "</td>";
+              html += "<td>" + escapeHtml(run.run_number) + "</td>";
+              html += '<td class="' + prClass + '">' + ((r.pass_rate || 0) * 100).toFixed(0) + "% (" + escapeHtml(r.passed || 0) + "/" + escapeHtml(r.total || 0) + ")</td>";
+              if (hasTime) html += "<td>" + (r.time_seconds != null ? r.time_seconds.toFixed(1) : "—") + "</td>";
+              if (hasErrors) html += "<td>" + escapeHtml(r.errors || 0) + "</td>";
+              html += "</tr>";
+            }
+
+            // Average row
+            const rates = configRuns.map(r => (r.result || {}).pass_rate || 0);
+            const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+            const avgPrClass = avgRate >= 0.8 ? "benchmark-delta-positive" : avgRate < 0.5 ? "benchmark-delta-negative" : "";
+            html += '<tr class="benchmark-row-avg ' + rowClass + '">';
+            html += "<td>" + configLabel + "</td>";
+            html += "<td>Avg</td>";
+            html += '<td class="' + avgPrClass + '">' + (avgRate * 100).toFixed(0) + "%</td>";
+            if (hasTime) {
+              const times = configRuns.map(r => (r.result || {}).time_seconds).filter(t => t != null);
+              html += "<td>" + (times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : "—") + "</td>";
+            }
+            if (hasErrors) html += "<td></td>";
+            html += "</tr>";
+          }
+          html += "</tbody></table>";
+
+          // Per-assertion detail for this eval
+          const runsWithExpectations = {};
+          for (const config of configGroups) {
+            runsWithExpectations[config] = evalRuns.filter(r => r.configuration === config && r.expectations && r.expectations.length > 0);
+          }
+          const hasAnyExpectations = Object.values(runsWithExpectations).some(runs => runs.length > 0);
+          if (hasAnyExpectations) {
+            // Collect all unique assertion texts across all configs
+            const allAssertions = [];
+            const seen = new Set();
+            for (const config of configGroups) {
+              for (const run of runsWithExpectations[config]) {
+                for (const exp of (run.expectations || [])) {
+                  if (!seen.has(exp.text)) {
+                    seen.add(exp.text);
+                    allAssertions.push(exp.text);
+                  }
+                }
+              }
+            }
+
+            html += '<table class="benchmark-table" style="margin-top: 0.5rem;">';
+            html += "<thead><tr><th>Assertion</th>";
+            for (const config of configGroups) {
+              const label = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+              html += "<th>" + escapeHtml(label) + "</th>";
+            }
+            html += "</tr></thead><tbody>";
+
+            for (const assertionText of allAssertions) {
+              html += "<tr><td>" + escapeHtml(assertionText) + "</td>";
+
+              for (const config of configGroups) {
+                html += "<td>";
+                for (const run of runsWithExpectations[config]) {
+                  const exp = (run.expectations || []).find(e => e.text === assertionText);
+                  if (exp) {
+                    const cls = exp.passed ? "benchmark-delta-positive" : "benchmark-delta-negative";
+                    const icon = exp.passed ? "\u2713" : "\u2717";
+                    html += '<span class="' + cls + '" title="Run ' + escapeHtml(run.run_number) + ': ' + escapeHtml(exp.evidence || "") + '">' + icon + "</span> ";
+                  } else {
+                    html += "— ";
+                  }
+                }
+                html += "</td>";
+              }
+              html += "</tr>";
+            }
+            html += "</tbody></table>";
+          }
+        }
+      }
+
+      // Notes
+      if (notes.length > 0) {
+        html += '<div class="benchmark-notes">';
+        html += "<h3>Analysis Notes</h3>";
+        html += "<ul>";
+        for (const note of notes) {
+          html += "<li>" + escapeHtml(note) + "</li>";
+        }
+        html += "</ul></div>";
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ---- Start ----
+    init();
+    renderBenchmark();
+  </script>
+</body>
+</html>

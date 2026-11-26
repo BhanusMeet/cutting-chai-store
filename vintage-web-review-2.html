@@ -1,0 +1,1330 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Eval Review</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@500;600&family=Lora:wght@400;500&display=swap" rel="stylesheet">
+  <script src="https://cdn.sheetjs.com/xlsx-0.20.3/package/dist/xlsx.full.min.js" integrity="sha384-EnyY0/GSHQGSxSgMwaIPzSESbqoOLSexfnSMN2AP+39Ckmn92stwABZynq1JyzdT" crossorigin="anonymous"></script>
+  <style>
+    :root {
+      --bg: #faf9f5;
+      --surface: #ffffff;
+      --border: #e8e6dc;
+      --text: #141413;
+      --text-muted: #b0aea5;
+      --accent: #d97757;
+      --accent-hover: #c4613f;
+      --green: #788c5d;
+      --green-bg: #eef2e8;
+      --red: #c44;
+      --red-bg: #fceaea;
+      --header-bg: #141413;
+      --header-text: #faf9f5;
+      --radius: 6px;
+    }
+
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+
+    body {
+      font-family: 'Lora', Georgia, serif;
+      background: var(--bg);
+      color: var(--text);
+      height: 100vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    /* ---- Header ---- */
+    .header {
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 1rem 2rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      flex-shrink: 0;
+    }
+    .header h1 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 1.25rem;
+      font-weight: 600;
+    }
+    .header .instructions {
+      font-size: 0.8rem;
+      opacity: 0.7;
+      margin-top: 0.25rem;
+    }
+    .header .progress {
+      font-size: 0.875rem;
+      opacity: 0.8;
+      text-align: right;
+    }
+
+    /* ---- Main content ---- */
+    .main {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem 2rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1.25rem;
+    }
+
+    /* ---- Sections ---- */
+    .section {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      flex-shrink: 0;
+    }
+    .section-header {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.75rem 1rem;
+      font-size: 0.75rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .section-body {
+      padding: 1rem;
+    }
+
+    /* ---- Config badge ---- */
+    .config-badge {
+      display: inline-block;
+      padding: 0.2rem 0.625rem;
+      border-radius: 9999px;
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.6875rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.03em;
+      margin-left: 0.75rem;
+      vertical-align: middle;
+    }
+    .config-badge.config-primary {
+      background: rgba(33, 150, 243, 0.12);
+      color: #1976d2;
+    }
+    .config-badge.config-baseline {
+      background: rgba(255, 193, 7, 0.15);
+      color: #f57f17;
+    }
+
+    /* ---- Prompt ---- */
+    .prompt-text {
+      white-space: pre-wrap;
+      font-size: 0.9375rem;
+      line-height: 1.6;
+    }
+
+    /* ---- Outputs ---- */
+    .output-file {
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .output-file + .output-file {
+      margin-top: 1rem;
+    }
+    .output-file-header {
+      padding: 0.5rem 0.75rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: var(--text-muted);
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .output-file-header .dl-btn {
+      font-size: 0.7rem;
+      color: var(--accent);
+      text-decoration: none;
+      cursor: pointer;
+      font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      font-weight: 500;
+      opacity: 0.8;
+    }
+    .output-file-header .dl-btn:hover {
+      opacity: 1;
+      text-decoration: underline;
+    }
+    .output-file-content {
+      padding: 0.75rem;
+      overflow-x: auto;
+    }
+    .output-file-content pre {
+      font-size: 0.8125rem;
+      line-height: 1.5;
+      white-space: pre-wrap;
+      word-break: break-word;
+      font-family: 'SF Mono', SFMono-Regular, Consolas, 'Liberation Mono', Menlo, monospace;
+    }
+    .output-file-content img {
+      max-width: 100%;
+      height: auto;
+      border-radius: 4px;
+    }
+    .output-file-content iframe {
+      width: 100%;
+      height: 600px;
+      border: none;
+    }
+    .output-file-content table {
+      border-collapse: collapse;
+      font-size: 0.8125rem;
+      width: 100%;
+    }
+    .output-file-content table td,
+    .output-file-content table th {
+      border: 1px solid var(--border);
+      padding: 0.375rem 0.5rem;
+      text-align: left;
+    }
+    .output-file-content table th {
+      background: var(--bg);
+      font-weight: 600;
+    }
+    .output-file-content .download-link {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding: 0.5rem 1rem;
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      color: var(--accent);
+      text-decoration: none;
+      font-size: 0.875rem;
+      cursor: pointer;
+    }
+    .output-file-content .download-link:hover {
+      background: var(--border);
+    }
+    .empty-state {
+      color: var(--text-muted);
+      font-style: italic;
+      padding: 2rem;
+      text-align: center;
+    }
+
+    /* ---- Feedback ---- */
+    .prev-feedback {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      padding: 0.625rem 0.75rem;
+      margin-top: 0.75rem;
+      font-size: 0.8125rem;
+      color: var(--text-muted);
+      line-height: 1.5;
+    }
+    .prev-feedback-label {
+      font-size: 0.7rem;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+      margin-bottom: 0.25rem;
+      color: var(--text-muted);
+    }
+    .feedback-textarea {
+      width: 100%;
+      min-height: 100px;
+      padding: 0.75rem;
+      border: 1px solid var(--border);
+      border-radius: 4px;
+      font-family: inherit;
+      font-size: 0.9375rem;
+      line-height: 1.5;
+      resize: vertical;
+      color: var(--text);
+    }
+    .feedback-textarea:focus {
+      outline: none;
+      border-color: var(--accent);
+      box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.1);
+    }
+    .feedback-status {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.5rem;
+      min-height: 1.1em;
+    }
+
+    /* ---- Grades (collapsible) ---- */
+    .grades-toggle {
+      display: flex;
+      align-items: center;
+      cursor: pointer;
+      user-select: none;
+    }
+    .grades-toggle:hover {
+      color: var(--accent);
+    }
+    .grades-toggle .arrow {
+      margin-right: 0.5rem;
+      transition: transform 0.15s;
+      font-size: 0.75rem;
+    }
+    .grades-toggle .arrow.open {
+      transform: rotate(90deg);
+    }
+    .grades-content {
+      display: none;
+      margin-top: 0.75rem;
+    }
+    .grades-content.open {
+      display: block;
+    }
+    .grades-summary {
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+    .grade-badge {
+      display: inline-block;
+      padding: 0.125rem 0.5rem;
+      border-radius: 9999px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+    .grade-pass { background: var(--green-bg); color: var(--green); }
+    .grade-fail { background: var(--red-bg); color: var(--red); }
+    .assertion-list {
+      list-style: none;
+    }
+    .assertion-item {
+      padding: 0.625rem 0;
+      border-bottom: 1px solid var(--border);
+      font-size: 0.8125rem;
+    }
+    .assertion-item:last-child { border-bottom: none; }
+    .assertion-status {
+      font-weight: 600;
+      margin-right: 0.5rem;
+    }
+    .assertion-status.pass { color: var(--green); }
+    .assertion-status.fail { color: var(--red); }
+    .assertion-evidence {
+      color: var(--text-muted);
+      font-size: 0.75rem;
+      margin-top: 0.25rem;
+      padding-left: 1.5rem;
+    }
+
+    /* ---- View tabs ---- */
+    .view-tabs {
+      display: flex;
+      gap: 0;
+      padding: 0 2rem;
+      background: var(--bg);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .view-tab {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.625rem 1.25rem;
+      font-size: 0.8125rem;
+      font-weight: 500;
+      cursor: pointer;
+      border: none;
+      background: none;
+      color: var(--text-muted);
+      border-bottom: 2px solid transparent;
+      transition: all 0.15s;
+    }
+    .view-tab:hover { color: var(--text); }
+    .view-tab.active {
+      color: var(--accent);
+      border-bottom-color: var(--accent);
+    }
+    .view-panel { display: none; }
+    .view-panel.active { display: flex; flex-direction: column; flex: 1; overflow: hidden; }
+
+    /* ---- Benchmark view ---- */
+    .benchmark-view {
+      padding: 1.5rem 2rem;
+      overflow-y: auto;
+      flex: 1;
+    }
+    .benchmark-table {
+      border-collapse: collapse;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      font-size: 0.8125rem;
+      width: 100%;
+      margin-bottom: 1.5rem;
+    }
+    .benchmark-table th, .benchmark-table td {
+      padding: 0.625rem 0.75rem;
+      text-align: left;
+      border: 1px solid var(--border);
+    }
+    .benchmark-table th {
+      font-family: 'Poppins', sans-serif;
+      background: var(--header-bg);
+      color: var(--header-text);
+      font-weight: 500;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+    .benchmark-table tr:hover { background: var(--bg); }
+    .benchmark-table tr.benchmark-row-with { background: rgba(33, 150, 243, 0.06); }
+    .benchmark-table tr.benchmark-row-without { background: rgba(255, 193, 7, 0.06); }
+    .benchmark-table tr.benchmark-row-with:hover { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-without:hover { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-table tr.benchmark-row-avg { font-weight: 600; border-top: 2px solid var(--border); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-with { background: rgba(33, 150, 243, 0.12); }
+    .benchmark-table tr.benchmark-row-avg.benchmark-row-without { background: rgba(255, 193, 7, 0.12); }
+    .benchmark-delta-positive { color: var(--green); font-weight: 600; }
+    .benchmark-delta-negative { color: var(--red); font-weight: 600; }
+    .benchmark-notes {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      padding: 1rem;
+    }
+    .benchmark-notes h3 {
+      font-family: 'Poppins', sans-serif;
+      font-size: 0.875rem;
+      margin-bottom: 0.75rem;
+    }
+    .benchmark-notes ul {
+      list-style: disc;
+      padding-left: 1.25rem;
+    }
+    .benchmark-notes li {
+      font-size: 0.8125rem;
+      line-height: 1.6;
+      margin-bottom: 0.375rem;
+    }
+    .benchmark-empty {
+      color: var(--text-muted);
+      font-style: italic;
+      text-align: center;
+      padding: 3rem;
+    }
+
+    /* ---- Navigation ---- */
+    .nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      border-top: 1px solid var(--border);
+      background: var(--surface);
+      flex-shrink: 0;
+    }
+    .nav-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      color: var(--text);
+      transition: all 0.15s;
+    }
+    .nav-btn:hover:not(:disabled) {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .nav-btn:disabled {
+      opacity: 0.4;
+      cursor: not-allowed;
+    }
+    .done-btn {
+      font-family: 'Poppins', sans-serif;
+      padding: 0.5rem 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.875rem;
+      font-weight: 500;
+      transition: all 0.15s;
+    }
+    .done-btn:hover {
+      background: var(--bg);
+      border-color: var(--text-muted);
+    }
+    .done-btn.ready {
+      border: none;
+      background: var(--accent);
+      color: white;
+      font-weight: 600;
+    }
+    .done-btn.ready:hover {
+      background: var(--accent-hover);
+    }
+    /* ---- Done overlay ---- */
+    .done-overlay {
+      display: none;
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.5);
+      z-index: 100;
+      justify-content: center;
+      align-items: center;
+    }
+    .done-overlay.visible {
+      display: flex;
+    }
+    .done-card {
+      background: var(--surface);
+      border-radius: 12px;
+      padding: 2rem 3rem;
+      text-align: center;
+      box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+      max-width: 500px;
+    }
+    .done-card h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+    }
+    .done-card p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+      line-height: 1.5;
+    }
+    .done-card .btn-row {
+      display: flex;
+      gap: 0.5rem;
+      justify-content: center;
+    }
+    .done-card button {
+      padding: 0.5rem 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      background: var(--surface);
+      cursor: pointer;
+      font-size: 0.875rem;
+    }
+    .done-card button:hover {
+      background: var(--bg);
+    }
+    /* ---- Toast ---- */
+    .toast {
+      position: fixed;
+      bottom: 5rem;
+      left: 50%;
+      transform: translateX(-50%);
+      background: var(--header-bg);
+      color: var(--header-text);
+      padding: 0.625rem 1.25rem;
+      border-radius: var(--radius);
+      font-size: 0.875rem;
+      opacity: 0;
+      transition: opacity 0.3s;
+      pointer-events: none;
+      z-index: 200;
+    }
+    .toast.visible {
+      opacity: 1;
+    }
+  </style>
+</head>
+<body>
+  <div id="app" style="height:100vh; display:flex; flex-direction:column;">
+    <div class="header">
+      <div>
+        <h1>Eval Review: <span id="skill-name"></span></h1>
+        <div class="instructions">Review each output and leave feedback below. Navigate with arrow keys or buttons. When done, copy feedback and paste into Claude Code.</div>
+      </div>
+      <div class="progress" id="progress"></div>
+    </div>
+
+    <!-- View tabs (only shown when benchmark data exists) -->
+    <div class="view-tabs" id="view-tabs" style="display:none;">
+      <button class="view-tab active" onclick="switchView('outputs')">Outputs</button>
+      <button class="view-tab" onclick="switchView('benchmark')">Benchmark</button>
+    </div>
+
+    <!-- Outputs panel (qualitative review) -->
+    <div class="view-panel active" id="panel-outputs">
+    <div class="main">
+      <!-- Prompt -->
+      <div class="section">
+        <div class="section-header">Prompt <span class="config-badge" id="config-badge" style="display:none;"></span></div>
+        <div class="section-body">
+          <div class="prompt-text" id="prompt-text"></div>
+        </div>
+      </div>
+
+      <!-- Outputs -->
+      <div class="section">
+        <div class="section-header">Output</div>
+        <div class="section-body" id="outputs-body">
+          <div class="empty-state">No output files found</div>
+        </div>
+      </div>
+
+      <!-- Previous Output (collapsible) -->
+      <div class="section" id="prev-outputs-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="togglePrevOutputs()">
+            <span class="arrow" id="prev-outputs-arrow">&#9654;</span>
+            Previous Output
+          </div>
+        </div>
+        <div class="grades-content" id="prev-outputs-content"></div>
+      </div>
+
+      <!-- Grades (collapsible) -->
+      <div class="section" id="grades-section" style="display:none;">
+        <div class="section-header">
+          <div class="grades-toggle" onclick="toggleGrades()">
+            <span class="arrow" id="grades-arrow">&#9654;</span>
+            Formal Grades
+          </div>
+        </div>
+        <div class="grades-content" id="grades-content"></div>
+      </div>
+
+      <!-- Feedback -->
+      <div class="section">
+        <div class="section-header">Your Feedback</div>
+        <div class="section-body">
+          <textarea
+            class="feedback-textarea"
+            id="feedback"
+            placeholder="What do you think of this output? Any issues, suggestions, or things that look great?"
+          ></textarea>
+          <div class="feedback-status" id="feedback-status"></div>
+          <div class="prev-feedback" id="prev-feedback" style="display:none;">
+            <div class="prev-feedback-label">Previous feedback</div>
+            <div id="prev-feedback-text"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="nav" id="outputs-nav">
+      <button class="nav-btn" id="prev-btn" onclick="navigate(-1)">&#8592; Previous</button>
+      <button class="done-btn" id="done-btn" onclick="showDoneDialog()">Submit All Reviews</button>
+      <button class="nav-btn" id="next-btn" onclick="navigate(1)">Next &#8594;</button>
+    </div>
+    </div><!-- end panel-outputs -->
+
+    <!-- Benchmark panel (quantitative stats) -->
+    <div class="view-panel" id="panel-benchmark">
+      <div class="benchmark-view" id="benchmark-content">
+        <div class="benchmark-empty">No benchmark data available. Run a benchmark to see quantitative results here.</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Done overlay -->
+  <div class="done-overlay" id="done-overlay">
+    <div class="done-card">
+      <h2>Review Complete</h2>
+      <p>Your feedback has been saved. Go back to your Claude Code session and tell Claude you're done reviewing.</p>
+      <div class="btn-row">
+        <button onclick="closeDoneDialog()">OK</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div class="toast" id="toast"></div>
+
+  <script>
+    // ---- Embedded data (injected by generate_review.py) ----
+    const EMBEDDED_DATA = {"skill_name": "vintage-web", "runs": [{"id": "bombay-chai-cafe-old_skill", "prompt": "I run a chai cafe in Mumbai and want a retro 90s Bombay nostalgia website. menu, our story, and a way to find us. save as index.html", "eval_id": null, "outputs": [{"name": "index.html", "type": "text", "content": "\u003c!DOCTYPE html>\n\u003chtml lang=\"en\">\n\u003chead>\n\u003cmeta charset=\"utf-8\">\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\u003ctitle>Cutting Chai Cafe - Bombay, Since 1997!\u003c/title>\n\u003clink rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n\u003clink href=\"https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap\" rel=\"stylesheet\">\n\u003cstyle>\n  :root {\n    --desk: #008080;\n    --face: #c0c0c0;\n    --hi: #ffffff;\n    --lo: #404040;\n    --mid: #808080;\n    --ink: #000000;\n    --pixel: \"Press Start 2P\", \"Courier New\", monospace;\n    --term: \"VT323\", \"Courier New\", monospace;\n    --body: \"Times New Roman\", Times, serif;\n  }\n  * { border-radius: 0; box-sizing: border-box; }\n  body {\n    margin: 0; padding: 12px;\n    background: var(--desk);\n    color: var(--ink);\n    font: 16px/1.4 var(--body);\n  }\n  a:link    { color: #0000ee; }\n  a:visited { color: #551a8b; }\n  a:hover   { color: #ff0000; background: #ffff00; }\n  a:active  { color: #ff0000; }\n  a:focus-visible { outline: 1px dotted #000; outline-offset: 2px; }\n\n  body::after {\n    content: \"\"; position: fixed; inset: 0; pointer-events: none; z-index: 99;\n    background: repeating-linear-gradient(to bottom, rgba(0,0,0,.06) 0 1px, transparent 1px 3px);\n  }\n\n  .raised { background: var(--face); border: 2px solid; border-color: var(--hi) var(--lo) var(--lo) var(--hi);\n            box-shadow: inset -1px -1px 0 var(--mid), inset 1px 1px 0 #dfdfdf; }\n  .sunken { background: #fff; border: 2px solid; border-color: var(--lo) var(--hi) var(--hi) var(--lo);\n            box-shadow: inset 1px 1px 0 var(--mid); }\n\n  .btn {\n    font: 11px var(--pixel); color: var(--ink); padding: 8px 12px; cursor: pointer;\n    background: var(--face); border: 2px solid; border-color: var(--hi) var(--lo) var(--lo) var(--hi);\n    box-shadow: inset -1px -1px 0 var(--mid), inset 1px 1px 0 #dfdfdf; text-decoration: none; display: inline-block;\n  }\n  a.btn:link, a.btn:visited { color: #000; }\n  .btn:active { border-color: var(--lo) var(--hi) var(--hi) var(--lo); padding: 9px 11px 7px 13px; }\n  .btn:focus-visible { outline: 1px dotted #000; outline-offset: -5px; }\n\n  .frame { width: 100%; max-width: 920px; margin: 0 auto; border-collapse: separate; border-spacing: 4px; }\n  .frame > tbody > tr > td { vertical-align: top; padding: 10px; }\n  .banner { text-align: center; background: #000080; color: #ffff00; padding: 14px 8px; }\n  .banner h1 { margin: 0; font: 22px/1.5 var(--pixel); letter-spacing: 1px; }\n  .banner p { margin: 6px 0 0; font: 24px var(--term); color: #00ffff; }\n\n  h2 { font: 13px/1.6 var(--pixel); margin: 0 0 8px; background: #000080; color: #fff; padding: 6px 8px; }\n  h3 { font: 12px/1.6 var(--pixel); margin: 12px 0 4px; color: #800000; }\n  nav ul { list-style: none; margin: 0; padding: 0; }\n  nav li { margin: 0 0 6px; }\n  nav .btn { width: 100%; font-size: 10px; }\n\n  .ticker { background: #000; color: #00ff00; font: 24px var(--term); overflow: hidden; white-space: nowrap; padding: 2px 0; }\n  .ticker span { display: inline-block; padding-left: 100%; animation: scroll 30s steps(200) infinite; }\n  @keyframes scroll { to { transform: translateX(-100%); } }\n\n  .counter { display: inline-block; background: #000; color: #00ff00; font: 22px var(--term); letter-spacing: 3px; padding: 2px 8px; }\n  .new { background: #ff00ff; color: #ffff00; font: 9px var(--pixel); padding: 2px 4px; animation: blink 1s steps(1) infinite; }\n  @keyframes blink { 50% { visibility: hidden; } }\n  .construction { background: #ffff00; border: 3px solid #000; text-align: center; font: 11px/1.6 var(--pixel); padding: 8px; margin-top: 10px; }\n  hr { border: 0; border-top: 2px solid var(--mid); border-bottom: 2px solid var(--hi); margin: 14px 0; }\n  .webring { text-align: center; font: 20px var(--term); }\n  footer { text-align: center; font-size: 13px; }\n\n  table.menu { width: 100%; border-collapse: collapse; margin-bottom: 8px; }\n  table.menu caption { font: 12px/1.6 var(--pixel); text-align: left; background: #800000; color: #fff; padding: 6px 8px; }\n  table.menu th { background: var(--face); border: 2px outset #fff; font: 10px var(--pixel); padding: 6px; text-align: left; }\n  table.menu td { border: 1px solid var(--mid); padding: 5px 6px; vertical-align: top; }\n  table.menu td.price { font: 20px var(--term); white-space: nowrap; text-align: right; }\n  .veg { color: #006400; font-weight: bold; }\n\n  blockquote { margin: 10px 0; padding: 6px 12px; border: 2px inset #fff; background: #ffffcc; font-style: italic; }\n  .mapbox { font: 20px/1.15 var(--term); background: #000; color: #00ff00; padding: 8px; white-space: pre; overflow-x: auto; }\n  dl { margin: 0; }\n  dt { font: 10px var(--pixel); margin-top: 8px; color: #000080; }\n  dd { margin: 3px 0 0; }\n  .gb-field { width: 100%; font: 18px var(--term); margin-bottom: 6px; padding: 4px; }\n\n  @media (max-width: 640px) {\n    .frame, .frame > tbody, .frame > tbody > tr, .frame > tbody > tr > td { display: block; width: 100% !important; }\n    .banner h1 { font-size: 14px; }\n  }\n  @media (prefers-reduced-motion: reduce) {\n    .ticker span { animation: none; padding-left: 0; white-space: normal; }\n    .new { animation: none; }\n  }\n\u003c/style>\n\u003c/head>\n\u003cbody>\n\n\u003ctable class=\"frame raised\" role=\"presentation\">\n  \u003ctr>\n    \u003ctd colspan=\"3\" class=\"banner\">\n      \u003ch1>~* CUTTING CHAI CAFE *~\u003c/h1>\n      \u003cp>Bombay's own chai corner - brewing since 1997! Ek cutting, please!\u003c/p>\n    \u003c/td>\n  \u003c/tr>\n  \u003ctr>\n    \u003ctd colspan=\"3\" style=\"padding:4px\">\n      \u003cdiv class=\"sunken ticker\" aria-label=\"News ticker\">\u003cspan>*** NEW!!! Masala chai now Rs. 20 only *** Bun maska fresh from the oven at 7 AM *** Rainy day special: kanda bhaji + cutting chai *** Cricket on the radio every match day *** Thank you for visiting! ***\u003c/span>\u003c/div>\n    \u003c/td>\n  \u003c/tr>\n  \u003ctr>\n    \u003ctd class=\"sunken\" width=\"160\">\n      \u003ch2>MENU\u003c/h2>\n      \u003cnav aria-label=\"Main\">\n        \u003cul>\n          \u003cli>\u003ca class=\"btn\" href=\"#menu\">Our Menu\u003c/a>\u003c/li>\n          \u003cli>\u003ca class=\"btn\" href=\"#story\">Our Story\u003c/a>\u003c/li>\n          \u003cli>\u003ca class=\"btn\" href=\"#find\">Find Us\u003c/a>\u003c/li>\n          \u003cli>\u003ca class=\"btn\" href=\"#guestbook\">Guestbook\u003c/a>\u003c/li>\n        \u003c/ul>\n      \u003c/nav>\n      \u003chr>\n      \u003cp style=\"font-size:13px\">You are visitor number:\u003c/p>\n      \u003cdiv class=\"counter\" aria-label=\"Visitor count 004217\">004217\u003c/div>\n      \u003chr>\n      \u003cp style=\"font-size:13px\">\u003cb>Open every day\u003c/b>\u003cbr>6:30 AM to 11:00 PM\u003cbr>Even Sundays. Even monsoon!\u003c/p>\n    \u003c/td>\n\n    \u003ctd class=\"sunken\" id=\"menu\">\n      \u003ch2>TODAY'S MENU \u003cspan class=\"new\">NEW!\u003c/span>\u003c/h2>\n      \u003cp>Welcome, friend, to our corner of the Information Superhighway! Everything is made fresh. Prices in rupees. \u003cspan class=\"veg\">All items are vegetarian\u003c/span> (except the Anda Bhurji Pav, which has eggs).\u003c/p>\n\n      \u003ctable class=\"menu\">\n        \u003ccaption>~ CHAI ~\u003c/caption>\n        \u003ctr>\u003cth scope=\"col\">Item\u003c/th>\u003cth scope=\"col\">Rs.\u003c/th>\u003c/tr>\n        \u003ctr>\u003ctd>\u003cb>Cutting Chai\u003c/b> - the half-glass legend, strong and sweet\u003c/td>\u003ctd class=\"price\">10\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>\u003cb>Full Masala Chai\u003c/b> - ginger, elaichi, tulsi, a little love\u003c/td>\u003ctd class=\"price\">20\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>\u003cb>Irani Chai\u003c/b> - milky, Parsi-cafe style, for the bun-dunkers\u003c/td>\u003ctd class=\"price\">25\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>\u003cb>Kadak Adrak Chai\u003c/b> - extra ginger, cures all colds\u003c/td>\u003ctd class=\"price\">20\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>\u003cb>Sulaimani\u003c/b> - black tea with lemon and a pinch of salt\u003c/td>\u003ctd class=\"price\">15\u003c/td>\u003c/tr>\n      \u003c/table>\n\n      \u003ctable class=\"menu\">\n        \u003ccaption>~ KHANA (SNACKS) ~\u003c/caption>\n        \u003ctr>\u003cth scope=\"col\">Item\u003c/th>\u003cth scope=\"col\">Rs.\u003c/th>\u003c/tr>\n        \u003ctr>\u003ctd>\u003cb>Bun Maska\u003c/b> - soft pav, thick butter, dunk in chai\u003c/td>\u003ctd class=\"price\">25\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>\u003cb>Maska Brun\u003c/b> - crusty brun pav, double butter\u003c/td>\u003ctd class=\"price\">30\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>\u003cb>Vada Pav\u003c/b> - Bombay's burger, with dry garlic chutney\u003c/td>\u003ctd class=\"price\">15\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>\u003cb>Kanda Bhaji\u003c/b> - crispy onion fritters, monsoon essential\u003c/td>\u003ctd class=\"price\">40\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>\u003cb>Masala Pav\u003c/b> - buttery tava masala, two pav\u003c/td>\u003ctd class=\"price\">50\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>\u003cb>Anda Bhurji Pav\u003c/b> - spiced scrambled eggs\u003c/td>\u003ctd class=\"price\">60\u003c/td>\u003c/tr>\n        \u003ctr>\u003ctd>\u003cb>Khari Biscuit\u003c/b> - flaky, a plate of six\u003c/td>\u003ctd class=\"price\">20\u003c/td>\u003c/tr>\n      \u003c/table>\n\n      \u003cp style=\"font-size:13px\">* Cash only, please. Kindly keep change ready!\u003c/p>\n      \u003cdiv class=\"construction\">UNDER CONSTRUCTION\u003cbr>Lassi and Sev Puri menu coming soon!\u003c/div>\n      \u003chr>\n\n      \u003ch2 id=\"story\">OUR STORY\u003c/h2>\n      \u003cp>Back in 1997, when Bombay still said \"Bombay\" and the STD booth on the corner was the busiest place in the lane, my father Ramesh Bhai put one kettle on one kerosene stove and sold chai to the mill workers coming off the night shift. A cup was Rs. 2. Nobody had a cell phone, but everybody knew where to find the chai.\u003c/p>\n      \u003cblockquote>\"Chai is not a drink, beta. It is an excuse to sit down with another human being.\" - Ramesh Bhai\u003c/blockquote>\n      \u003cp>The stove became a stall. The stall grew a tin roof, then four wooden benches, then a radio that plays Vividh Bharati in the morning and cricket commentary all afternoon. Today we are a proper little cafe, but we still do it the old way: tea leaves from Assam, ginger crushed by hand in a brass khalbatta, and milk from the tabela down the road.\u003c/p>\n      \u003cp>Regulars include taxi drivers, college kids bunking class, office-goers running for the 8:52 Virar fast, aunties on their way to the market, and one very serious uncle who has ordered the exact same cutting chai every day for nine years. We know your order before you open your mouth. That is the Bombay way!\u003c/p>\n      \u003cp>Thank you for being part of our story. Come sit. Chai is on the stove.\u003c/p>\n      \u003chr>\n\n      \u003ch2 id=\"find\">FIND US\u003c/h2>\n      \u003cdl>\n        \u003cdt>ADDRESS\u003c/dt>\n        \u003cdd>Cutting Chai Cafe, Shop No. 4, Ground Floor, Sheetal Building,\u003cbr>Near Dadar Station (East), Mumbai 400014, Maharashtra\u003c/dd>\n        \u003cdt>PHONE (STD CODE 022)\u003c/dt>\n        \u003cdd>022-2412-0000 (we pick up by the third ring, promise)\u003c/dd>\n        \u003cdt>HOURS\u003c/dt>\n        \u003cdd>Monday to Sunday, 6:30 AM to 11:00 PM\u003c/dd>\n      \u003c/dl>\n      \u003ch3>HOW TO REACH US\u003c/h3>\n      \u003cul>\n        \u003cli>\u003cb>By train:\u003c/b> Get down at Dadar (Central or Western). Take the East exit, walk 5 minutes past the flower market.\u003c/li>\n        \u003cli>\u003cb>By BEST bus:\u003c/b> Routes 7, 21 and 161 stop at the Dadar TT bus stop, right across the road.\u003c/li>\n        \u003cli>\u003cb>By taxi:\u003c/b> Just say \"Sheetal Building, chai wala.\" Every kaali-peeli driver knows.\u003c/li>\n      \u003c/ul>\n      \u003cdiv class=\"sunken mapbox\" role=\"img\" aria-label=\"Simple text map: Dadar station on the left, flower market in the middle, Cutting Chai Cafe on the right.\">[DADAR STN]---5 min walk--->[FLOWER MKT]\n     |                           |\n (East Exit)                 turn left\n     |                           |\n[BEST BUS STOP]         [*CHAI CAFE*] &lt;-- YOU ARE HERE!\u003c/div>\n      \u003cp style=\"font-size:13px\">(Map not to scale. Ask any local, they will walk you there.)\u003c/p>\n    \u003c/td>\n\n    \u003ctd class=\"sunken\" width=\"180\" id=\"guestbook\">\n      \u003ch2>GUESTBOOK\u003c/h2>\n      \u003cp style=\"font-size:14px\">Had a good cup? Sign our guestbook!\u003c/p>\n      \u003cform onsubmit=\"return false\">\n        \u003clabel for=\"n\" style=\"font-size:13px\">Your name:\u003c/label>\n        \u003cinput id=\"n\" type=\"text\" class=\"gb-field\">\n        \u003clabel for=\"m\" style=\"font-size:13px\">Message:\u003c/label>\n        \u003ctextarea id=\"m\" rows=\"4\" class=\"gb-field\">\u003c/textarea>\n        \u003cbutton class=\"btn\" type=\"submit\">SIGN IT!\u003c/button>\n      \u003c/form>\n      \u003chr>\n      \u003ch2>HOT TIPS\u003c/h2>\n      \u003cul style=\"padding-left:18px;font-size:14px\">\n        \u003cli>Come at 7 AM for the first batch of bun maska.\u003c/li>\n        \u003cli>Dunk, do not dip.\u003c/li>\n        \u003cli>Rainy day? We are always open.\u003c/li>\n      \u003c/ul>\n    \u003c/td>\n  \u003c/tr>\n  \u003ctr>\n    \u003ctd colspan=\"3\" class=\"sunken\">\n      \u003cdiv class=\"webring\">&lt;&lt; Prev | Random | Next &gt;&gt; &nbsp; Member of the Mumbai Street Food Webring\u003c/div>\n    \u003c/td>\n  \u003c/tr>\n  \u003ctr>\n    \u003ctd colspan=\"3\">\n      \u003cfooter>Best viewed with Netscape Navigator 4.0 at 800x600.\u003cbr>Last updated: 24 Nov 2026. Webmaster: \u003ca href=\"mailto:chai@example.com\">chai@example.com\u003c/a>\u003cbr>(c) 1997 Cutting Chai Cafe, Bombay. Kindly adjust.\u003c/footer>\n    \u003c/td>\n  \u003c/tr>\n\u003c/table>\n\n\u003c/body>\n\u003c/html>\n"}], "grading": {"expectations": [{"text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": true, "evidence": "no violations"}, {"text": "index.html uses Kaali-Peeli yellow #F4C430, jet black #141414 and sunset sepia #E89B54", "passed": false, "evidence": "missing: #f4c430, #141414, #e89b54"}, {"text": "index.html uses Bebas Neue, Oswald or Archivo Black for headlines and Courier Prime, IBM Plex Mono or Lora for text", "passed": false, "evidence": "missing: bebas|oswald|archivo, courier prime|ibm plex mono|lora"}, {"text": "index.html has VHS scanlines, a film-grain overlay and a halftone dot texture", "passed": false, "evidence": "missing: feturbulence, halftone"}, {"text": "index.html shows a VHS-style timestamp or REC badge", "passed": false, "evidence": "no match for VHS/REC badge"}, {"text": "index.html includes a bus-ticket, cinema-ticket or cassette-shaped element and multi-column newspaper classifieds", "passed": false, "evidence": "missing: ticket|cassette, column-count"}, {"text": "index.html uses no neon purple or cyan colors", "passed": false, "evidence": "found '#00ffff'"}], "summary": {"passed": 1, "failed": 6, "total": 7, "pass_rate": 0.143}}}, {"id": "bombay-chai-cafe-with_skill", "prompt": "I run a chai cafe in Mumbai and want a retro 90s Bombay nostalgia website. menu, our story, and a way to find us. save as index.html", "eval_id": null, "outputs": [{"name": "index.html", "type": "text", "content": "\u003c!DOCTYPE html>\n\u003chtml lang=\"en\">\n\u003chead>\n\u003cmeta charset=\"utf-8\">\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\u003ctitle>Cutting Chai Co. - Since 1994 - Dadar, Bombay\u003c/title>\n\u003cmeta name=\"description\" content=\"Cutting Chai Co.: a Mumbai chai cafe with a 1994 Bombay soul. Menu, our story, and how to find us.\">\n\u003clink rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n\u003clink href=\"https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Oswald:wght@500;700&family=Courier+Prime:wght@400;700&family=IBM+Plex+Mono:wght@400;600&family=Lora:ital,wght@0,400;0,700;1,400&display=swap\" rel=\"stylesheet\">\n\u003cstyle>\n  :root {\n    --taxi: #F4C430;\n    --black: #141414;\n    --sunset: #E89B54;\n    --paper: #EFE6D2;\n    --red: #C1272D;\n    --head: \"Bebas Neue\", Oswald, Impact, \"Arial Narrow\", sans-serif;\n    --slab: \"Archivo Black\", Impact, sans-serif;\n    --mono: \"Courier Prime\", \"IBM Plex Mono\", \"Courier New\", monospace;\n    --serif: Lora, Georgia, serif;\n    --checker: url(\"data:image/svg+xml;utf8,\u003csvg xmlns='http://www.w3.org/2000/svg' width='32' height='32'>\u003crect width='32' height='32' fill='%23F4C430'/>\u003crect width='16' height='16' fill='%23141414'/>\u003crect x='16' y='16' width='16' height='16' fill='%23141414'/>\u003c/svg>\");\n    --halftone: url(\"data:image/svg+xml;utf8,\u003csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12'>\u003ccircle cx='6' cy='6' r='2.4' fill='%23141414' fill-opacity='0.2'/>\u003c/svg>\");\n  }\n  * { border-radius: 0; box-sizing: border-box; }\n  html { scroll-behavior: auto; }\n  body { margin: 0; background: var(--paper); color: var(--black); font: 17px/1.6 var(--serif); }\n\n  /* VHS / Doordarshan scanlines and warm film grain */\n  body::after { content: \"\"; position: fixed; inset: 0; pointer-events: none; z-index: 99;\n    background: repeating-linear-gradient(to bottom, rgba(20,20,20,.07) 0 1px, transparent 1px 3px); }\n  body::before { content: \"\"; position: fixed; inset: 0; pointer-events: none; z-index: 98; mix-blend-mode: multiply; opacity: .3;\n    background-image: url(\"data:image/svg+xml;utf8,\u003csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'>\u003cfilter id='g' x='0' y='0' width='100%25' height='100%25'>\u003cfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/>\u003cfeColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.22  0 0 0 0 0.1  0 0 0 0.6 0'/>\u003c/filter>\u003crect width='100%25' height='100%25' filter='url(%23g)'/>\u003c/svg>\"); }\n\n  a { color: var(--black); text-decoration-thickness: 2px; text-underline-offset: 3px; }\n  a:hover { background: var(--taxi); }\n  a:focus-visible, button:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }\n\n  .vhs { background: var(--black); color: var(--taxi); font: 600 14px var(--mono); letter-spacing: .12em; padding: 6px 16px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 16px; }\n  .rec::before { content: \"\"; display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 8px; animation: blink 1.2s steps(1) infinite; }\n  @keyframes blink { 50% { visibility: hidden; } }\n\n  .checker { height: 28px; background: var(--checker); background-size: 28px 28px; border-top: 3px solid var(--black); border-bottom: 3px solid var(--black); }\n\n  .page { max-width: 1060px; margin: 0 auto; padding: 18px 22px 36px; }\n  .dateline { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 14px; font: 700 13px var(--mono); letter-spacing: .1em; text-transform: uppercase; border-bottom: 2px solid var(--black); padding-bottom: 6px; }\n  .masthead { text-align: center; padding: 6px 0 2px; }\n  .masthead h1 { margin: 0; font: 400 clamp(2.8rem, 11vw, 6.8rem)/.95 var(--head); letter-spacing: .03em; text-transform: uppercase; }\n  .masthead p { margin: 0 0 6px; font: 600 15px var(--mono); letter-spacing: .22em; text-transform: uppercase; }\n  nav.sections { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 26px; border-top: 4px solid var(--black); border-bottom: 1px solid var(--black); padding: 6px 0; margin-bottom: 20px; font: 400 1.4rem var(--head); letter-spacing: .12em; }\n  nav.sections a { text-decoration: none; padding: 0 6px; }\n\n  /* hand-painted hoarding style poster */\n  .poster { position: relative; background-color: var(--sunset); background-image: var(--halftone); border: 6px solid var(--black); padding: 26px 22px 0; overflow: hidden; margin-bottom: 26px; }\n  .poster .tag { position: absolute; right: 16px; top: 16px; background: var(--black); color: var(--taxi); font: 700 14px var(--mono); letter-spacing: .18em; padding: 4px 10px; transform: rotate(3deg); }\n  .poster h2 { margin: 6px 0 0; font: 400 clamp(2.4rem, 9vw, 5.6rem)/.92 var(--slab); text-transform: uppercase; transform: rotate(-2deg); transform-origin: left bottom;\n               color: var(--taxi); text-shadow: 4px 4px 0 var(--black), 8px 8px 0 var(--red); -webkit-text-stroke: 2px var(--black); }\n  .poster .sub { margin: 18px 0 0; font: 400 clamp(1.2rem, 3.2vw, 1.9rem) var(--head); letter-spacing: .1em; text-transform: uppercase; background: var(--black); color: var(--taxi); display: inline-block; padding: 2px 12px; }\n  .poster svg { display: block; width: calc(100% + 44px); margin: 14px -22px 0; height: auto; }\n\n  .section-head { display: flex; align-items: center; gap: 12px; margin: 30px 0 12px; }\n  .section-head h3 { margin: 0; font: 400 2.2rem var(--head); letter-spacing: .06em; text-transform: uppercase; background: var(--black); color: var(--taxi); padding: 0 14px; }\n  .section-head::after { content: \"\"; flex: 1; height: 8px; background: var(--checker); background-size: 16px 16px; border-top: 2px solid var(--black); border-bottom: 2px solid var(--black); }\n\n  /* columns */\n  .columns { column-count: 3; column-gap: 24px; column-rule: 1px solid var(--black); }\n  .columns p { margin: 0 0 .9em; text-align: justify; hyphens: auto; }\n  .columns h4 { margin: 0 0 4px; font: 400 1.6rem/1.05 var(--head); letter-spacing: .05em; text-transform: uppercase; break-after: avoid; }\n  .columns .story p:first-of-type::first-letter { float: left; font: 400 3.6rem/.8 var(--head); padding: 4px 8px 0 0; }\n  .ad { border: 2px dashed var(--black); padding: 10px 12px; margin: 0 0 14px; font: 400 14px/1.45 var(--mono); break-inside: avoid; }\n  .ad b { font-family: var(--head); font-size: 1.25rem; font-weight: 400; letter-spacing: .08em; display: block; }\n  .ad.hot { background: var(--taxi); border-style: solid; }\n  .pull { border-top: 4px solid var(--black); border-bottom: 4px solid var(--black); padding: 8px 0; margin: 0 0 14px; font: 400 1.9rem/1.1 var(--head); letter-spacing: .04em; text-transform: uppercase; break-inside: avoid; }\n\n  /* menu board */\n  .menu { display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px; }\n  .menu section { border: 3px solid var(--black); background: var(--paper); box-shadow: 5px 5px 0 var(--black); }\n  .menu h4 { margin: 0; background: var(--black); color: var(--taxi); font: 400 1.7rem var(--head); letter-spacing: .1em; text-transform: uppercase; padding: 2px 14px; }\n  .menu ul { list-style: none; margin: 0; padding: 8px 14px 12px; }\n  .menu li { display: flex; align-items: baseline; gap: 6px; font: 400 15px/1.35 var(--mono); padding: 5px 0; border-bottom: 1px dashed var(--black); }\n  .menu li:last-child { border-bottom: 0; }\n  .menu li span.n { font-weight: 700; }\n  .menu li span.d { flex: 1; border-bottom: 2px dotted var(--black); min-width: 14px; transform: translateY(-3px); }\n  .menu li span.p { font-weight: 700; white-space: nowrap; }\n  .menu li em { display: block; font: italic 400 13px/1.3 var(--serif); }\n  .menu li .txt { flex: 0 1 auto; }\n  .menu .special { background: var(--taxi); }\n  .note { font: 400 13px/1.5 var(--mono); margin: 14px 0 0; text-transform: uppercase; letter-spacing: .06em; }\n\n  /* tickets */\n  .tickets { display: flex; flex-wrap: wrap; gap: 26px; align-items: flex-start; margin: 10px 0 6px; }\n  .ticket { background: var(--black); padding: 3px; clip-path: polygon(0 0, 100% 0, 100% 42%, calc(100% - 12px) 50%, 100% 58%, 100% 100%, 0 100%, 0 58%, 12px 50%, 0 42%); }\n  .ticket-in { background: var(--taxi); padding: 14px 22px; font: 400 14px/1.5 var(--mono); height: 100%; }\n  .ticket-in b { display: block; font: 400 1.9rem/1 var(--head); letter-spacing: .08em; }\n  .ticket.bus { width: 250px; }\n  .ticket.bus .ticket-in { border-top: 3px dashed var(--black); border-bottom: 3px dashed var(--black); }\n  .ticket.cinema { width: 380px; max-width: 100%; }\n  .ticket.cinema .ticket-in { display: grid; grid-template-columns: 1fr auto; gap: 8px 18px; background: var(--paper); }\n  .ticket.cinema .stub { border-left: 3px dashed var(--black); padding-left: 16px; text-align: center; }\n\n  /* find us */\n  .find { display: grid; grid-template-columns: 1.2fr 1fr; gap: 24px; align-items: start; }\n  .map { border: 4px solid var(--black); background: var(--paper); }\n  .map svg { display: block; width: 100%; height: auto; }\n  .map figcaption { background: var(--black); color: var(--taxi); font: 600 13px var(--mono); letter-spacing: .12em; padding: 4px 10px; text-transform: uppercase; }\n  .map { margin: 0; }\n  table.hours { border-collapse: collapse; width: 100%; font: 400 15px var(--mono); margin: 0 0 14px; border: 3px solid var(--black); }\n  table.hours caption { background: var(--black); color: var(--taxi); font: 400 1.5rem var(--head); letter-spacing: .1em; text-align: left; padding: 0 12px; text-transform: uppercase; }\n  table.hours th, table.hours td { text-align: left; padding: 5px 12px; border-bottom: 1px dashed var(--black); }\n  table.hours th { font-weight: 700; }\n  address { font: 400 16px/1.5 var(--mono); font-style: normal; border: 2px dashed var(--black); padding: 10px 14px; margin: 0 0 14px; background: var(--taxi); }\n  address b { font: 400 1.5rem var(--head); letter-spacing: .08em; display: block; }\n  .how { margin: 0; padding: 0; list-style: none; font: 400 15px/1.5 var(--mono); }\n  .how li { padding: 6px 0; border-bottom: 1px dashed var(--black); }\n  .how li b { font-family: var(--head); font-weight: 400; font-size: 1.2rem; letter-spacing: .08em; margin-right: 6px; }\n\n  .btn { display: inline-block; font: 400 1.4rem var(--head); letter-spacing: .12em; text-transform: uppercase; text-decoration: none; cursor: pointer;\n         background: var(--black); color: var(--taxi); border: 3px solid var(--taxi); outline: 3px solid var(--black); padding: 8px 26px; box-shadow: 5px 5px 0 var(--black); }\n  .btn:hover { background: var(--taxi); color: var(--black); border-color: var(--black); }\n  .cta { margin: 22px 0 6px; }\n\n  footer { margin-top: 30px; }\n  .route { background: var(--black); color: var(--taxi); font: 600 15px var(--mono); letter-spacing: .15em; text-align: center; padding: 8px 12px; }\n  .fine { text-align: center; font: 400 12px/1.6 var(--mono); letter-spacing: .1em; text-transform: uppercase; margin: 10px 0 0; }\n\n  @media (max-width: 900px) { .columns { column-count: 2; } .menu { grid-template-columns: 1fr 1fr; } }\n  @media (max-width: 700px) { .find { grid-template-columns: 1fr; } }\n  @media (max-width: 600px) { .columns { column-count: 1; column-rule: none; } .menu { grid-template-columns: 1fr; } .page { padding: 14px 14px 28px; } .ticket.bus { width: 100%; } }\n  @media (prefers-reduced-motion: reduce) { .rec::before { animation: none; } }\n\u003c/style>\n\u003c/head>\n\u003cbody>\n\n\u003cdiv class=\"vhs\" role=\"presentation\">\u003cspan class=\"rec\">REC\u003c/span>\u003cspan>PLAY &#9654; &nbsp; SP\u003c/span>\u003cspan>04:17 PM &nbsp; 12 NOV 1994\u003c/span>\u003c/div>\n\u003cdiv class=\"checker\" aria-hidden=\"true\">\u003c/div>\n\n\u003cdiv class=\"page\">\n  \u003cdiv class=\"dateline\">\u003cspan>Rs. 3.00\u003c/span>\u003cspan>Vol. I &middot; No. 1\u003c/span>\u003cspan>Friday, 12 November 1994\u003c/span>\u003cspan>Chai Edition\u003c/span>\u003c/div>\n\n  \u003cheader class=\"masthead\">\n    \u003ch1>Cutting Chai Co.\u003c/h1>\n    \u003cp>Dadar &middot; Bombay &middot; Garam chai, since 1994\u003c/p>\n  \u003c/header>\n  \u003cnav class=\"sections\" aria-label=\"Sections\">\u003ca href=\"#menu\">The Menu\u003c/a>\u003ca href=\"#story\">Our Story\u003c/a>\u003ca href=\"#find\">Find Us\u003c/a>\u003c/nav>\n\n  \u003csection class=\"poster\" aria-label=\"Featured\">\n    \u003cspan class=\"tag\">NOW SERVING\u003c/span>\n    \u003ch2>Ek Cutting,\u003cbr>Ek Yaadein\u003c/h2>\n    \u003cp class=\"sub\">Kadak chai from the first kettle of the morning\u003c/p>\n    \u003csvg viewBox=\"0 0 800 230\" role=\"img\" aria-label=\"Marine Drive skyline at sunset with a row of lights along the bay\">\n      \u003crect width=\"800\" height=\"230\" fill=\"#E89B54\"/>\n      \u003crect y=\"120\" width=\"800\" height=\"14\" fill=\"#F4C430\"/>\n      \u003crect y=\"146\" width=\"800\" height=\"10\" fill=\"#F4C430\"/>\n      \u003ccircle cx=\"400\" cy=\"150\" r=\"78\" fill=\"#F4C430\"/>\n      \u003crect x=\"320\" y=\"132\" width=\"160\" height=\"6\" fill=\"#E89B54\"/>\u003crect x=\"320\" y=\"150\" width=\"160\" height=\"8\" fill=\"#E89B54\"/>\u003crect x=\"320\" y=\"170\" width=\"160\" height=\"10\" fill=\"#E89B54\"/>\n      \u003crect y=\"176\" width=\"800\" height=\"54\" fill=\"#141414\"/>\n      \u003cg fill=\"#141414\">\u003crect x=\"40\" y=\"96\" width=\"34\" height=\"84\"/>\u003crect x=\"82\" y=\"70\" width=\"28\" height=\"110\"/>\u003crect x=\"118\" y=\"104\" width=\"40\" height=\"76\"/>\u003crect x=\"640\" y=\"84\" width=\"32\" height=\"96\"/>\u003crect x=\"680\" y=\"60\" width=\"26\" height=\"120\"/>\u003crect x=\"714\" y=\"100\" width=\"42\" height=\"80\"/>\u003c/g>\n      \u003cpath d=\"M30 196 Q400 140 770 196\" fill=\"none\" stroke=\"#F4C430\" stroke-width=\"6\" stroke-linecap=\"round\" stroke-dasharray=\"0.1 16\"/>\n    \u003c/svg>\n  \u003c/section>\n\n  \u003csection id=\"menu\">\n    \u003cdiv class=\"section-head\">\u003ch3>The Menu\u003c/h3>\u003c/div>\n    \u003cdiv class=\"menu\">\n      \u003csection class=\"special\" aria-labelledby=\"m-chai\">\n        \u003ch4 id=\"m-chai\">Chai\u003c/h4>\n        \u003cul>\n          \u003cli>\u003cspan class=\"n\">Cutting Chai\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 10\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Full Chai\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 18\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Masala Chai\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 15\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Adrak Chai\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 15\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Irani Chai\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 20\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Sulaimani\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 15\u003c/span>\u003c/li>\n        \u003c/ul>\n      \u003c/section>\n      \u003csection aria-labelledby=\"m-bite\">\n        \u003ch4 id=\"m-bite\">Chai ke Saath\u003c/h4>\n        \u003cul>\n          \u003cli>\u003cspan class=\"n\">Bun Maska\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 18\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Maska Pav\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 20\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Khari Biscuit\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 12\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Osmania Biscuit\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 12\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Toast &amp; Butter\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 25\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Bhaji Pav\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 45\u003c/span>\u003c/li>\n        \u003c/ul>\n      \u003c/section>\n      \u003csection aria-labelledby=\"m-more\">\n        \u003ch4 id=\"m-more\">Aur Kuch\u003c/h4>\n        \u003cul>\n          \u003cli>\u003cspan class=\"n\">Vada Pav\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 15\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Egg Bhurji Pav\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 40\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Masala Omelette Pav\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 40\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Cold Coffee\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 35\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Nimbu Soda\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Rs. 20\u003c/span>\u003c/li>\n          \u003cli>\u003cspan class=\"n\">Garam Paani\u003c/span>\u003cspan class=\"d\">\u003c/span>\u003cspan class=\"p\">Free\u003c/span>\u003c/li>\n        \u003c/ul>\n      \u003c/section>\n    \u003c/div>\n    \u003cp class=\"note\">Prices as on the board in 1994 spirit. Update with today&rsquo;s rates before you print. Ask at the counter for the day&rsquo;s special.\u003c/p>\n  \u003c/section>\n\n  \u003csection id=\"story\">\n    \u003cdiv class=\"section-head\">\u003ch3>Our Story\u003c/h3>\u003c/div>\n    \u003cdiv class=\"columns\">\n      \u003cdiv class=\"story\">\n        \u003ch4>One kettle, one corner, one big idea\u003c/h4>\n        \u003cp>It began in the winter of 1994 with a single steel kettle, a kerosene stove and a stool borrowed from the neighbour. The idea was plain: a proper cup of chai, boiled with patience, handed over with a smile, for the price of a small coin.\u003c/p>\n        \u003cp>Dadar was already a city in itself, with commuters rushing to the 8:42 and shopkeepers rolling up their shutters. Everyone needed a minute. We gave them a cutting.\u003c/p>\n      \u003c/div>\n      \u003cp class=\"pull\">Half a glass of chai is a full conversation.\u003c/p>\n      \u003cp>Why &ldquo;cutting&rdquo;? Because in Bombay a full glass was a luxury and half was a habit, shared between two friends and one newspaper. We kept the glass small and the stories big.\u003c/p>\n      \u003cp>Today the same recipe simmers in the same slow way: strong leaf, fresh ginger, crushed elaichi, buffalo milk, and not a minute less than it deserves. The cassette player still sits on the shelf. The songs are the old ones.\u003c/p>\n      \u003cdiv class=\"ad hot\">\u003cb>Notice\u003c/b>Regulars who remember the first kettle are invited to claim one free cutting on Sundays. Bring the story, we will bring the chai.\u003c/div>\n      \u003cdiv class=\"ad\">\u003cb>Wanted\u003c/b>Old Hindi film songs on cassette, any condition. Hand them over at the counter, collect a Bun Maska.\u003c/div>\n    \u003c/div>\n  \u003c/section>\n\n  \u003csection id=\"find\">\n    \u003cdiv class=\"section-head\">\u003ch3>Find Us\u003c/h3>\u003c/div>\n    \u003cdiv class=\"find\">\n      \u003cfigure class=\"map\">\n        \u003csvg viewBox=\"0 0 560 360\" role=\"img\" aria-label=\"Sketch map: Dadar station on the left, Ranade Road running east, and Cutting Chai Co. marked with a star near the Kabutarkhana end\">\n          \u003crect width=\"560\" height=\"360\" fill=\"#EFE6D2\"/>\n          \u003crect x=\"0\" y=\"40\" width=\"560\" height=\"22\" fill=\"#141414\"/>\n          \u003crect x=\"0\" y=\"46\" width=\"560\" height=\"4\" fill=\"#F4C430\"/>\n          \u003ctext x=\"14\" y=\"30\" font-family=\"Courier Prime, Courier New, monospace\" font-size=\"14\" font-weight=\"700\" fill=\"#141414\">WESTERN &amp; CENTRAL LINES\u003c/text>\n          \u003crect x=\"30\" y=\"62\" width=\"150\" height=\"70\" fill=\"#141414\"/>\n          \u003ctext x=\"42\" y=\"92\" font-family=\"Bebas Neue, Impact, sans-serif\" font-size=\"26\" fill=\"#F4C430\">DADAR\u003c/text>\n          \u003ctext x=\"42\" y=\"116\" font-family=\"Courier Prime, Courier New, monospace\" font-size=\"12\" fill=\"#F4C430\">STATION (W)\u003c/text>\n          \u003crect x=\"60\" y=\"200\" width=\"460\" height=\"26\" fill=\"#E89B54\" stroke=\"#141414\" stroke-width=\"3\"/>\n          \u003ctext x=\"80\" y=\"219\" font-family=\"Courier Prime, Courier New, monospace\" font-size=\"13\" font-weight=\"700\" fill=\"#141414\">RANADE ROAD\u003c/text>\n          \u003cpath d=\"M105 132 V200\" stroke=\"#141414\" stroke-width=\"12\"/>\n          \u003cpath d=\"M105 132 V200\" stroke=\"#F4C430\" stroke-width=\"3\" stroke-dasharray=\"10 8\"/>\n          \u003crect x=\"300\" y=\"226\" width=\"22\" height=\"70\" fill=\"#141414\"/>\n          \u003crect x=\"360\" y=\"140\" width=\"80\" height=\"60\" fill=\"#E89B54\" stroke=\"#141414\" stroke-width=\"3\"/>\n          \u003ctext x=\"368\" y=\"176\" font-family=\"Courier Prime, Courier New, monospace\" font-size=\"12\" font-weight=\"700\" fill=\"#141414\">KABUTAR-\u003c/text>\n          \u003ctext x=\"368\" y=\"190\" font-family=\"Courier Prime, Courier New, monospace\" font-size=\"12\" font-weight=\"700\" fill=\"#141414\">KHANA\u003c/text>\n          \u003crect x=\"230\" y=\"136\" width=\"110\" height=\"64\" fill=\"#F4C430\" stroke=\"#141414\" stroke-width=\"4\"/>\n          \u003cpolygon points=\"285,146 290,160 305,160 293,169 298,183 285,174 272,183 277,169 265,160 280,160\" fill=\"#141414\"/>\n          \u003ctext x=\"238\" y=\"132\" font-family=\"Bebas Neue, Impact, sans-serif\" font-size=\"20\" fill=\"#141414\">CUTTING CHAI CO.\u003c/text>\n          \u003cpath d=\"M105 215 H230\" stroke=\"#C1272D\" stroke-width=\"4\" stroke-dasharray=\"8 6\"/>\n          \u003ctext x=\"112\" y=\"250\" font-family=\"Courier Prime, Courier New, monospace\" font-size=\"13\" fill=\"#C1272D\" font-weight=\"700\">5 MIN WALK\u003c/text>\n          \u003cg fill=\"#141414\">\u003crect x=\"380\" y=\"240\" width=\"60\" height=\"50\"/>\u003crect x=\"450\" y=\"250\" width=\"50\" height=\"40\"/>\u003crect x=\"60\" y=\"260\" width=\"70\" height=\"60\"/>\u003crect x=\"150\" y=\"270\" width=\"60\" height=\"50\"/>\u003c/g>\n          \u003crect x=\"440\" y=\"316\" width=\"106\" height=\"30\" fill=\"#141414\"/>\n          \u003ctext x=\"452\" y=\"337\" font-family=\"Bebas Neue, Impact, sans-serif\" font-size=\"22\" fill=\"#F4C430\">&#8593; NORTH\u003c/text>\n        \u003c/svg>\n        \u003cfigcaption>Not to scale &middot; Follow the smell of ginger\u003c/figcaption>\n      \u003c/figure>\n\n      \u003cdiv>\n        \u003caddress>\n          \u003cb>Cutting Chai Co.\u003c/b>\n          Shop No. 1, Ranade Road\u003cbr>\n          Dadar (West), Mumbai 400 028\u003cbr>\n          Tel: 022-XXXX XXXX\n        \u003c/address>\n        \u003ctable class=\"hours\">\n          \u003ccaption>Timings\u003c/caption>\n          \u003ctbody>\n            \u003ctr>\u003cth scope=\"row\">Mon - Sat\u003c/th>\u003ctd>6:00 AM - 11:00 PM\u003c/td>\u003c/tr>\n            \u003ctr>\u003cth scope=\"row\">Sunday\u003c/th>\u003ctd>7:00 AM - 10:00 PM\u003c/td>\u003c/tr>\n            \u003ctr>\u003cth scope=\"row\">Monsoon\u003c/th>\u003ctd>Open, kettle on, always\u003c/td>\u003c/tr>\n          \u003c/tbody>\n        \u003c/table>\n      \u003c/div>\n    \u003c/div>\n\n    \u003cdiv class=\"section-head\">\u003ch3>How To Reach\u003c/h3>\u003c/div>\n    \u003cdiv class=\"tickets\">\n      \u003cdiv class=\"ticket bus\">\u003cdiv class=\"ticket-in\">\u003cb>BEST\u003c/b>ANY BUS TO DADAR TT\u003cbr>ALIGHT: DADAR STATION (W)\u003cbr>WALK 5 MIN &middot; RANADE RD\u003cbr>FARE: AS PER STAGE\u003c/div>\u003c/div>\n      \u003cdiv class=\"ticket cinema\">\u003cdiv class=\"ticket-in\">\u003cdiv>\u003cb>ADMIT ONE\u003c/b>WESTERN OR CENTRAL LINE\u003cbr>ALIGHT AT DADAR\u003cbr>EXIT WEST &middot; TURN LEFT\u003cbr>CUP IS WAITING\u003c/div>\u003cdiv class=\"stub\">\u003cb>Rs. 10\u003c/b>NO. 0001\u003c/div>\u003c/div>\u003c/div>\n    \u003c/div>\n    \u003cp class=\"cta\">\u003ca class=\"btn\" href=\"#menu\">Back to the menu\u003c/a>\u003c/p>\n    \u003cp class=\"note\">Replace the placeholder address, phone number and timings with the real ones before going live.\u003c/p>\n  \u003c/section>\n\n  \u003cfooter>\n    \u003cdiv class=\"checker\" aria-hidden=\"true\">\u003c/div>\n    \u003cdiv class=\"route\">KETTLE ON &middot; CUTTING &middot; MASALA &middot; IRANI &middot; ALL STOPS TO DADAR\u003c/div>\n    \u003cp class=\"fine\">Brewed and published in Bombay &middot; Set in Bebas Neue, Lora &amp; Courier Prime\u003c/p>\n  \u003c/footer>\n\u003c/div>\n\n\u003c/body>\n\u003c/html>\n"}], "grading": {"expectations": [{"text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": true, "evidence": "no violations"}, {"text": "index.html uses Kaali-Peeli yellow #F4C430, jet black #141414 and sunset sepia #E89B54", "passed": true, "evidence": "all of three Bombay colors present"}, {"text": "index.html uses Bebas Neue, Oswald or Archivo Black for headlines and Courier Prime, IBM Plex Mono or Lora for text", "passed": true, "evidence": "all of headline + typewriter fonts present"}, {"text": "index.html has VHS scanlines, a film-grain overlay and a halftone dot texture", "passed": true, "evidence": "all of scanlines + grain + halftone present"}, {"text": "index.html shows a VHS-style timestamp or REC badge", "passed": true, "evidence": "found 'VHS'"}, {"text": "index.html includes a bus-ticket, cinema-ticket or cassette-shaped element and multi-column newspaper classifieds", "passed": true, "evidence": "all of ticket/cassette + columns present"}, {"text": "index.html uses no neon purple or cyan colors", "passed": true, "evidence": "no neon colors"}], "summary": {"passed": 7, "failed": 0, "total": 7, "pass_rate": 1.0}}}, {"id": "darbar-heritage-hotel-old_skill", "prompt": "build me a website for a Rajasthani palace heritage hotel. I want it to feel like an old Rajput royal court, like a miniature painting from the 1600s. hero, the rooms, and a booking button. save as index.html", "eval_id": null, "outputs": [{"name": "index.html", "type": "text", "content": "\u003c!DOCTYPE html>\n\u003chtml lang=\"en\">\n\u003chead>\n\u003cmeta charset=\"utf-8\">\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\u003ctitle>Kesar Darbar Mahal &mdash; A Heritage Palace Hotel of Mewar\u003c/title>\n\u003clink rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n\u003clink href=\"https://fonts.googleapis.com/css2?family=Playfair+Display:ital,wght@0,700;0,900;1,400&family=Libre+Baskerville:ital@0;1&family=Courier+Prime&display=swap\" rel=\"stylesheet\">\n\u003cstyle>\n  :root {\n    --paper: #F4ECD8;\n    --paper-dark: #EADFC4;\n    --ink: #2B2520;\n    --faded: #5A4E42;\n    --stamp: #9B2C20;\n    --gilt: #A8863B;\n    --display: \"Playfair Display\", Didot, Georgia, serif;\n    --text: \"Libre Baskerville\", Baskerville, Georgia, serif;\n    --type: \"Courier Prime\", \"Courier New\", monospace;\n  }\n  * { border-radius: 0; box-sizing: border-box; }\n  body { margin: 0; background: var(--ink); color: var(--ink); font: 17px/1.65 var(--text); }\n\n  /* paper grain: felt, not seen */\n  body::before {\n    content: \"\"; position: fixed; inset: 0; pointer-events: none; z-index: 50;\n    mix-blend-mode: multiply; opacity: .45;\n    background-image: url(\"data:image/svg+xml;utf8,\u003csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'>\u003cfilter id='n' x='0' y='0' width='100%25' height='100%25'>\u003cfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/>\u003cfeColorMatrix values='0 0 0 0 0.17  0 0 0 0 0.15  0 0 0 0 0.12  0 0 0 0.55 0'/>\u003c/filter>\u003crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.5'/>\u003c/svg>\");\n  }\n\n  a { color: var(--ink); text-decoration-thickness: 1px; text-underline-offset: 3px; }\n  a:hover { color: var(--stamp); }\n  a:focus-visible, button:focus-visible, input:focus-visible, select:focus-visible { outline: 2px solid var(--stamp); outline-offset: 3px; }\n\n  /* the folio: a miniature's painted margin - red border band, gilt rule, ink line */\n  .folio { max-width: 1120px; margin: 18px auto; background: var(--paper);\n           border: 14px solid var(--stamp); outline: 2px solid var(--gilt); outline-offset: -8px; position: relative; }\n  .folio::after { content: \"\"; position: absolute; inset: 6px; border: 1px solid var(--ink); pointer-events: none; }\n  .sheet { padding: 34px 40px 40px; }\n\n  .dateline { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 16px;\n              font: 13px var(--type); letter-spacing: .15em; text-transform: uppercase;\n              border-top: 4px solid var(--ink); border-bottom: 1px solid var(--ink); padding: 6px 0; }\n  .masthead { text-align: center; padding: 16px 0 10px; border-bottom: 3px double var(--ink); position: relative; }\n  .masthead .invoc { font: 700 1rem var(--type); letter-spacing: .3em; color: var(--stamp); margin: 0; }\n  .masthead h1 { margin: 4px 0 0; font: 900 clamp(2.3rem, 7.5vw, 4.9rem)/1 var(--display); letter-spacing: .03em; text-transform: uppercase; }\n  .masthead .motto { font: italic 400 1.1rem var(--display); color: var(--faded); margin: 6px 0 0; }\n  nav.sections { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 28px; padding: 8px 0;\n                 border-bottom: 1px solid var(--ink); font-variant: small-caps; letter-spacing: .12em; font-size: 1.05rem; }\n  nav.sections a { text-decoration: none; }\n\n  .stamp { display: inline-block; border: 3px double var(--stamp); color: var(--stamp);\n           padding: .35rem .8rem; font: 700 .8rem var(--type); letter-spacing: .2em; text-transform: uppercase;\n           transform: rotate(-6deg); filter: url(#rough); mix-blend-mode: multiply; opacity: .9; background: transparent; }\n\n  /* hero: the court scene */\n  .hero { margin: 22px 0 0; border: 1px solid var(--ink); outline: 6px solid var(--paper); position: relative; background: var(--paper-dark); }\n  .hero svg { display: block; width: 100%; height: auto; filter: sepia(.25) contrast(1.05); }\n  .hero .stamp { position: absolute; right: 18px; bottom: 18px; background: var(--paper); }\n  .hero-cap { font: 12px/1.5 var(--type); letter-spacing: .08em; text-transform: uppercase; color: var(--faded); margin: 14px 0 0; text-align: center; }\n  .hero-text { text-align: center; padding: 20px 0 6px; }\n  .hero-text h2 { font: 900 clamp(1.7rem, 4.6vw, 2.9rem)/1.1 var(--display); margin: 0 0 8px; }\n  .deck { font: italic 400 1.25rem/1.4 var(--display); color: var(--faded); margin: 0 auto 16px; max-width: 40rem; }\n\n  .btn { display: inline-block; background: transparent; color: var(--ink); border: 2px solid var(--ink); padding: .65rem 1.4rem;\n         font: 700 .9rem var(--type); letter-spacing: .15em; text-transform: uppercase; text-decoration: none; cursor: pointer; }\n  .btn:hover { background: var(--ink); color: var(--paper); }\n  .btn.primary { border-color: var(--stamp); color: var(--stamp); }\n  .btn.primary:hover { background: var(--stamp); color: var(--paper); }\n\n  .ornament { text-align: center; letter-spacing: .8em; color: var(--gilt); margin: 26px 0; }\n\n  h2.sect { font: 900 clamp(1.6rem, 4vw, 2.4rem)/1.1 var(--display); text-align: center; margin: 0 0 4px; font-variant: small-caps; letter-spacing: .05em; }\n  p.sect-sub { text-align: center; font: italic 400 1.1rem var(--display); color: var(--faded); margin: 0 0 18px; }\n  .rule-top { border-top: 3px double var(--ink); padding-top: 18px; }\n\n  .columns { column-count: 3; column-gap: 2rem; column-rule: 1px solid var(--ink); text-align: justify; hyphens: auto; }\n  .columns p { margin: 0 0 1em; }\n  .columns p:first-of-type::first-letter { float: left; font: 900 4.1rem/.82 var(--display); padding: 6px 8px 0 0; color: var(--stamp); }\n  blockquote.pull { margin: 0 0 1em; padding: .6em 0; border-top: 3px double var(--ink); border-bottom: 3px double var(--ink);\n                    font: italic 700 1.25rem/1.35 var(--display); text-align: center; break-inside: avoid; }\n\n  /* rooms: plates in cusped (jharokha) frames */\n  .plates { display: grid; grid-template-columns: repeat(3, 1fr); gap: 0; border-top: 1px solid var(--ink); border-bottom: 1px solid var(--ink); }\n  .plate { padding: 20px 20px 22px; border-right: 1px solid var(--ink); display: flex; flex-direction: column; }\n  .plate:last-child { border-right: 0; }\n  .plate .no { font: 12px var(--type); letter-spacing: .2em; text-transform: uppercase; color: var(--stamp); }\n  .arch { background: var(--ink); padding: 3px; margin: 8px 0 12px;\n          clip-path: polygon(0 100%, 0 38%, 4% 30%, 12% 22%, 22% 15%, 34% 8%, 44% 3%, 50% 0, 56% 3%, 66% 8%, 78% 15%, 88% 22%, 96% 30%, 100% 38%, 100% 100%); }\n  .arch .in { background: var(--paper-dark);\n          clip-path: polygon(0 100%, 0 38%, 4% 30%, 12% 22%, 22% 15%, 34% 8%, 44% 3%, 50% 0, 56% 3%, 66% 8%, 78% 15%, 88% 22%, 96% 30%, 100% 38%, 100% 100%); }\n  .arch svg { display: block; width: 100%; height: auto; filter: sepia(.25) contrast(1.05); }\n  .plate h3 { font: 900 1.45rem/1.15 var(--display); margin: 0 0 4px; }\n  .plate .tag { font: italic 400 1rem var(--display); color: var(--faded); margin: 0 0 8px; }\n  .plate p { margin: 0 0 12px; font-size: .97rem; line-height: 1.6; }\n  .plate ul { list-style: none; margin: 0 0 14px; padding: 0; font: 12px/1.9 var(--type); letter-spacing: .08em; text-transform: uppercase; border-top: 1px solid var(--ink); }\n  .plate ul li { border-bottom: 1px dotted var(--faded); }\n  .plate p.price { font: 700 1.05rem var(--type); letter-spacing: .08em; margin: auto 0 12px; }\n  .price small { font-size: .75rem; color: var(--faded); letter-spacing: .12em; text-transform: uppercase; }\n  .plate .btn { text-align: center; }\n\n  /* notices and booking */\n  .ledger { display: grid; grid-template-columns: 1fr 1.2fr; gap: 2rem; }\n  .notice { border-top: 3px double var(--ink); border-bottom: 1px solid var(--ink); padding: 8px 0 12px; }\n  .notice h3 { font: 700 1.2rem var(--display); font-variant: small-caps; letter-spacing: .06em; margin: 0 0 .4rem; }\n  .notice p { margin: 0 0 .7em; }\n  table.rates { width: 100%; border-collapse: collapse; font: 13px/1.5 var(--type); letter-spacing: .06em; text-transform: uppercase; }\n  table.rates th, table.rates td { text-align: left; padding: 5px 4px; border-bottom: 1px solid var(--ink); }\n  table.rates tr:nth-child(even) td { background: var(--paper-dark); }\n  table.rates td:last-child, table.rates th:last-child { text-align: right; }\n\n  form.book { border: 3px double var(--ink); padding: 18px 20px 20px; background: var(--paper); max-width: 680px; margin: 0 auto; }\n  form.book h3 { font: 900 1.5rem var(--display); margin: 0 0 2px; text-align: center; }\n  form.book .sub { text-align: center; font: italic 400 1rem var(--display); color: var(--faded); margin: 0 0 14px; }\n  .row { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px; }\n  label { display: block; font: 12px var(--type); letter-spacing: .15em; text-transform: uppercase; margin-bottom: 4px; }\n  input, select { width: 100%; font: 15px var(--text); color: var(--ink); background: var(--paper-dark); border: 1px solid var(--ink); padding: 8px 10px; }\n  form.book .btn { width: 100%; text-align: center; margin-top: 4px; }\n  .dialog { display: none; margin-top: 14px; border: 3px double var(--stamp); padding: 10px 14px; color: var(--ink); }\n  .dialog.open { display: block; }\n  .dialog b { font: 700 .85rem var(--type); letter-spacing: .15em; text-transform: uppercase; color: var(--stamp); display: block; margin-bottom: 4px; }\n\n  footer { border-top: 3px double var(--ink); padding-top: 12px; margin-top: 26px; font: 12px/1.8 var(--type); letter-spacing: .12em; text-transform: uppercase; text-align: center; color: var(--faded); }\n\n  @media (max-width: 900px) {\n    .columns { column-count: 2; }\n    .plates { grid-template-columns: 1fr; }\n    .plate { border-right: 0; border-bottom: 1px solid var(--ink); }\n    .plate:last-child { border-bottom: 0; }\n    .ledger { grid-template-columns: 1fr; }\n  }\n  @media (max-width: 600px) {\n    .folio { margin: 0; border-width: 10px; }\n    .sheet { padding: 18px 16px 28px; }\n    .columns { column-count: 1; column-rule: none; }\n    .row { grid-template-columns: 1fr; }\n    .hero .stamp { position: static; display: block; margin: 10px auto; width: max-content; }\n  }\n\u003c/style>\n\u003c/head>\n\u003cbody>\n\n\u003csvg width=\"0\" height=\"0\" style=\"position:absolute\" aria-hidden=\"true\" focusable=\"false\">\n  \u003cfilter id=\"rough\" x=\"-5%\" y=\"-5%\" width=\"110%\" height=\"110%\">\n    \u003cfeTurbulence type=\"fractalNoise\" baseFrequency=\"0.05\" numOctaves=\"2\" seed=\"4\" result=\"t\"/>\n    \u003cfeDisplacementMap in=\"SourceGraphic\" in2=\"t\" scale=\"2.6\"/>\n  \u003c/filter>\n  \u003cdefs>\n    \u003csymbol id=\"cusp\" viewBox=\"0 0 60 90\">\n      \u003cpath d=\"M0 90V45L6 38L12 33L18 22L24 14L30 4L36 14L42 22L48 33L54 38L60 45V90Z\" fill=\"#2B2520\"/>\n      \u003cpath d=\"M6 90V47L10 42L16 37L21 26L27 18L30 12L33 18L39 26L44 37L50 42L54 47V90Z\" fill=\"#9B2C20\"/>\n    \u003c/symbol>\n    \u003csymbol id=\"chhatri\" viewBox=\"0 0 60 70\">\n      \u003cpath d=\"M30 0V8M10 30L16 20L24 12L30 8L36 12L44 20L50 30Z\" fill=\"#2B2520\" stroke=\"#2B2520\" stroke-width=\"2\"/>\n      \u003cpath d=\"M12 30H48V34H12Z\" fill=\"#A8863B\"/>\n      \u003cpath d=\"M14 34H18V70H14ZM26 34H30V70H26ZM38 34H42V70H38Z\" fill=\"#2B2520\"/>\n      \u003cpath d=\"M12 66H48V70H12Z\" fill=\"#A8863B\"/>\n    \u003c/symbol>\n    \u003cpattern id=\"tile\" width=\"24\" height=\"12\" patternUnits=\"userSpaceOnUse\">\n      \u003cpath d=\"M0 6L6 0L12 6L6 12Z\" fill=\"#9B2C20\"/>\n      \u003cpath d=\"M12 6L18 0L24 6L18 12Z\" fill=\"#F4ECD8\"/>\n      \u003cpath d=\"M4 6L6 4L8 6L6 8Z\" fill=\"#A8863B\"/>\n    \u003c/pattern>\n  \u003c/defs>\n\u003c/svg>\n\n\u003cdiv class=\"folio\">\n\u003cdiv class=\"sheet\">\n\n  \u003cdiv class=\"dateline\">\n    \u003cspan>Mewar &middot; Rajputana\u003c/span>\n    \u003cspan>Open the whole year\u003c/span>\n    \u003cspan>A House of the Sisodia Kin\u003c/span>\n  \u003c/div>\n\n  \u003cheader class=\"masthead\">\n    \u003cp class=\"invoc\">&#10086; &#2404; &#2358;&#2381;&#2352;&#2368; &#2404; &#10086;\u003c/p>\n    \u003ch1>Kesar Darbar Mahal\u003c/h1>\n    \u003cp class=\"motto\">&ldquo;Where the Maharana once held court, a guest is held as a king.&rdquo;\u003c/p>\n  \u003c/header>\n\n  \u003cnav class=\"sections\" aria-label=\"Sections\">\n    \u003ca href=\"#darbar\">The Court\u003c/a>\u003ca href=\"#rooms\">The Chambers\u003c/a>\u003ca href=\"#notices\">Rates &amp; Notices\u003c/a>\u003ca href=\"#book\">Seek an Audience\u003c/a>\n  \u003c/nav>\n\n  \u003cmain>\n    \u003csection id=\"darbar\">\n      \u003cfigure class=\"hero\">\n        \u003csvg viewBox=\"0 0 1000 440\" role=\"img\" aria-label=\"Painted miniature of a Rajput palace at dusk: a white pavilion with domed chhatris, cusped arches, a courtyard with a lotus pool and a ruler seated in the central arch\">\n          \u003crect width=\"1000\" height=\"440\" fill=\"#EADFC4\"/>\n          \u003crect width=\"1000\" height=\"70\" fill=\"#A8863B\" opacity=\".35\"/>\n          \u003crect y=\"70\" width=\"1000\" height=\"50\" fill=\"#9B2C20\" opacity=\".16\"/>\n          \u003ccircle cx=\"500\" cy=\"92\" r=\"52\" fill=\"#9B2C20\"/>\n          \u003ccircle cx=\"500\" cy=\"92\" r=\"40\" fill=\"none\" stroke=\"#A8863B\" stroke-width=\"3\"/>\n          \u003cpath d=\"M0 210L90 160L170 205L260 150L340 200L1000 200V260H0Z\" fill=\"#5A4E42\" opacity=\".55\"/>\n          \u003cpath d=\"M620 205L720 140L810 195L900 150L1000 200V260H620Z\" fill=\"#2B2520\" opacity=\".45\"/>\n          \u003crect x=\"190\" y=\"190\" width=\"620\" height=\"170\" fill=\"#F4ECD8\" stroke=\"#2B2520\" stroke-width=\"3\"/>\n          \u003crect x=\"190\" y=\"190\" width=\"620\" height=\"14\" fill=\"#A8863B\"/>\n          \u003crect x=\"190\" y=\"204\" width=\"620\" height=\"3\" fill=\"#2B2520\"/>\n          \u003crect x=\"150\" y=\"150\" width=\"70\" height=\"210\" fill=\"#F4ECD8\" stroke=\"#2B2520\" stroke-width=\"3\"/>\n          \u003crect x=\"780\" y=\"150\" width=\"70\" height=\"210\" fill=\"#F4ECD8\" stroke=\"#2B2520\" stroke-width=\"3\"/>\n          \u003cuse href=\"#chhatri\" x=\"150\" y=\"86\" width=\"70\" height=\"66\"/>\n          \u003cuse href=\"#chhatri\" x=\"780\" y=\"86\" width=\"70\" height=\"66\"/>\n          \u003crect x=\"390\" y=\"130\" width=\"220\" height=\"70\" fill=\"#F4ECD8\" stroke=\"#2B2520\" stroke-width=\"3\"/>\n          \u003cpath d=\"M410 130L430 100L460 78L500 66L540 78L570 100L590 130Z\" fill=\"#9B2C20\" stroke=\"#2B2520\" stroke-width=\"3\"/>\n          \u003cpath d=\"M500 66V44\" stroke=\"#2B2520\" stroke-width=\"3\"/>\n          \u003cpath d=\"M500 44L508 52L500 60L492 52Z\" fill=\"#A8863B\"/>\n          \u003cuse href=\"#chhatri\" x=\"300\" y=\"130\" width=\"60\" height=\"60\"/>\n          \u003cuse href=\"#chhatri\" x=\"640\" y=\"130\" width=\"60\" height=\"60\"/>\n          \u003cuse href=\"#cusp\" x=\"224\" y=\"240\" width=\"52\" height=\"120\"/>\n          \u003cuse href=\"#cusp\" x=\"304\" y=\"240\" width=\"52\" height=\"120\"/>\n          \u003cuse href=\"#cusp\" x=\"384\" y=\"240\" width=\"52\" height=\"120\"/>\n          \u003cuse href=\"#cusp\" x=\"564\" y=\"240\" width=\"52\" height=\"120\"/>\n          \u003cuse href=\"#cusp\" x=\"644\" y=\"240\" width=\"52\" height=\"120\"/>\n          \u003cuse href=\"#cusp\" x=\"724\" y=\"240\" width=\"52\" height=\"120\"/>\n          \u003crect x=\"440\" y=\"214\" width=\"120\" height=\"146\" fill=\"#2B2520\"/>\n          \u003crect x=\"446\" y=\"220\" width=\"108\" height=\"140\" fill=\"#9B2C20\"/>\n          \u003cpath d=\"M470 360V300L476 294H524L530 300V360Z\" fill=\"#A8863B\"/>\n          \u003cpath d=\"M486 296V280H514V296Z\" fill=\"#F4ECD8\" stroke=\"#2B2520\" stroke-width=\"2\"/>\n          \u003ccircle cx=\"500\" cy=\"266\" r=\"11\" fill=\"#EADFC4\" stroke=\"#2B2520\" stroke-width=\"2\"/>\n          \u003cpath d=\"M486 262H514V256L500 246L486 256Z\" fill=\"#2B2520\"/>\n          \u003cpath d=\"M470 240H530V248H470Z\" fill=\"#A8863B\"/>\n          \u003crect x=\"0\" y=\"360\" width=\"1000\" height=\"80\" fill=\"#2B2520\"/>\n          \u003crect x=\"0\" y=\"360\" width=\"1000\" height=\"12\" fill=\"url(#tile)\"/>\n          \u003cpath d=\"M340 392H660L690 432H310Z\" fill=\"#2F4A5C\"/>\n          \u003cpath d=\"M340 392H660\" stroke=\"#A8863B\" stroke-width=\"3\"/>\n          \u003cpath d=\"M440 412L460 404L480 412L460 420ZM520 412L540 404L560 412L540 420Z\" fill=\"#F4ECD8\"/>\n          \u003cpath d=\"M490 414L500 402L510 414L500 424Z\" fill=\"#9B2C20\"/>\n          \u003cg fill=\"#F4ECD8\" stroke=\"#2B2520\" stroke-width=\"2\">\n            \u003cpath d=\"M60 432V396H92V432Z\"/>\u003cpath d=\"M110 432V396H142V432Z\"/>\n            \u003cpath d=\"M858 432V396H890V432Z\"/>\u003cpath d=\"M908 432V396H940V432Z\"/>\n          \u003c/g>\n          \u003cg fill=\"#9B2C20\">\n            \u003cpath d=\"M62 392L76 380L90 392Z\"/>\u003cpath d=\"M112 392L126 380L140 392Z\"/>\n            \u003cpath d=\"M860 392L874 380L888 392Z\"/>\u003cpath d=\"M910 392L924 380L938 392Z\"/>\n          \u003c/g>\n          \u003cpath d=\"M100 60V160\" stroke=\"#2B2520\" stroke-width=\"3\"/>\n          \u003cpath d=\"M100 64H146L132 80L146 96H100Z\" fill=\"#9B2C20\"/>\n          \u003cpath d=\"M900 60V160\" stroke=\"#2B2520\" stroke-width=\"3\"/>\n          \u003cpath d=\"M900 64H854L868 80L854 96H900Z\" fill=\"#9B2C20\"/>\n          \u003crect x=\"6\" y=\"6\" width=\"988\" height=\"428\" fill=\"none\" stroke=\"#A8863B\" stroke-width=\"4\"/>\n          \u003crect x=\"14\" y=\"14\" width=\"972\" height=\"412\" fill=\"none\" stroke=\"#2B2520\" stroke-width=\"1.5\"/>\n        \u003c/svg>\n        \u003cspan class=\"stamp\">Est. 1687\u003c/span>\n      \u003c/figure>\n      \u003cp class=\"hero-cap\">Plate I &mdash; The Darbar Court at the hour of lamps, in the manner of the Mewar painters\u003c/p>\n\n      \u003cdiv class=\"hero-text\">\n        \u003ch2>Sleep in the Palace Where Poets Were Crowned\u003c/h2>\n        \u003cp class=\"deck\">Thirty-two chambers around a lotus court, beside the lake, beneath the old fort. Three hundred years of hospitality, kept faithfully.\u003c/p>\n        \u003ca class=\"btn primary\" href=\"#book\">Seek an Audience &mdash; Book Your Stay\u003c/a>\n      \u003c/div>\n    \u003c/section>\n\n    \u003cp class=\"ornament\" aria-hidden=\"true\">&#10086; &#10086; &#10086;\u003c/p>\n\n    \u003csection class=\"rule-top\" aria-labelledby=\"hist\">\n      \u003ch2 class=\"sect\" id=\"hist\">A House of the Old Court\u003c/h2>\n      \u003cp class=\"sect-sub\">Being a short account of the Mahal and its keeping\u003c/p>\n      \u003cdiv class=\"columns\">\n        \u003cp>Raised in the year 1687 by a younger brother of the Maharana, the Kesar Darbar Mahal was built to receive envoys, poets and caravan masters on their road between Delhi and the western ports. Its walls are of lime-washed stone, its balconies of carved sandstone, and its roofs crowned with the domed chhatris from which the watch once called the hours.\u003c/p>\n        \u003cp>Each morning the courtyard is swept and sprinkled with water, the marigolds are strung above the gate, and the drummer takes his place on the steps, as has been done since the first Maharana&rsquo;s time. Guests are welcomed at the threshold with a tilak of saffron and a cup of cardamom tea.\u003c/p>\n        \u003cblockquote class=\"pull\">&ldquo;The guest is God,&rdquo; say the elders of Mewar, and the house is arranged accordingly.\u003c/blockquote>\n        \u003cp>The old Darbar Hall, where petitioners once stood before the throne, now serves as the dining room; the zenana terraces, from which the ladies of the court watched the processions below, are given over to guests who wish to take their evening meal beneath the stars and the sound of the sitar.\u003c/p>\n        \u003cp>Every chamber has been restored by the hereditary craftsmen of the region: the mirror-work by one family of Shekhawati, the frescoes by painters who trace their line to the royal atelier, the lattice screens by local joiners. Nothing is hurried, and nothing is new that could be made old.\u003c/p>\n      \u003c/div>\n    \u003c/section>\n\n    \u003cp class=\"ornament\" aria-hidden=\"true\">&sect; &sect; &sect;\u003c/p>\n\n    \u003csection id=\"rooms\" aria-labelledby=\"rt\">\n      \u003ch2 class=\"sect\" id=\"rt\">The Royal Chambers\u003c/h2>\n      \u003cp class=\"sect-sub\">Three apartments, each furnished as it was for its first occupant\u003c/p>\n\n      \u003cdiv class=\"plates\">\n        \u003carticle class=\"plate\">\n          \u003cspan class=\"no\">Plate II &middot; No. 1 of 3\u003c/span>\n          \u003cdiv class=\"arch\">\u003cdiv class=\"in\">\n            \u003csvg viewBox=\"0 0 300 260\" role=\"img\" aria-label=\"Miniature of the Maharana Suite: a canopied bed under a cusped arch with a lamp on either side\">\n              \u003crect width=\"300\" height=\"260\" fill=\"#EADFC4\"/>\n              \u003crect x=\"0\" y=\"180\" width=\"300\" height=\"80\" fill=\"#9B2C20\"/>\n              \u003crect x=\"0\" y=\"180\" width=\"300\" height=\"8\" fill=\"#A8863B\"/>\n              \u003crect y=\"246\" width=\"300\" height=\"14\" fill=\"url(#tile)\"/>\n              \u003cuse href=\"#cusp\" x=\"90\" y=\"60\" width=\"120\" height=\"130\"/>\n              \u003cpath d=\"M70 100H230L222 108H78Z\" fill=\"#A8863B\"/>\n              \u003cpath d=\"M78 108V190M222 108V190\" stroke=\"#2B2520\" stroke-width=\"5\"/>\n              \u003cpath d=\"M90 190H210V212H90Z\" fill=\"#F4ECD8\" stroke=\"#2B2520\" stroke-width=\"3\"/>\n              \u003cpath d=\"M100 182H200V190H100Z\" fill=\"#2F4A5C\"/>\n              \u003cpath d=\"M40 150L50 180H30Z\" fill=\"#A8863B\"/>\u003cpath d=\"M40 140V150\" stroke=\"#2B2520\" stroke-width=\"3\"/>\n              \u003cpath d=\"M260 150L270 180H250Z\" fill=\"#A8863B\"/>\u003cpath d=\"M260 140V150\" stroke=\"#2B2520\" stroke-width=\"3\"/>\n              \u003cpath d=\"M36 128L40 136L44 128ZM256 128L260 136L264 128Z\" fill=\"#9B2C20\"/>\n            \u003c/svg>\n          \u003c/div>\u003c/div>\n          \u003ch3>The Maharana Suite\u003c/h3>\n          \u003cp class=\"tag\">First floor, facing the lake\u003c/p>\n          \u003cp>A vast apartment of two rooms and a private balcony, with a carved bed under a silk canopy, a bath of white marble and walls painted with a hunt in the old Mewar manner.\u003c/p>\n          \u003cul>\u003cli>Lake-facing jharokha\u003c/li>\u003cli>Private plunge bath\u003c/li>\u003cli>Attendant on call\u003c/li>\u003c/ul>\n          \u003cp class=\"price\">&#8377; 38,000 \u003csmall>per night\u003c/small>\u003c/p>\n          \u003ca class=\"btn\" href=\"#book\">Reserve this Chamber\u003c/a>\n        \u003c/article>\n\n        \u003carticle class=\"plate\">\n          \u003cspan class=\"no\">Plate III &middot; No. 2 of 3\u003c/span>\n          \u003cdiv class=\"arch\">\u003cdiv class=\"in\">\n            \u003csvg viewBox=\"0 0 300 260\" role=\"img\" aria-label=\"Miniature of the Zenana Terrace: a swing seat before a lattice screen with a vase of lotus\">\n              \u003crect width=\"300\" height=\"260\" fill=\"#EADFC4\"/>\n              \u003crect x=\"0\" y=\"190\" width=\"300\" height=\"70\" fill=\"#2B2520\"/>\n              \u003crect y=\"190\" width=\"300\" height=\"8\" fill=\"#A8863B\"/>\n              \u003crect x=\"60\" y=\"50\" width=\"180\" height=\"140\" fill=\"#F4ECD8\" stroke=\"#2B2520\" stroke-width=\"4\"/>\n              \u003cpath d=\"M60 80H240M60 110H240M60 140H240M60 170H240M90 50V190M120 50V190M150 50V190M180 50V190M210 50V190\" stroke=\"#9B2C20\" stroke-width=\"2\"/>\n              \u003cpath d=\"M80 20H220\" stroke=\"#2B2520\" stroke-width=\"5\"/>\n              \u003cpath d=\"M100 20V120M200 20V120\" stroke=\"#2B2520\" stroke-width=\"2\"/>\n              \u003cpath d=\"M90 120H210V134H90Z\" fill=\"#A8863B\" stroke=\"#2B2520\" stroke-width=\"3\"/>\n              \u003cpath d=\"M96 134H204V150H96Z\" fill=\"#9B2C20\"/>\n              \u003cpath d=\"M20 190V150L30 140L40 150V190Z\" fill=\"#2F4A5C\" stroke=\"#2B2520\" stroke-width=\"2\"/>\n              \u003cpath d=\"M30 140V110M30 124L20 116M30 118L40 110\" stroke=\"#2B2520\" stroke-width=\"2\"/>\n              \u003cpath d=\"M30 100L36 108L30 114L24 108Z\" fill=\"#9B2C20\"/>\n            \u003c/svg>\n          \u003c/div>\u003c/div>\n          \u003ch3>The Zenana Terrace\u003c/h3>\n          \u003cp class=\"tag\">Second floor, above the lotus court\u003c/p>\n          \u003cp>Once the apartments of the court ladies, screened with pierced stone lattice and opening onto a private terrace. A swing seat, hand-blocked linens and the morning song of peacocks.\u003c/p>\n          \u003cul>\u003cli>Private terrace\u003c/li>\u003cli>Jali lattice screens\u003c/li>\u003cli>Swing seat (jhoola)\u003c/li>\u003c/ul>\n          \u003cp class=\"price\">&#8377; 24,500 \u003csmall>per night\u003c/small>\u003c/p>\n          \u003ca class=\"btn\" href=\"#book\">Reserve this Chamber\u003c/a>\n        \u003c/article>\n\n        \u003carticle class=\"plate\">\n          \u003cspan class=\"no\">Plate IV &middot; No. 3 of 3\u003c/span>\n          \u003cdiv class=\"arch\">\u003cdiv class=\"in\">\n            \u003csvg viewBox=\"0 0 300 260\" role=\"img\" aria-label=\"Miniature of the Haveli Court: a low divan with bolsters beneath three small cusped arches\">\n              \u003crect width=\"300\" height=\"260\" fill=\"#EADFC4\"/>\n              \u003crect x=\"0\" y=\"170\" width=\"300\" height=\"90\" fill=\"#2F4A5C\"/>\n              \u003crect y=\"170\" width=\"300\" height=\"8\" fill=\"#A8863B\"/>\n              \u003cuse href=\"#cusp\" x=\"40\" y=\"60\" width=\"64\" height=\"112\"/>\n              \u003cuse href=\"#cusp\" x=\"118\" y=\"50\" width=\"64\" height=\"122\"/>\n              \u003cuse href=\"#cusp\" x=\"196\" y=\"60\" width=\"64\" height=\"112\"/>\n              \u003cpath d=\"M50 180H250V212H50Z\" fill=\"#F4ECD8\" stroke=\"#2B2520\" stroke-width=\"3\"/>\n              \u003cpath d=\"M50 180H250V188H50Z\" fill=\"#9B2C20\"/>\n              \u003cpath d=\"M66 160H110V180H66ZM190 160H234V180H190Z\" fill=\"#A8863B\" stroke=\"#2B2520\" stroke-width=\"2\"/>\n              \u003cpath d=\"M130 150H170V180H130Z\" fill=\"#9B2C20\" stroke=\"#2B2520\" stroke-width=\"2\"/>\n              \u003crect y=\"246\" width=\"300\" height=\"14\" fill=\"url(#tile)\"/>\n            \u003c/svg>\n          \u003c/div>\u003c/div>\n          \u003ch3>The Haveli Court\u003c/h3>\n          \u003cp class=\"tag\">Ground floor, onto the garden\u003c/p>\n          \u003cp>A cool, whitewashed chamber with a low divan, bolsters of block-printed cotton and three arched windows opening directly upon the rose garden and the lotus pool.\u003c/p>\n          \u003cul>\u003cli>Garden entrance\u003c/li>\u003cli>Low divan seating\u003c/li>\u003cli>Courtyard breakfast\u003c/li>\u003c/ul>\n          \u003cp class=\"price\">&#8377; 16,000 \u003csmall>per night\u003c/small>\u003c/p>\n          \u003ca class=\"btn\" href=\"#book\">Reserve this Chamber\u003c/a>\n        \u003c/article>\n      \u003c/div>\n    \u003c/section>\n\n    \u003cp class=\"ornament\" aria-hidden=\"true\">&#10086; &#10086; &#10086;\u003c/p>\n\n    \u003csection id=\"notices\" class=\"ledger\" aria-label=\"Rates and notices\">\n      \u003cdiv class=\"notice\">\n        \u003ch3>Schedule of Rates\u003c/h3>\n        \u003ctable class=\"rates\">\n          \u003ctr>\u003cth>Chamber\u003c/th>\u003cth>Per Night\u003c/th>\u003c/tr>\n          \u003ctr>\u003ctd>The Maharana Suite\u003c/td>\u003ctd>&#8377; 38,000\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd>The Zenana Terrace\u003c/td>\u003ctd>&#8377; 24,500\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd>The Haveli Court\u003c/td>\u003ctd>&#8377; 16,000\u003c/td>\u003c/tr>\n          \u003ctr>\u003ctd>Season: Oct &ndash; Mar\u003c/td>\u003ctd>+ 20%\u003c/td>\u003c/tr>\n        \u003c/table>\n      \u003c/div>\n      \u003cdiv class=\"notice\">\n        \u003ch3>Notices to Guests\u003c/h3>\n        \u003cp>Dinner is served in the Darbar Hall at eight, to the music of the sarangi. A boat departs the lake steps at sunset.\u003c/p>\n        \u003cp>The old stables, now a small museum of arms and textiles, are open to guests each morning without charge. Carriages to the fort may be had on request.\u003c/p>\n      \u003c/div>\n    \u003c/section>\n\n    \u003cp class=\"ornament\" aria-hidden=\"true\">&sect; &sect; &sect;\u003c/p>\n\n    \u003csection id=\"book\" aria-labelledby=\"bt\">\n      \u003cform class=\"book\" id=\"bookform\" action=\"#book\" method=\"get\">\n        \u003ch3 id=\"bt\">Seek an Audience\u003c/h3>\n        \u003cp class=\"sub\">Name your days, and the steward will prepare the chamber.\u003c/p>\n        \u003cdiv class=\"row\">\n          \u003cdiv>\u003clabel for=\"arr\">Arrival\u003c/label>\u003cinput type=\"date\" id=\"arr\" name=\"arr\" required>\u003c/div>\n          \u003cdiv>\u003clabel for=\"dep\">Departure\u003c/label>\u003cinput type=\"date\" id=\"dep\" name=\"dep\" required>\u003c/div>\n        \u003c/div>\n        \u003cdiv class=\"row\">\n          \u003cdiv>\u003clabel for=\"room\">Chamber\u003c/label>\n            \u003cselect id=\"room\" name=\"room\">\u003coption>The Maharana Suite\u003c/option>\u003coption>The Zenana Terrace\u003c/option>\u003coption>The Haveli Court\u003c/option>\u003c/select>\u003c/div>\n          \u003cdiv>\u003clabel for=\"guests\">Guests\u003c/label>\n            \u003cselect id=\"guests\" name=\"guests\">\u003coption>1\u003c/option>\u003coption selected>2\u003c/option>\u003coption>3\u003c/option>\u003coption>4\u003c/option>\u003c/select>\u003c/div>\n        \u003c/div>\n        \u003cbutton class=\"btn primary\" type=\"submit\">Book Your Stay\u003c/button>\n        \u003cdiv class=\"dialog\" id=\"note\" role=\"status\" aria-live=\"polite\">\u003cb>Notice\u003c/b>\u003cspan id=\"notemsg\">\u003c/span>\u003c/div>\n      \u003c/form>\n    \u003c/section>\n  \u003c/main>\n\n  \u003cfooter>\n    Set in Playfair Display &amp; Libre Baskerville &middot; Painted in the manner of the Mewar atelier\u003cbr>\n    Kesar Darbar Mahal &middot; Lake Road, Mewar, Rajasthan &middot; &copy; 1687&ndash;2026\n  \u003c/footer>\n\n\u003c/div>\n\u003c/div>\n\n\u003cscript>\n  document.getElementById('bookform').addEventListener('submit', function (e) {\n    e.preventDefault();\n    var f = e.target;\n    document.getElementById('notemsg').textContent =\n      'Your request for ' + f.room.value + ', ' + f.arr.value + ' to ' + f.dep.value +\n      ' (' + f.guests.value + ' guests), has been carried to the steward. A reply follows within the day.';\n    document.getElementById('note').classList.add('open');\n  });\n\u003c/script>\n\u003c/body>\n\u003c/html>\n"}], "grading": {"expectations": [{"text": "index.html contains no gradients, no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": true, "evidence": "no violations"}, {"text": "index.html uses antique gold #D4AF37, sindoor crimson #6E0D16, lapis #1B365D, sandalwood #EFE3C8 and kohl #1F1916", "passed": false, "evidence": "missing: #d4af37, #6e0d16, #1b365d, #efe3c8, #1f1916"}, {"text": "index.html uses no pure white (#fff or white) as a background or card color", "passed": true, "evidence": "no pure white"}, {"text": "index.html uses Cinzel Decorative, Rozha One or Yatra One for display text and Cormorant Garamond for body text", "passed": false, "evidence": "missing: cinzel|rozha|yatra, cormorant"}, {"text": "index.html draws an arch (mehrab or chhatri), a jali lattice divider and a royal seal as inline SVG", "passed": false, "evidence": "missing: rajmudra|seal"}, {"text": "index.html has a slow scroll-unrolling reveal and disables it under prefers-reduced-motion", "passed": false, "evidence": "missing: clip-path\\s*:\\s*inset|unroll|farman, prefers-reduced-motion"}], "summary": {"passed": 2, "failed": 4, "total": 6, "pass_rate": 0.333}}}, {"id": "darbar-heritage-hotel-with_skill", "prompt": "build me a website for a Rajasthani palace heritage hotel. I want it to feel like an old Rajput royal court, like a miniature painting from the 1600s. hero, the rooms, and a booking button. save as index.html", "eval_id": null, "outputs": [{"name": "index.html", "type": "text", "content": "\u003c!DOCTYPE html>\n\u003chtml lang=\"en\">\n\u003chead>\n\u003cmeta charset=\"utf-8\">\n\u003cmeta name=\"viewport\" content=\"width=device-width, initial-scale=1\">\n\u003ctitle>Chandrakot Mahal - A Palace Hotel of Mewar\u003c/title>\n\u003cscript>document.documentElement.classList.add('js');\u003c/script>\n\u003clink rel=\"preconnect\" href=\"https://fonts.googleapis.com\">\n\u003clink href=\"https://fonts.googleapis.com/css2?family=Cinzel+Decorative:wght@400;700&family=Rozha+One&family=Yatra+One&family=Cormorant+Garamond:ital,wght@0,500;0,700;1,500&display=swap\" rel=\"stylesheet\">\n\u003cstyle>\n  :root {\n    --sand: #EFE3C8;\n    --sand-dark: #E3D3AE;\n    --kohl: #1F1916;\n    --gold: #D4AF37;\n    --crimson: #6E0D16;\n    --lapis: #1B365D;\n    --display: \"Cinzel Decorative\", Georgia, serif;\n    --bold: \"Rozha One\", \"Yatra One\", Georgia, serif;\n    --text: \"Cormorant Garamond\", Garamond, Georgia, serif;\n  }\n  * { border-radius: 0; box-sizing: border-box; }\n  body { margin: 0; padding: 36px 22px 48px; background: var(--lapis); color: var(--kohl); font: 500 21px/1.55 var(--text); }\n\n  /* silk threads + parchment grain: felt, never blocking */\n  body::before, body::after { content: \"\"; position: fixed; inset: 0; pointer-events: none; mix-blend-mode: multiply; z-index: 50; }\n  body::before { opacity: .4; background-image: url(\"data:image/svg+xml;utf8,\u003csvg xmlns='http://www.w3.org/2000/svg' width='260' height='260'>\u003cfilter id='s' x='0' y='0' width='100%25' height='100%25'>\u003cfeTurbulence type='fractalNoise' baseFrequency='0.02 0.9' numOctaves='2' stitchTiles='stitch'/>\u003cfeColorMatrix values='0 0 0 0 0.25  0 0 0 0 0.15  0 0 0 0 0.08  0 0 0 0.6 0'/>\u003c/filter>\u003crect width='100%25' height='100%25' filter='url(%23s)'/>\u003c/svg>\"); }\n  body::after { opacity: .35; background-image: url(\"data:image/svg+xml;utf8,\u003csvg xmlns='http://www.w3.org/2000/svg' width='300' height='300'>\u003cfilter id='g' x='0' y='0' width='100%25' height='100%25'>\u003cfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3' stitchTiles='stitch'/>\u003cfeColorMatrix values='0 0 0 0 0.17  0 0 0 0 0.12  0 0 0 0 0.08  0 0 0 0.55 0'/>\u003c/filter>\u003crect width='100%25' height='100%25' filter='url(%23g)'/>\u003c/svg>\"); }\n\n  a { color: var(--crimson); text-underline-offset: 4px; }\n  a:hover { color: var(--lapis); }\n  a:focus-visible, button:focus-visible { outline: 3px solid var(--lapis); outline-offset: 3px; }\n\n  /* miniature-painting frame: hard rings only, zero blur */\n  .folio { max-width: 1000px; margin: 0 auto; background: var(--sand); border: 6px solid var(--crimson); outline: 2px solid var(--gold); outline-offset: -14px;\n           box-shadow: 0 0 0 3px var(--gold), 0 0 0 12px var(--crimson), 0 0 0 14px var(--gold); padding: 44px 36px 36px; }\n\n  nav.top { display: flex; justify-content: center; flex-wrap: wrap; gap: 6px 30px; font: 700 .95rem var(--text); font-variant: small-caps; letter-spacing: .22em; text-transform: lowercase; margin-bottom: 18px; }\n  nav.top a { color: var(--kohl); text-decoration: none; border-bottom: 2px solid var(--gold); padding-bottom: 2px; }\n  nav.top a:hover { color: var(--crimson); }\n\n  /* hero: cusped mehrab arch drawn as SVG */\n  .arch-wrap { position: relative; max-width: 560px; margin: 0 auto; }\n  .arch-wrap svg { display: block; width: 100%; height: auto; }\n  .arch-content { position: absolute; left: 14%; right: 14%; top: 28%; text-align: center; color: var(--sand); }\n  .arch-content .eyebrow { font: 700 .8rem var(--text); letter-spacing: .3em; text-transform: uppercase; color: var(--gold); margin: 0; }\n  .arch-content h1 { margin: .15em 0; font: 700 clamp(1.5rem, 5.4vw, 2.7rem)/1.12 var(--display); color: var(--sand); text-shadow: 2px 2px 0 var(--crimson); }\n  .arch-content p { margin: 0; font-style: italic; font-size: clamp(.95rem, 2.4vw, 1.25rem); }\n  .seal { width: 110px; height: 110px; display: block; margin: -26px auto 0; position: relative; }\n\n  .jali { display: block; width: 100%; height: 34px; border-top: 3px solid var(--gold); border-bottom: 3px solid var(--gold); margin: 26px 0; }\n\n  h2 { font: 400 clamp(1.5rem, 4vw, 2.1rem)/1.15 var(--bold); text-align: center; margin: 0 0 14px; color: var(--crimson); text-shadow: 1px 1px 0 var(--gold); }\n  .lede { text-align: center; max-width: 36em; margin: 0 auto 24px; font-style: italic; }\n\n  /* farman: royal decree that unrolls */\n  .farman { position: relative; margin: 34px auto; max-width: 760px; padding: 14px 0; }\n  .farman::before, .farman::after { content: \"\"; position: absolute; left: -14px; right: -14px; height: 16px; background: var(--kohl); border: 3px solid var(--gold); z-index: 2; }\n  .farman::before { top: 0; } .farman::after { bottom: 0; }\n  .farman-body { background: var(--sand-dark); border-left: 3px solid var(--kohl); border-right: 3px solid var(--kohl); padding: 34px 40px; }\n  .farman-body p { margin: 0 0 .9em; text-align: justify; hyphens: auto; }\n  .farman-body p:first-of-type::first-letter { float: left; font: 400 3.6rem/.85 var(--bold); color: var(--crimson); padding: 6px 8px 0 0; }\n  .signoff { text-align: right; font: italic 700 1.1rem var(--text); margin: 0; }\n  .js .farman-body { clip-path: inset(0 0 100% 0); }\n  .js .farman.open .farman-body { clip-path: inset(0 0 0 0); transition: clip-path 1.6s cubic-bezier(.2,.7,.2,1); }\n\n  /* plaques: the only container */\n  .halls { display: grid; grid-template-columns: repeat(2, 1fr); gap: 34px 30px; margin: 30px 0; }\n  .plaque { position: relative; background: var(--sand-dark); border: 3px solid var(--kohl); outline: 2px solid var(--gold); outline-offset: -10px; padding: 0 24px 26px; }\n  .plaque::after { content: \"\"; position: absolute; left: calc(50% - 6px); bottom: -9px; width: 12px; height: 12px; background: var(--gold); border: 2px solid var(--kohl); transform: rotate(45deg); }\n  .plaque h3 { margin: 0 -24px 16px; padding: 10px 12px; text-align: center; background: var(--crimson); color: var(--sand); border-bottom: 3px solid var(--gold);\n               font: 400 1.15rem var(--bold); letter-spacing: .08em; }\n  .plaque.lapis { background: var(--lapis); color: var(--sand); border-color: var(--gold); outline-color: var(--sand); }\n  .plaque p { margin: 0; }\n  .plaque .tag { display: block; margin-top: 12px; font: 700 .8rem var(--text); letter-spacing: .2em; text-transform: uppercase; color: var(--crimson); }\n  .plaque.lapis .tag { color: var(--gold); }\n\n  .cta { text-align: center; margin: 36px 0 10px; }\n  .btn { display: inline-block; font: 400 1.05rem var(--bold); letter-spacing: .12em; text-transform: uppercase; text-decoration: none; cursor: pointer;\n         background: var(--gold); color: var(--kohl); border: 3px solid var(--crimson); padding: 14px 34px; box-shadow: inset 0 0 0 2px var(--gold), inset 0 0 0 4px var(--kohl); }\n  .btn:hover { background: var(--crimson); color: var(--sand); }\n\n  .rooms { display: grid; grid-template-columns: repeat(2, 1fr); gap: 34px 30px; margin: 30px 0; }\n  .price { display: block; margin: 12px 0 14px; font: 400 1.25rem var(--bold); color: var(--crimson); }\n  .plaque.lapis .price { color: var(--gold); }\n  .btn.small { font-size: .85rem; padding: 9px 20px; }\n  .plaque.lapis .btn:hover { background: var(--sand); color: var(--crimson); }\n  .book { max-width: 760px; margin: 34px auto; padding: 0 24px 26px; }\n  .book form { display: grid; grid-template-columns: repeat(2, 1fr); gap: 14px 22px; }\n  .book label { display: block; font: 700 .85rem var(--text); letter-spacing: .18em; text-transform: uppercase; color: var(--gold); }\n  .book input, .book select { display: block; width: 100%; margin-top: 4px; padding: 10px 12px; font: 500 1.1rem var(--text); background: var(--sand); color: var(--kohl); border: 3px solid var(--gold); border-radius: 0; }\n  .book input:focus-visible, .book select:focus-visible { outline: 3px solid var(--sand); outline-offset: 2px; }\n  .book .full { grid-column: 1 / -1; text-align: center; }\n  .book .full.l { text-align: left; }\n  #reply { margin: 18px 0 0; padding: 14px; border: 3px double var(--gold); text-align: center; font-style: italic; }\n  .skyline { display: flex; justify-content: center; gap: 8px; color: var(--crimson); margin: 34px 0 0; overflow: hidden; }\n  .skyline svg { width: 54px; height: 64px; flex: none; }\n  footer { border-top: 3px double var(--kohl); margin-top: 14px; padding-top: 14px; text-align: center; font: 700 .8rem/1.8 var(--text); letter-spacing: .22em; text-transform: uppercase; }\n\n  @media (max-width: 720px) {\n    body { padding: 22px 14px 32px; }\n    .folio { padding: 28px 16px 24px; box-shadow: 0 0 0 3px var(--gold), 0 0 0 8px var(--crimson), 0 0 0 10px var(--gold); }\n    .halls, .rooms, .book form { grid-template-columns: 1fr; }\n    .farman-body { padding: 24px 20px; }\n    .arch-content { left: 10%; right: 10%; top: 26%; }\n  }\n  @media (prefers-reduced-motion: reduce) {\n    .js .farman-body, .js .farman.open .farman-body { clip-path: none; transition: none; }\n  }\n\u003c/style>\n\u003c/head>\n\u003cbody>\n\n\u003csvg width=\"0\" height=\"0\" style=\"position:absolute\" aria-hidden=\"true\" focusable=\"false\">\n  \u003cdefs>\n    \u003cpath id=\"mehrab\" d=\"M30 360 V190 Q30 90 150 62 Q215 46 240 8 Q265 46 330 62 Q450 90 450 190 V360 Z\"/>\n    \u003cpattern id=\"jali\" width=\"28\" height=\"34\" patternUnits=\"userSpaceOnUse\">\n      \u003crect width=\"28\" height=\"34\" fill=\"#1B365D\"/>\n      \u003cpath d=\"M14 3 L26 17 L14 31 L2 17 Z\" fill=\"none\" stroke=\"#D4AF37\" stroke-width=\"1.6\"/>\n      \u003cpath d=\"M14 10 L20 17 L14 24 L8 17 Z\" fill=\"none\" stroke=\"#D4AF37\" stroke-width=\"1.2\"/>\n      \u003ccircle cx=\"14\" cy=\"17\" r=\"2.2\" fill=\"#D4AF37\"/>\n      \u003ccircle cx=\"0\" cy=\"0\" r=\"2\" fill=\"#D4AF37\"/>\u003ccircle cx=\"28\" cy=\"0\" r=\"2\" fill=\"#D4AF37\"/>\n      \u003ccircle cx=\"0\" cy=\"34\" r=\"2\" fill=\"#D4AF37\"/>\u003ccircle cx=\"28\" cy=\"34\" r=\"2\" fill=\"#D4AF37\"/>\n    \u003c/pattern>\n    \u003csymbol id=\"chhatri\" viewBox=\"0 0 60 70\">\n      \u003ccircle cx=\"30\" cy=\"4\" r=\"3\" fill=\"currentColor\"/>\n      \u003cpath d=\"M30 7 V12 M10 34 Q10 14 30 11 Q50 14 50 34 Z\" fill=\"currentColor\" stroke=\"currentColor\" stroke-width=\"1.5\"/>\n      \u003crect x=\"8\" y=\"34\" width=\"44\" height=\"4\" fill=\"currentColor\"/>\n      \u003crect x=\"11\" y=\"38\" width=\"6\" height=\"22\" fill=\"currentColor\"/>\n      \u003crect x=\"27\" y=\"38\" width=\"6\" height=\"22\" fill=\"currentColor\"/>\n      \u003crect x=\"43\" y=\"38\" width=\"6\" height=\"22\" fill=\"currentColor\"/>\n      \u003crect x=\"4\" y=\"60\" width=\"52\" height=\"8\" fill=\"currentColor\"/>\n    \u003c/symbol>\n  \u003c/defs>\n\u003c/svg>\n\n\u003cdiv class=\"folio\">\n  \u003cnav class=\"top\" aria-label=\"Main\">\n    \u003ca href=\"#farman\">Proclamation\u003c/a>\u003ca href=\"#rooms\">The Chambers\u003c/a>\u003ca href=\"#audience\">Audience\u003c/a>\n  \u003c/nav>\n\n  \u003cheader>\n    \u003cdiv class=\"arch-wrap\">\n      \u003csvg viewBox=\"0 0 480 360\" role=\"img\" aria-label=\"Cusped palace archway\">\n        \u003cuse href=\"#mehrab\" fill=\"#6E0D16\" stroke=\"#D4AF37\" stroke-width=\"5\"/>\n        \u003cuse href=\"#mehrab\" transform=\"translate(14.4 21.6) scale(.94)\" fill=\"none\" stroke=\"#D4AF37\" stroke-width=\"7\" stroke-linecap=\"round\" stroke-dasharray=\"0.1 16\"/>\n        \u003cuse href=\"#mehrab\" transform=\"translate(28.8 43.2) scale(.88)\" fill=\"#1B365D\" stroke=\"#D4AF37\" stroke-width=\"3\"/>\n        \u003cpath d=\"M60 345 H420\" stroke=\"#D4AF37\" stroke-width=\"3\"/>\n      \u003c/svg>\n      \u003cdiv class=\"arch-content\">\n        \u003cp class=\"eyebrow\">&#2406; Shri &#2406;\u003c/p>\n        \u003ch1>Chandrakot Mahal\u003c/h1>\n        \u003cp>A palace of Mewar, open to honoured guests\u003c/p>\n      \u003c/div>\n    \u003c/div>\n    \u003c!-- Rajmudra seal -->\n    \u003csvg class=\"seal\" viewBox=\"0 0 200 200\" role=\"img\" aria-label=\"Royal seal of the House of Chandrakot\">\n      \u003ccircle cx=\"100\" cy=\"100\" r=\"97\" fill=\"#D4AF37\" stroke=\"#1F1916\" stroke-width=\"3\"/>\n      \u003ccircle cx=\"100\" cy=\"100\" r=\"87\" fill=\"none\" stroke=\"#1F1916\" stroke-width=\"1.5\"/>\n      \u003ccircle cx=\"100\" cy=\"100\" r=\"58\" fill=\"none\" stroke=\"#1F1916\" stroke-width=\"2\"/>\n      \u003cpath id=\"ring\" d=\"M100 100 m-72 0 a72 72 0 1 1 144 0 a72 72 0 1 1 -144 0\" fill=\"none\"/>\n      \u003ctext font-family=\"Cinzel Decorative, Georgia, serif\" font-size=\"13\" font-weight=\"700\" fill=\"#1F1916\" letter-spacing=\"2\">\u003ctextPath href=\"#ring\" startOffset=\"0\">&#183; HOUSE OF CHANDRAKOT &#183; BY ROYAL SEAL &#183; ANNO 1612 &#183;\u003c/textPath>\u003c/text>\n      \u003ccircle cx=\"100\" cy=\"92\" r=\"13\" fill=\"#6E0D16\" stroke=\"#1F1916\" stroke-width=\"2\"/>\n      \u003cg stroke=\"#1F1916\" stroke-width=\"3\" stroke-linecap=\"square\">\n        \u003cline x1=\"100\" y1=\"64\" x2=\"100\" y2=\"72\"/>\u003cline x1=\"100\" y1=\"112\" x2=\"100\" y2=\"120\" transform=\"translate(0 -8)\"/>\n        \u003cline x1=\"100\" y1=\"64\" x2=\"100\" y2=\"72\" transform=\"rotate(45 100 92)\"/>\u003cline x1=\"100\" y1=\"64\" x2=\"100\" y2=\"72\" transform=\"rotate(90 100 92)\"/>\n        \u003cline x1=\"100\" y1=\"64\" x2=\"100\" y2=\"72\" transform=\"rotate(135 100 92)\"/>\u003cline x1=\"100\" y1=\"64\" x2=\"100\" y2=\"72\" transform=\"rotate(180 100 92)\"/>\n        \u003cline x1=\"100\" y1=\"64\" x2=\"100\" y2=\"72\" transform=\"rotate(225 100 92)\"/>\u003cline x1=\"100\" y1=\"64\" x2=\"100\" y2=\"72\" transform=\"rotate(270 100 92)\"/>\n        \u003cline x1=\"100\" y1=\"64\" x2=\"100\" y2=\"72\" transform=\"rotate(315 100 92)\"/>\n      \u003c/g>\n      \u003ctext x=\"100\" y=\"140\" text-anchor=\"middle\" font-family=\"Yatra One, Georgia, serif\" font-size=\"17\" fill=\"#1F1916\">&#2406; &#2358;&#2381;&#2352;&#2368; &#2406;\u003c/text>\n    \u003c/svg>\n  \u003c/header>\n\n  \u003csvg class=\"jali\" aria-hidden=\"true\" focusable=\"false\">\u003crect width=\"100%\" height=\"100%\" fill=\"url(#jali)\"/>\u003c/svg>\n\n  \u003cmain>\n    \u003csection id=\"farman\" class=\"farman\" aria-labelledby=\"farman-title\">\n      \u003cdiv class=\"farman-body\">\n        \u003ch2 id=\"farman-title\">A Royal Proclamation\u003c/h2>\n        \u003cp>Be it known to all who approach these gates that the Chandrakot Mahal, set above the lake beneath the Aravalli hills, receives guests once more. The Diwan-i-Aam shall be laid for the morning meal at the hour of the drum, and the courtyards shall be lit by a thousand lamps at dusk.\u003c/p>\n        \u003cp>Every guest shall be welcomed with attar and cardamom tea, conducted to a chamber of painted walls, and seated at a table of the royal kitchens. Let none depart without having watched the lamps kindled upon the water.\u003c/p>\n        \u003cp class=\"signoff\">&mdash; By order of the Darbar, in the year of the House 1612\u003c/p>\n      \u003c/div>\n    \u003c/section>\n\n    \u003csvg class=\"jali\" aria-hidden=\"true\" focusable=\"false\">\u003crect width=\"100%\" height=\"100%\" fill=\"url(#jali)\"/>\u003c/svg>\n\n    \u003csection id=\"rooms\" aria-labelledby=\"rooms-title\">\n      \u003ch2 id=\"rooms-title\">The Royal Chambers\u003c/h2>\n      \u003cp class=\"lede\">Four chambers, each painted and furnished as the House once kept them.\u003c/p>\n      \u003cdiv class=\"rooms\">\n        \u003carticle class=\"plaque\">\u003ch3>Maharaja Suite\u003c/h3>\u003cp>The ruler's own apartment: a marble balcony above the lake, walls of painted hunting scenes, and a bed beneath a silk canopy.\u003c/p>\u003cspan class=\"price\">Rs. 38,000 a night\u003c/span>\u003ca class=\"btn small\" href=\"#audience\" data-room=\"Maharaja Suite\">Reserve\u003c/a>\u003c/article>\n        \u003carticle class=\"plaque lapis\">\u003ch3>Sheesh Mahal Chamber\u003c/h3>\u003cp>A small hall of inlaid mirror, where a single lamp becomes a sky of stars across the ceiling.\u003c/p>\u003cspan class=\"price\">Rs. 26,000 a night\u003c/span>\u003ca class=\"btn small\" href=\"#audience\" data-room=\"Sheesh Mahal Chamber\">Reserve\u003c/a>\u003c/article>\n        \u003carticle class=\"plaque lapis\">\u003ch3>Zenana Jharokha\u003c/h3>\u003cp>A quarter of latticed jali screens and a window seat, where the breeze enters and the afternoon heat is kept out.\u003c/p>\u003cspan class=\"price\">Rs. 19,000 a night\u003c/span>\u003ca class=\"btn small\" href=\"#audience\" data-room=\"Zenana Jharokha\">Reserve\u003c/a>\u003c/article>\n        \u003carticle class=\"plaque\">\u003ch3>Haveli Courtyard Room\u003c/h3>\u003cp>A cool room of carved sandstone opening on a private court with a lemon tree and a well of old stone.\u003c/p>\u003cspan class=\"price\">Rs. 12,500 a night\u003c/span>\u003ca class=\"btn small\" href=\"#audience\" data-room=\"Haveli Courtyard Room\">Reserve\u003c/a>\u003c/article>\n      \u003c/div>\n    \u003c/section>\n\n    \u003csection id=\"audience\" class=\"plaque lapis book\" aria-labelledby=\"book-title\">\n      \u003ch3 id=\"book-title\">Seek an Audience\u003c/h3>\n      \u003cform id=\"bookform\">\n        \u003clabel>Arrival\u003cinput type=\"date\" name=\"in\" required>\u003c/label>\n        \u003clabel>Departure\u003cinput type=\"date\" name=\"out\" required>\u003c/label>\n        \u003clabel>Chamber\u003cselect name=\"room\" id=\"roomsel\">\u003coption>Maharaja Suite\u003c/option>\u003coption>Sheesh Mahal Chamber\u003c/option>\u003coption>Zenana Jharokha\u003c/option>\u003coption>Haveli Courtyard Room\u003c/option>\u003c/select>\u003c/label>\n        \u003clabel>Guests\u003cselect name=\"guests\">\u003coption>1\u003c/option>\u003coption selected>2\u003c/option>\u003coption>3\u003c/option>\u003coption>4\u003c/option>\u003c/select>\u003c/label>\n        \u003clabel class=\"full l\">Name of the honoured guest\u003cinput type=\"text\" name=\"name\" required autocomplete=\"name\">\u003c/label>\n        \u003cdiv class=\"full\">\u003cbutton class=\"btn\" type=\"submit\">Book Your Stay\u003c/button>\u003c/div>\n      \u003c/form>\n      \u003cp id=\"reply\" role=\"status\" hidden>\u003c/p>\n    \u003c/section>\n  \u003c/main>\n\n  \u003cdiv class=\"skyline\" aria-hidden=\"true\">\n    \u003csvg>\u003cuse href=\"#chhatri\"/>\u003c/svg>\u003csvg>\u003cuse href=\"#chhatri\"/>\u003c/svg>\u003csvg>\u003cuse href=\"#chhatri\"/>\u003c/svg>\u003csvg>\u003cuse href=\"#chhatri\"/>\u003c/svg>\u003csvg>\u003cuse href=\"#chhatri\"/>\u003c/svg>\u003csvg>\u003cuse href=\"#chhatri\"/>\u003c/svg>\u003csvg>\u003cuse href=\"#chhatri\"/>\u003c/svg>\n  \u003c/div>\n  \u003cfooter>The House of Chandrakot &middot; Mewar, Rajasthan\u003cbr>&copy; Anno 1612&ndash;2026\u003c/footer>\n\u003c/div>\n\n\u003cscript>\n  (function () {\n    var els = document.querySelectorAll('.farman');\n    if (!('IntersectionObserver' in window)) { els.forEach(function (e) { e.classList.add('open'); }); return; }\n    var io = new IntersectionObserver(function (entries) {\n      entries.forEach(function (en) { if (en.isIntersecting) { en.target.classList.add('open'); io.unobserve(en.target); } });\n    }, { threshold: 0.15 });\n    els.forEach(function (e) { io.observe(e); });\n  })();\n\u003c/script>\n\u003cscript>\n  (function () {\n    var sel = document.getElementById('roomsel');\n    document.querySelectorAll('[data-room]').forEach(function (a) {\n      a.addEventListener('click', function () { sel.value = a.getAttribute('data-room'); });\n    });\n    document.getElementById('bookform').addEventListener('submit', function (ev) {\n      ev.preventDefault();\n      var f = ev.target, r = document.getElementById('reply');\n      r.textContent = 'Let it be recorded: the ' + f.room.value + ' is held for ' + f.name.value + ', from ' + f.in.value + ' to ' + f.out.value + '. The Diwan shall send word by messenger to confirm.';\n      r.hidden = false;\n    });\n  })();\n\u003c/script>\n\u003c/body>\n\u003c/html>\n"}], "grading": {"expectations": [{"text": "index.html contains no gradients, no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": true, "evidence": "no violations"}, {"text": "index.html uses antique gold #D4AF37, sindoor crimson #6E0D16, lapis #1B365D, sandalwood #EFE3C8 and kohl #1F1916", "passed": true, "evidence": "all of five royal colors present"}, {"text": "index.html uses no pure white (#fff or white) as a background or card color", "passed": true, "evidence": "no pure white"}, {"text": "index.html uses Cinzel Decorative, Rozha One or Yatra One for display text and Cormorant Garamond for body text", "passed": true, "evidence": "all of royal fonts present"}, {"text": "index.html draws an arch (mehrab or chhatri), a jali lattice divider and a royal seal as inline SVG", "passed": true, "evidence": "all of arch + jali + seal in SVG present"}, {"text": "index.html has a slow scroll-unrolling reveal and disables it under prefers-reduced-motion", "passed": true, "evidence": "all of scroll reveal + reduced-motion guard present"}], "summary": {"passed": 6, "failed": 0, "total": 6, "pass_rate": 1.0}}}], "previous_feedback": {}, "previous_outputs": {}, "benchmark": {"metadata": {"skill_name": "vintage-web", "skill_path": "\u003cpath/to/skill>", "executor_model": "\u003cmodel-name>", "analyzer_model": "\u003cmodel-name>", "timestamp": "2026-11-24T08:48:09Z", "evals_run": ["bombay-chai-cafe", "darbar-heritage-hotel"], "runs_per_configuration": 1}, "runs": [{"eval_id": "bombay-chai-cafe", "eval_name": "bombay-chai-cafe", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 7, "failed": 0, "total": 7, "time_seconds": 75.2, "tokens": 109229, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": true, "evidence": "no violations"}, {"text": "index.html uses Kaali-Peeli yellow #F4C430, jet black #141414 and sunset sepia #E89B54", "passed": true, "evidence": "all of three Bombay colors present"}, {"text": "index.html uses Bebas Neue, Oswald or Archivo Black for headlines and Courier Prime, IBM Plex Mono or Lora for text", "passed": true, "evidence": "all of headline + typewriter fonts present"}, {"text": "index.html has VHS scanlines, a film-grain overlay and a halftone dot texture", "passed": true, "evidence": "all of scanlines + grain + halftone present"}, {"text": "index.html shows a VHS-style timestamp or REC badge", "passed": true, "evidence": "found 'VHS'"}, {"text": "index.html includes a bus-ticket, cinema-ticket or cassette-shaped element and multi-column newspaper classifieds", "passed": true, "evidence": "all of ticket/cassette + columns present"}, {"text": "index.html uses no neon purple or cyan colors", "passed": true, "evidence": "no neon colors"}], "notes": []}, {"eval_id": "darbar-heritage-hotel", "eval_name": "darbar-heritage-hotel", "configuration": "with_skill", "run_number": 1, "result": {"pass_rate": 1.0, "passed": 6, "failed": 0, "total": 6, "time_seconds": 60.2, "tokens": 106349, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "index.html contains no gradients, no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": true, "evidence": "no violations"}, {"text": "index.html uses antique gold #D4AF37, sindoor crimson #6E0D16, lapis #1B365D, sandalwood #EFE3C8 and kohl #1F1916", "passed": true, "evidence": "all of five royal colors present"}, {"text": "index.html uses no pure white (#fff or white) as a background or card color", "passed": true, "evidence": "no pure white"}, {"text": "index.html uses Cinzel Decorative, Rozha One or Yatra One for display text and Cormorant Garamond for body text", "passed": true, "evidence": "all of royal fonts present"}, {"text": "index.html draws an arch (mehrab or chhatri), a jali lattice divider and a royal seal as inline SVG", "passed": true, "evidence": "all of arch + jali + seal in SVG present"}, {"text": "index.html has a slow scroll-unrolling reveal and disables it under prefers-reduced-motion", "passed": true, "evidence": "all of scroll reveal + reduced-motion guard present"}], "notes": []}, {"eval_id": "bombay-chai-cafe", "eval_name": "bombay-chai-cafe", "configuration": "old_skill", "run_number": 1, "result": {"pass_rate": 0.143, "passed": 1, "failed": 6, "total": 7, "time_seconds": 78.1, "tokens": 103813, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "index.html contains no gradients (except hard-stop repeating-linear-gradient scanlines), no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": true, "evidence": "no violations"}, {"text": "index.html uses Kaali-Peeli yellow #F4C430, jet black #141414 and sunset sepia #E89B54", "passed": false, "evidence": "missing: #f4c430, #141414, #e89b54"}, {"text": "index.html uses Bebas Neue, Oswald or Archivo Black for headlines and Courier Prime, IBM Plex Mono or Lora for text", "passed": false, "evidence": "missing: bebas|oswald|archivo, courier prime|ibm plex mono|lora"}, {"text": "index.html has VHS scanlines, a film-grain overlay and a halftone dot texture", "passed": false, "evidence": "missing: feturbulence, halftone"}, {"text": "index.html shows a VHS-style timestamp or REC badge", "passed": false, "evidence": "no match for VHS/REC badge"}, {"text": "index.html includes a bus-ticket, cinema-ticket or cassette-shaped element and multi-column newspaper classifieds", "passed": false, "evidence": "missing: ticket|cassette, column-count"}, {"text": "index.html uses no neon purple or cyan colors", "passed": false, "evidence": "found '#00ffff'"}], "notes": []}, {"eval_id": "darbar-heritage-hotel", "eval_name": "darbar-heritage-hotel", "configuration": "old_skill", "run_number": 1, "result": {"pass_rate": 0.333, "passed": 2, "failed": 4, "total": 6, "time_seconds": 155.3, "tokens": 122454, "tool_calls": 0, "errors": 0}, "expectations": [{"text": "index.html contains no gradients, no non-zero border-radius, no backdrop-filter or blur, and no blurred box-shadow", "passed": true, "evidence": "no violations"}, {"text": "index.html uses antique gold #D4AF37, sindoor crimson #6E0D16, lapis #1B365D, sandalwood #EFE3C8 and kohl #1F1916", "passed": false, "evidence": "missing: #d4af37, #6e0d16, #1b365d, #efe3c8, #1f1916"}, {"text": "index.html uses no pure white (#fff or white) as a background or card color", "passed": true, "evidence": "no pure white"}, {"text": "index.html uses Cinzel Decorative, Rozha One or Yatra One for display text and Cormorant Garamond for body text", "passed": false, "evidence": "missing: cinzel|rozha|yatra, cormorant"}, {"text": "index.html draws an arch (mehrab or chhatri), a jali lattice divider and a royal seal as inline SVG", "passed": false, "evidence": "missing: rajmudra|seal"}, {"text": "index.html has a slow scroll-unrolling reveal and disables it under prefers-reduced-motion", "passed": false, "evidence": "missing: clip-path\\s*:\\s*inset|unroll|farman, prefers-reduced-motion"}], "notes": []}], "run_summary": {"with_skill": {"pass_rate": {"mean": 1.0, "stddev": 0.0, "min": 1.0, "max": 1.0}, "time_seconds": {"mean": 67.7, "stddev": 10.6066, "min": 60.2, "max": 75.2}, "tokens": {"mean": 107789.0, "stddev": 2036.4675, "min": 106349, "max": 109229}}, "old_skill": {"pass_rate": {"mean": 0.238, "stddev": 0.1344, "min": 0.143, "max": 0.333}, "time_seconds": {"mean": 116.7, "stddev": 54.5886, "min": 78.1, "max": 155.3}, "tokens": {"mean": 113133.5, "stddev": 13181.1775, "min": 103813, "max": 122454}}, "delta": {"pass_rate": "+0.76", "time_seconds": "-49.0", "tokens": "-5344"}}, "notes": ["Baseline here is the previous skill version (modes 1 and 2 only). It handled both prompts by bending the nearest mode: the Rajput hotel became a Heritage page with an SVG miniature, and the Mumbai cafe became a Web 1.0 page. Both pages were clean of banned patterns but missed the requested eras' palettes, fonts and signature devices.", "The old-skill Bombay page used #00ffff (neon cyan) as a Web 1.0 accent. That is allowed in Mode 1 but is exactly what Mode 5 bans, so the neon check is the one place the two versions disagree on policy rather than on missing features.", "Assertions mostly check for the new modes' own vocabulary, so the old skill is expected to fail them; the signal is that the new triggers route to Mode 4 and Mode 5 correctly and the template-derived pages pass the stricter linter.", "The new skill used about 3k fewer tokens on Darbar and ~5k more on Bombay than the old skill (mixed), and was faster on Darbar (60s vs 155s) because the old run improvised SVG art.", "Visual quality is unchecked for all four pages: no run opened its page in a browser. Review the pages in the viewer or the local gallery."]}};
+
+    // ---- State ----
+    let feedbackMap = {};  // run_id -> feedback text
+    let currentIndex = 0;
+    let visitedRuns = new Set();
+
+    // ---- Init ----
+    async function init() {
+      // Load saved feedback from server — but only if this isn't a fresh
+      // iteration (indicated by previous_feedback being present). When
+      // previous feedback exists, the feedback.json on disk is stale from
+      // the prior iteration and should not pre-fill the textareas.
+      const hasPrevious = Object.keys(EMBEDDED_DATA.previous_feedback || {}).length > 0
+        || Object.keys(EMBEDDED_DATA.previous_outputs || {}).length > 0;
+      if (!hasPrevious) {
+        try {
+          const resp = await fetch("/api/feedback");
+          const data = await resp.json();
+          if (data.reviews) {
+            for (const r of data.reviews) feedbackMap[r.run_id] = r.feedback;
+          }
+        } catch { /* first run, no feedback yet */ }
+      }
+
+      document.getElementById("skill-name").textContent = EMBEDDED_DATA.skill_name;
+      showRun(0);
+
+      // Wire up feedback auto-save
+      const textarea = document.getElementById("feedback");
+      let saveTimeout = null;
+      textarea.addEventListener("input", () => {
+        clearTimeout(saveTimeout);
+        document.getElementById("feedback-status").textContent = "";
+        saveTimeout = setTimeout(() => saveCurrentFeedback(), 800);
+      });
+    }
+
+    // ---- Navigation ----
+    function navigate(delta) {
+      const newIndex = currentIndex + delta;
+      if (newIndex >= 0 && newIndex < EMBEDDED_DATA.runs.length) {
+        saveCurrentFeedback();
+        showRun(newIndex);
+      }
+    }
+
+    function updateNavButtons() {
+      document.getElementById("prev-btn").disabled = currentIndex === 0;
+      document.getElementById("next-btn").disabled =
+        currentIndex === EMBEDDED_DATA.runs.length - 1;
+    }
+
+    // ---- Show a run ----
+    function showRun(index) {
+      currentIndex = index;
+      const run = EMBEDDED_DATA.runs[index];
+
+      // Progress
+      document.getElementById("progress").textContent =
+        `${index + 1} of ${EMBEDDED_DATA.runs.length}`;
+
+      // Prompt
+      document.getElementById("prompt-text").textContent = run.prompt;
+
+      // Config badge
+      const badge = document.getElementById("config-badge");
+      const configMatch = run.id.match(/(with_skill|without_skill|new_skill|old_skill)/);
+      if (configMatch) {
+        const config = configMatch[1];
+        const isBaseline = config === "without_skill" || config === "old_skill";
+        badge.textContent = config.replace(/_/g, " ");
+        badge.className = "config-badge " + (isBaseline ? "config-baseline" : "config-primary");
+        badge.style.display = "inline-block";
+      } else {
+        badge.style.display = "none";
+      }
+
+      // Outputs
+      renderOutputs(run);
+
+      // Previous outputs
+      renderPrevOutputs(run);
+
+      // Grades
+      renderGrades(run);
+
+      // Previous feedback
+      const prevFb = (EMBEDDED_DATA.previous_feedback || {})[run.id];
+      const prevEl = document.getElementById("prev-feedback");
+      if (prevFb) {
+        document.getElementById("prev-feedback-text").textContent = prevFb;
+        prevEl.style.display = "block";
+      } else {
+        prevEl.style.display = "none";
+      }
+
+      // Feedback
+      document.getElementById("feedback").value = feedbackMap[run.id] || "";
+      document.getElementById("feedback-status").textContent = "";
+
+      updateNavButtons();
+
+      // Track visited runs and promote done button when all visited
+      visitedRuns.add(index);
+      const doneBtn = document.getElementById("done-btn");
+      if (visitedRuns.size >= EMBEDDED_DATA.runs.length) {
+        doneBtn.classList.add("ready");
+      }
+
+      // Scroll main content to top
+      document.querySelector(".main").scrollTop = 0;
+    }
+
+    // ---- Render outputs ----
+    function renderOutputs(run) {
+      const container = document.getElementById("outputs-body");
+      container.innerHTML = "";
+
+      const outputs = run.outputs || [];
+      if (outputs.length === 0) {
+        container.innerHTML = '<div class="empty-state">No output files</div>';
+        return;
+      }
+
+      for (const file of outputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        // Always show file header with download link
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const content = document.createElement("div");
+        content.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          content.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          content.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          content.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(content, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          content.appendChild(a);
+        } else if (file.type === "error") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          pre.style.color = "var(--red)";
+          content.appendChild(pre);
+        }
+
+        fileDiv.appendChild(content);
+        container.appendChild(fileDiv);
+      }
+    }
+
+    // ---- XLSX rendering via SheetJS ----
+    function renderXlsx(container, b64Data) {
+      try {
+        const raw = Uint8Array.from(atob(b64Data), c => c.charCodeAt(0));
+        const wb = XLSX.read(raw, { type: "array" });
+
+        for (let i = 0; i < wb.SheetNames.length; i++) {
+          const sheetName = wb.SheetNames[i];
+          const ws = wb.Sheets[sheetName];
+
+          if (wb.SheetNames.length > 1) {
+            const sheetLabel = document.createElement("div");
+            sheetLabel.style.cssText =
+              "font-weight:600; font-size:0.8rem; color:#b0aea5; margin-top:0.5rem; margin-bottom:0.25rem;";
+            sheetLabel.textContent = "Sheet: " + sheetName;
+            container.appendChild(sheetLabel);
+          }
+
+          const htmlStr = XLSX.utils.sheet_to_html(ws, { editable: false });
+          const wrapper = document.createElement("div");
+          wrapper.innerHTML = htmlStr;
+          container.appendChild(wrapper);
+        }
+      } catch (err) {
+        container.textContent = "Error rendering spreadsheet: " + err.message;
+      }
+    }
+
+    // ---- Grades ----
+    function renderGrades(run) {
+      const section = document.getElementById("grades-section");
+      const content = document.getElementById("grades-content");
+
+      if (!run.grading) {
+        section.style.display = "none";
+        return;
+      }
+
+      const grading = run.grading;
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("grades-arrow").classList.remove("open");
+
+      const summary = grading.summary || {};
+      const expectations = grading.expectations || [];
+
+      let html = '<div style="padding: 1rem;">';
+
+      // Summary line
+      const passRate = summary.pass_rate != null
+        ? Math.round(summary.pass_rate * 100) + "%"
+        : "?";
+      const badgeClass = summary.pass_rate >= 0.8 ? "grade-pass" : summary.pass_rate >= 0.5 ? "" : "grade-fail";
+      html += '<div class="grades-summary">';
+      html += '<span class="grade-badge ' + badgeClass + '">' + passRate + '</span>';
+      html += '<span>' + escapeHtml(summary.passed || 0) + ' passed, ' + escapeHtml(summary.failed || 0) + ' failed of ' + escapeHtml(summary.total || 0) + '</span>';
+      html += '</div>';
+
+      // Assertions list
+      html += '<ul class="assertion-list">';
+      for (const exp of expectations) {
+        const statusClass = exp.passed ? "pass" : "fail";
+        const statusIcon = exp.passed ? "\u2713" : "\u2717";
+        html += '<li class="assertion-item">';
+        html += '<span class="assertion-status ' + statusClass + '">' + statusIcon + '</span>';
+        html += '<span>' + escapeHtml(exp.text) + '</span>';
+        if (exp.evidence) {
+          html += '<div class="assertion-evidence">' + escapeHtml(exp.evidence) + '</div>';
+        }
+        html += '</li>';
+      }
+      html += '</ul>';
+
+      html += '</div>';
+      content.innerHTML = html;
+    }
+
+    function toggleGrades() {
+      const content = document.getElementById("grades-content");
+      const arrow = document.getElementById("grades-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Previous outputs (collapsible) ----
+    function renderPrevOutputs(run) {
+      const section = document.getElementById("prev-outputs-section");
+      const content = document.getElementById("prev-outputs-content");
+      const prevOutputs = (EMBEDDED_DATA.previous_outputs || {})[run.id];
+
+      if (!prevOutputs || prevOutputs.length === 0) {
+        section.style.display = "none";
+        return;
+      }
+
+      section.style.display = "block";
+      // Reset to collapsed
+      content.classList.remove("open");
+      document.getElementById("prev-outputs-arrow").classList.remove("open");
+
+      // Render the files into the content area
+      content.innerHTML = "";
+      const wrapper = document.createElement("div");
+      wrapper.style.padding = "1rem";
+
+      for (const file of prevOutputs) {
+        const fileDiv = document.createElement("div");
+        fileDiv.className = "output-file";
+
+        const header = document.createElement("div");
+        header.className = "output-file-header";
+        const nameSpan = document.createElement("span");
+        nameSpan.textContent = file.name;
+        header.appendChild(nameSpan);
+        const dlBtn = document.createElement("a");
+        dlBtn.className = "dl-btn";
+        dlBtn.textContent = "Download";
+        dlBtn.download = file.name;
+        dlBtn.href = getDownloadUri(file);
+        header.appendChild(dlBtn);
+        fileDiv.appendChild(header);
+
+        const fc = document.createElement("div");
+        fc.className = "output-file-content";
+
+        if (file.type === "text") {
+          const pre = document.createElement("pre");
+          pre.textContent = file.content;
+          fc.appendChild(pre);
+        } else if (file.type === "image") {
+          const img = document.createElement("img");
+          img.src = file.data_uri;
+          img.alt = file.name;
+          fc.appendChild(img);
+        } else if (file.type === "pdf") {
+          const iframe = document.createElement("iframe");
+          iframe.src = file.data_uri;
+          fc.appendChild(iframe);
+        } else if (file.type === "xlsx") {
+          renderXlsx(fc, file.data_b64);
+        } else if (file.type === "binary") {
+          const a = document.createElement("a");
+          a.className = "download-link";
+          a.href = file.data_uri;
+          a.download = file.name;
+          a.textContent = "Download " + file.name;
+          fc.appendChild(a);
+        }
+
+        fileDiv.appendChild(fc);
+        wrapper.appendChild(fileDiv);
+      }
+
+      content.appendChild(wrapper);
+    }
+
+    function togglePrevOutputs() {
+      const content = document.getElementById("prev-outputs-content");
+      const arrow = document.getElementById("prev-outputs-arrow");
+      content.classList.toggle("open");
+      arrow.classList.toggle("open");
+    }
+
+    // ---- Feedback (saved to server -> feedback.json) ----
+    function saveCurrentFeedback() {
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // Build reviews array from map
+      const reviews = [];
+      for (const [run_id, feedback] of Object.entries(feedbackMap)) {
+        if (feedback.trim()) {
+          reviews.push({ run_id, feedback, timestamp: new Date().toISOString() });
+        }
+      }
+
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ reviews, status: "in_progress" }),
+      }).then(() => {
+        document.getElementById("feedback-status").textContent = "Saved";
+      }).catch(() => {
+        // Static mode or server unavailable — no-op on auto-save,
+        // feedback will be downloaded on final submit
+        document.getElementById("feedback-status").textContent = "Will download on submit";
+      });
+    }
+
+    // ---- Done ----
+    function showDoneDialog() {
+      // Save current textarea to feedbackMap (but don't POST yet)
+      const run = EMBEDDED_DATA.runs[currentIndex];
+      const text = document.getElementById("feedback").value;
+      if (text.trim() === "") {
+        delete feedbackMap[run.id];
+      } else {
+        feedbackMap[run.id] = text;
+      }
+
+      // POST once with status: complete — include ALL runs so the model
+      // can distinguish "no feedback" (looks good) from "not reviewed"
+      const reviews = [];
+      const ts = new Date().toISOString();
+      for (const r of EMBEDDED_DATA.runs) {
+        reviews.push({ run_id: r.id, feedback: feedbackMap[r.id] || "", timestamp: ts });
+      }
+      const payload = JSON.stringify({ reviews, status: "complete" }, null, 2);
+      fetch("/api/feedback", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: payload,
+      }).then(() => {
+        document.getElementById("done-overlay").classList.add("visible");
+      }).catch(() => {
+        // Server not available (static mode) — download as file
+        const blob = new Blob([payload], { type: "application/json" });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement("a");
+        a.href = url;
+        a.download = "feedback.json";
+        a.click();
+        URL.revokeObjectURL(url);
+        document.getElementById("done-overlay").classList.add("visible");
+      });
+    }
+
+    function closeDoneDialog() {
+      // Reset status back to in_progress
+      saveCurrentFeedback();
+      document.getElementById("done-overlay").classList.remove("visible");
+    }
+
+    // ---- Toast ----
+    function showToast(message) {
+      const toast = document.getElementById("toast");
+      toast.textContent = message;
+      toast.classList.add("visible");
+      setTimeout(() => toast.classList.remove("visible"), 2000);
+    }
+
+    // ---- Keyboard nav ----
+    document.addEventListener("keydown", (e) => {
+      // Don't capture when typing in textarea
+      if (e.target.tagName === "TEXTAREA") return;
+
+      if (e.key === "ArrowLeft" || e.key === "ArrowUp") {
+        e.preventDefault();
+        navigate(-1);
+      } else if (e.key === "ArrowRight" || e.key === "ArrowDown") {
+        e.preventDefault();
+        navigate(1);
+      }
+    });
+
+    // ---- Util ----
+    function getDownloadUri(file) {
+      if (file.data_uri) return file.data_uri;
+      if (file.data_b64) return "data:application/octet-stream;base64," + file.data_b64;
+      if (file.type === "text") return "data:text/plain;charset=utf-8," + encodeURIComponent(file.content);
+      return "#";
+    }
+
+    function escapeHtml(text) {
+      const div = document.createElement("div");
+      div.textContent = text;
+      return div.innerHTML.replace(/"/g, "&quot;");
+    }
+
+    // ---- View switching ----
+    function switchView(view) {
+      document.querySelectorAll(".view-tab").forEach(t => t.classList.remove("active"));
+      document.querySelectorAll(".view-panel").forEach(p => p.classList.remove("active"));
+      document.querySelector(`[onclick="switchView('${view}')"]`).classList.add("active");
+      document.getElementById("panel-" + view).classList.add("active");
+    }
+
+    // ---- Benchmark rendering ----
+    function renderBenchmark() {
+      const data = EMBEDDED_DATA.benchmark;
+      if (!data) return;
+
+      // Show the tabs
+      document.getElementById("view-tabs").style.display = "flex";
+
+      const container = document.getElementById("benchmark-content");
+      const summary = data.run_summary || {};
+      const metadata = data.metadata || {};
+      const notes = data.notes || [];
+
+      let html = "";
+
+      // Header
+      html += "<h2 style='font-family: Poppins, sans-serif; margin-bottom: 0.5rem;'>Benchmark Results</h2>";
+      html += "<p style='color: var(--text-muted); font-size: 0.875rem; margin-bottom: 1.25rem;'>";
+      if (metadata.skill_name) html += "<strong>" + escapeHtml(metadata.skill_name) + "</strong> &mdash; ";
+      if (metadata.timestamp) html += escapeHtml(metadata.timestamp) + " &mdash; ";
+      if (metadata.evals_run) html += "Evals: " + escapeHtml(metadata.evals_run.join(", ")) + " &mdash; ";
+      html += escapeHtml(metadata.runs_per_configuration || "?") + (metadata.runs_per_configuration === 1 ? " run" : " runs") + " per configuration";
+      html += "</p>";
+
+      // Summary table
+      html += '<table class="benchmark-table">';
+
+      function fmtStat(stat, pct) {
+        if (!stat) return "—";
+        const suffix = pct ? "%" : "";
+        const m = pct ? (stat.mean * 100).toFixed(0) : stat.mean.toFixed(1);
+        const s = pct ? (stat.stddev * 100).toFixed(0) : stat.stddev.toFixed(1);
+        return m + suffix + " ± " + s + suffix;
+      }
+
+      function deltaClass(val) {
+        if (!val) return "";
+        const n = parseFloat(val);
+        if (n > 0) return "benchmark-delta-positive";
+        if (n < 0) return "benchmark-delta-negative";
+        return "";
+      }
+
+      // Discover config names dynamically (everything except "delta")
+      const configs = Object.keys(summary).filter(k => k !== "delta");
+      const configA = configs[0] || "config_a";
+      const configB = configs[1] || "config_b";
+      const labelA = configA.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const labelB = configB.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+      const a = summary[configA] || {};
+      const b = summary[configB] || {};
+      const delta = summary.delta || {};
+      // With a single configuration there is nothing to compare: only its column is shown
+      const compare = cells => configs.length >= 2 ? cells : "";
+
+      html += "<thead><tr><th>Metric</th><th>" + escapeHtml(labelA) + "</th>" + compare("<th>" + escapeHtml(labelB) + "</th><th>Delta</th>") + "</tr></thead>";
+      html += "<tbody>";
+
+      html += "<tr><td><strong>Pass Rate</strong></td>";
+      html += "<td>" + fmtStat(a.pass_rate, true) + "</td>";
+      html += compare("<td>" + fmtStat(b.pass_rate, true) + "</td>");
+      html += compare('<td class="' + deltaClass(delta.pass_rate) + '">' + escapeHtml(delta.pass_rate || "—") + "</td>") + "</tr>";
+
+      // Time (only show row if data exists)
+      if (a.time_seconds || b.time_seconds) {
+        html += "<tr><td><strong>Time (s)</strong></td>";
+        html += "<td>" + fmtStat(a.time_seconds, false) + "</td>";
+        html += compare("<td>" + fmtStat(b.time_seconds, false) + "</td>");
+        html += compare('<td class="' + deltaClass(delta.time_seconds) + '">' + escapeHtml(delta.time_seconds ? delta.time_seconds + "s" : "—") + "</td>") + "</tr>";
+      }
+
+      // Tokens (only show row if data exists)
+      if (a.tokens || b.tokens) {
+        html += "<tr><td><strong>Tokens</strong></td>";
+        html += "<td>" + fmtStat(a.tokens, false) + "</td>";
+        html += compare("<td>" + fmtStat(b.tokens, false) + "</td>");
+        html += compare('<td class="' + deltaClass(delta.tokens) + '">' + escapeHtml(delta.tokens || "—") + "</td>") + "</tr>";
+      }
+
+      html += "</tbody></table>";
+
+      // Per-eval breakdown (if runs data available)
+      const runs = data.runs || [];
+      if (runs.length > 0) {
+        // Numeric ids first, then ids that are names
+        const rank = id => typeof id === "number" ? 0 : 1;
+        const evalIds = [...new Set(runs.map(r => r.eval_id))].sort((a, b) =>
+          rank(a) - rank(b) || (rank(a) ? String(a).localeCompare(String(b)) : a - b));
+
+        html += "<h3 style='font-family: Poppins, sans-serif; margin-bottom: 0.75rem;'>Per-Eval Breakdown</h3>";
+
+        const hasTime = runs.some(r => r.result && r.result.time_seconds != null);
+        const hasErrors = runs.some(r => r.result && r.result.errors > 0);
+
+        for (const evalId of evalIds) {
+          const evalRuns = runs.filter(r => r.eval_id === evalId);
+          const evalName = evalRuns[0] && evalRuns[0].eval_name ? evalRuns[0].eval_name : "Eval " + evalId;
+
+          html += "<h4 style='font-family: Poppins, sans-serif; margin: 1rem 0 0.5rem; color: var(--text);'>" + escapeHtml(evalName) + "</h4>";
+          html += '<table class="benchmark-table">';
+          html += "<thead><tr><th>Config</th><th>Run</th><th>Pass Rate</th>";
+          if (hasTime) html += "<th>Time (s)</th>";
+          if (hasErrors) html += "<th>Crashes During Execution</th>";
+          html += "</tr></thead>";
+          html += "<tbody>";
+
+          // Group by config and render with average rows
+          const configGroups = [...new Set(evalRuns.map(r => r.configuration))];
+          for (let ci = 0; ci < configGroups.length; ci++) {
+            const config = configGroups[ci];
+            const configRuns = evalRuns.filter(r => r.configuration === config);
+            if (configRuns.length === 0) continue;
+
+            const rowClass = ci === 0 ? "benchmark-row-with" : "benchmark-row-without";
+            const configLabel = escapeHtml(config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase()));
+
+            for (const run of configRuns) {
+              const r = run.result || {};
+              const prClass = r.pass_rate >= 0.8 ? "benchmark-delta-positive" : r.pass_rate < 0.5 ? "benchmark-delta-negative" : "";
+              html += '<tr class="' + rowClass + '">';
+              html += "<td>" + configLabel + "</td>";
+              html += "<td>" + escapeHtml(run.run_number) + "</td>";
+              html += '<td class="' + prClass + '">' + ((r.pass_rate || 0) * 100).toFixed(0) + "% (" + escapeHtml(r.passed || 0) + "/" + escapeHtml(r.total || 0) + ")</td>";
+              if (hasTime) html += "<td>" + (r.time_seconds != null ? r.time_seconds.toFixed(1) : "—") + "</td>";
+              if (hasErrors) html += "<td>" + escapeHtml(r.errors || 0) + "</td>";
+              html += "</tr>";
+            }
+
+            // Average row
+            const rates = configRuns.map(r => (r.result || {}).pass_rate || 0);
+            const avgRate = rates.reduce((a, b) => a + b, 0) / rates.length;
+            const avgPrClass = avgRate >= 0.8 ? "benchmark-delta-positive" : avgRate < 0.5 ? "benchmark-delta-negative" : "";
+            html += '<tr class="benchmark-row-avg ' + rowClass + '">';
+            html += "<td>" + configLabel + "</td>";
+            html += "<td>Avg</td>";
+            html += '<td class="' + avgPrClass + '">' + (avgRate * 100).toFixed(0) + "%</td>";
+            if (hasTime) {
+              const times = configRuns.map(r => (r.result || {}).time_seconds).filter(t => t != null);
+              html += "<td>" + (times.length ? (times.reduce((a, b) => a + b, 0) / times.length).toFixed(1) : "—") + "</td>";
+            }
+            if (hasErrors) html += "<td></td>";
+            html += "</tr>";
+          }
+          html += "</tbody></table>";
+
+          // Per-assertion detail for this eval
+          const runsWithExpectations = {};
+          for (const config of configGroups) {
+            runsWithExpectations[config] = evalRuns.filter(r => r.configuration === config && r.expectations && r.expectations.length > 0);
+          }
+          const hasAnyExpectations = Object.values(runsWithExpectations).some(runs => runs.length > 0);
+          if (hasAnyExpectations) {
+            // Collect all unique assertion texts across all configs
+            const allAssertions = [];
+            const seen = new Set();
+            for (const config of configGroups) {
+              for (const run of runsWithExpectations[config]) {
+                for (const exp of (run.expectations || [])) {
+                  if (!seen.has(exp.text)) {
+                    seen.add(exp.text);
+                    allAssertions.push(exp.text);
+                  }
+                }
+              }
+            }
+
+            html += '<table class="benchmark-table" style="margin-top: 0.5rem;">';
+            html += "<thead><tr><th>Assertion</th>";
+            for (const config of configGroups) {
+              const label = config.replace(/_/g, " ").replace(/\b\w/g, c => c.toUpperCase());
+              html += "<th>" + escapeHtml(label) + "</th>";
+            }
+            html += "</tr></thead><tbody>";
+
+            for (const assertionText of allAssertions) {
+              html += "<tr><td>" + escapeHtml(assertionText) + "</td>";
+
+              for (const config of configGroups) {
+                html += "<td>";
+                for (const run of runsWithExpectations[config]) {
+                  const exp = (run.expectations || []).find(e => e.text === assertionText);
+                  if (exp) {
+                    const cls = exp.passed ? "benchmark-delta-positive" : "benchmark-delta-negative";
+                    const icon = exp.passed ? "\u2713" : "\u2717";
+                    html += '<span class="' + cls + '" title="Run ' + escapeHtml(run.run_number) + ': ' + escapeHtml(exp.evidence || "") + '">' + icon + "</span> ";
+                  } else {
+                    html += "— ";
+                  }
+                }
+                html += "</td>";
+              }
+              html += "</tr>";
+            }
+            html += "</tbody></table>";
+          }
+        }
+      }
+
+      // Notes
+      if (notes.length > 0) {
+        html += '<div class="benchmark-notes">';
+        html += "<h3>Analysis Notes</h3>";
+        html += "<ul>";
+        for (const note of notes) {
+          html += "<li>" + escapeHtml(note) + "</li>";
+        }
+        html += "</ul></div>";
+      }
+
+      container.innerHTML = html;
+    }
+
+    // ---- Start ----
+    init();
+    renderBenchmark();
+  </script>
+</body>
+</html>

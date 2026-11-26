@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Bombay Bulletin</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Black&family=Bebas+Neue&family=Oswald:wght@500;700&family=Courier+Prime:wght@400;700&family=IBM+Plex+Mono:wght@400;600&family=Lora:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --taxi: #F4C430;
+    --black: #141414;
+    --sunset: #E89B54;
+    --paper: #EFE6D2;
+    --red: #C1272D;
+    --head: "Bebas Neue", Oswald, Impact, "Arial Narrow", sans-serif;
+    --slab: "Archivo Black", Impact, sans-serif;
+    --mono: "Courier Prime", "IBM Plex Mono", "Courier New", monospace;
+    --serif: Lora, Georgia, serif;
+    --checker: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='32' height='32'><rect width='32' height='32' fill='%23F4C430'/><rect width='16' height='16' fill='%23141414'/><rect x='16' y='16' width='16' height='16' fill='%23141414'/></svg>");
+    --halftone: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='12' height='12'><circle cx='6' cy='6' r='2.4' fill='%23141414' fill-opacity='0.2'/></svg>");
+  }
+  * { border-radius: 0; box-sizing: border-box; }
+  body { margin: 0; background: var(--paper); color: var(--black); font: 17px/1.6 var(--serif); }
+
+  /* VHS / Doordarshan scanlines and warm film grain */
+  body::after { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 99;
+    background: repeating-linear-gradient(to bottom, rgba(20,20,20,.07) 0 1px, transparent 1px 3px); }
+  body::before { content: ""; position: fixed; inset: 0; pointer-events: none; z-index: 98; mix-blend-mode: multiply; opacity: .3;
+    background-image: url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' width='300' height='300'><filter id='g' x='0' y='0' width='100%25' height='100%25'><feTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='3' stitchTiles='stitch'/><feColorMatrix values='0 0 0 0 0.35  0 0 0 0 0.22  0 0 0 0 0.1  0 0 0 0.6 0'/></filter><rect width='100%25' height='100%25' filter='url(%23g)'/></svg>"); }
+
+  a { color: var(--black); text-decoration-thickness: 2px; text-underline-offset: 3px; }
+  a:hover { background: var(--taxi); }
+  a:focus-visible, button:focus-visible { outline: 3px solid var(--red); outline-offset: 2px; }
+
+  .vhs { background: var(--black); color: var(--taxi); font: 600 14px var(--mono); letter-spacing: .12em; padding: 6px 16px; display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 16px; }
+  .rec::before { content: ""; display: inline-block; width: 10px; height: 10px; background: var(--red); margin-right: 8px; animation: blink 1.2s steps(1) infinite; }
+  @keyframes blink { 50% { visibility: hidden; } }
+
+  .checker { height: 28px; background: var(--checker); background-size: 28px 28px; border-top: 3px solid var(--black); border-bottom: 3px solid var(--black); }
+
+  .page { max-width: 1060px; margin: 0 auto; padding: 18px 22px 36px; }
+  .dateline { display: flex; justify-content: space-between; flex-wrap: wrap; gap: 4px 14px; font: 700 13px var(--mono); letter-spacing: .1em; text-transform: uppercase; border-bottom: 2px solid var(--black); padding-bottom: 6px; }
+  .masthead { text-align: center; padding: 6px 0 2px; }
+  .masthead h1 { margin: 0; font: 400 clamp(3rem, 12vw, 7.4rem)/.95 var(--head); letter-spacing: .03em; text-transform: uppercase; }
+  .masthead p { margin: 0 0 6px; font: 600 15px var(--mono); letter-spacing: .25em; text-transform: uppercase; }
+  nav.sections { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 26px; border-top: 4px solid var(--black); border-bottom: 1px solid var(--black); padding: 6px 0; margin-bottom: 20px; font: 400 1.4rem var(--head); letter-spacing: .12em; }
+  nav.sections a { text-decoration: none; }
+
+  /* hand-painted hoarding style poster */
+  .poster { position: relative; background-color: var(--sunset); background-image: var(--halftone); border: 6px solid var(--black); padding: 26px 22px 0; overflow: hidden; margin-bottom: 26px; }
+  .poster .tag { position: absolute; right: 16px; top: 16px; background: var(--black); color: var(--taxi); font: 700 14px var(--mono); letter-spacing: .18em; padding: 4px 10px; transform: rotate(3deg); }
+  .poster h2 { margin: 6px 0 0; font: 400 clamp(2.6rem, 9.5vw, 6rem)/.92 var(--slab); text-transform: uppercase; transform: rotate(-2deg); transform-origin: left bottom;
+               color: var(--taxi); text-shadow: 4px 4px 0 var(--black), 8px 8px 0 var(--red); -webkit-text-stroke: 2px var(--black); }
+  .poster .sub { margin: 18px 0 0; font: 400 clamp(1.3rem, 3.4vw, 2rem) var(--head); letter-spacing: .1em; text-transform: uppercase; background: var(--black); color: var(--taxi); display: inline-block; padding: 2px 12px; }
+  .poster svg { display: block; width: calc(100% + 44px); margin: 14px -22px 0; height: auto; }
+
+  .section-head { display: flex; align-items: center; gap: 12px; margin: 26px 0 12px; }
+  .section-head h3 { margin: 0; font: 400 2.2rem var(--head); letter-spacing: .06em; text-transform: uppercase; background: var(--black); color: var(--taxi); padding: 0 14px; }
+  .section-head::after { content: ""; flex: 1; height: 8px; background: var(--checker); background-size: 16px 16px; border-top: 2px solid var(--black); border-bottom: 2px solid var(--black); }
+
+  /* classified / editorial columns */
+  .columns { column-count: 3; column-gap: 24px; column-rule: 1px solid var(--black); }
+  .columns p { margin: 0 0 .9em; text-align: justify; hyphens: auto; }
+  .columns h4 { margin: 0 0 4px; font: 400 1.6rem/1.05 var(--head); letter-spacing: .05em; text-transform: uppercase; break-after: avoid; }
+  .columns .story p:first-of-type::first-letter { float: left; font: 400 3.6rem/.8 var(--head); padding: 4px 8px 0 0; }
+  .ad { border: 2px dashed var(--black); padding: 10px 12px; margin: 0 0 14px; font: 400 14px/1.45 var(--mono); break-inside: avoid; }
+  .ad b { font-family: var(--head); font-size: 1.25rem; font-weight: 400; letter-spacing: .08em; display: block; }
+  .ad.hot { background: var(--taxi); border-style: solid; }
+
+  /* tickets */
+  .tickets { display: flex; flex-wrap: wrap; gap: 26px; align-items: flex-start; margin: 10px 0 6px; }
+  .ticket { background: var(--black); padding: 3px; clip-path: polygon(0 0, 100% 0, 100% 42%, calc(100% - 12px) 50%, 100% 58%, 100% 100%, 0 100%, 0 58%, 12px 50%, 0 42%); }
+  .ticket-in { background: var(--taxi); padding: 14px 22px; font: 400 14px/1.5 var(--mono); height: 100%; }
+  .ticket-in b { display: block; font: 400 1.9rem/1 var(--head); letter-spacing: .08em; }
+  .ticket.bus { width: 230px; }
+  .ticket.bus .ticket-in { border-top: 3px dashed var(--black); border-bottom: 3px dashed var(--black); }
+  .ticket.cinema { width: 340px; }
+  .ticket.cinema .ticket-in { display: grid; grid-template-columns: 1fr auto; gap: 8px 18px; background: var(--paper); }
+  .ticket.cinema .stub { border-left: 3px dashed var(--black); padding-left: 16px; text-align: center; }
+  .cassette { width: 300px; max-width: 100%; height: auto; }
+
+  .btn { display: inline-block; font: 400 1.4rem var(--head); letter-spacing: .12em; text-transform: uppercase; text-decoration: none; cursor: pointer;
+         background: var(--black); color: var(--taxi); border: 3px solid var(--taxi); outline: 3px solid var(--black); padding: 8px 26px; box-shadow: 5px 5px 0 var(--black); }
+  .btn:hover { background: var(--taxi); color: var(--black); border-color: var(--black); }
+  .cta { margin: 28px 0 6px; }
+
+  footer { margin-top: 30px; }
+  .route { background: var(--black); color: var(--taxi); font: 600 15px var(--mono); letter-spacing: .15em; text-align: center; padding: 8px 12px; }
+  .fine { text-align: center; font: 400 12px/1.6 var(--mono); letter-spacing: .1em; text-transform: uppercase; margin: 10px 0 0; }
+
+  @media (max-width: 900px) { .columns { column-count: 2; } }
+  @media (max-width: 600px) { .columns { column-count: 1; column-rule: none; } .page { padding: 14px 14px 28px; } .ticket.cinema { width: 100%; } }
+  @media (prefers-reduced-motion: reduce) { .rec::before { animation: none; } }
+</style>
+</head>
+<body>
+
+<div class="vhs" role="presentation"><span class="rec">REC</span><span>PLAY &#9654; &nbsp; SP</span><span>04:17 PM &nbsp; 12 NOV 1994</span></div>
+<div class="checker" aria-hidden="true"></div>
+
+<div class="page">
+  <div class="dateline"><span>Rs. 3.00</span><span>Vol. XII &middot; No. 317</span><span>Friday, 12 November 1994</span><span>Late City Edition</span></div>
+
+  <header class="masthead">
+    <h1>The Bombay Bulletin</h1>
+    <p>Aamchi city &middot; Aamchi news</p>
+  </header>
+  <nav class="sections" aria-label="Sections"><a href="#city">City Desk</a><a href="#classifieds">Classifieds</a><a href="#tickets">Tickets</a><a href="#tape">Cassette Corner</a></nav>
+
+  <section class="poster" aria-label="Featured">
+    <span class="tag">NOW SHOWING</span>
+    <h2>The City<br>Never Sleeps</h2>
+    <p class="sub">Sunset specials from Colaba to Dadar</p>
+    <svg viewBox="0 0 800 230" role="img" aria-label="Marine Drive skyline at sunset">
+      <rect width="800" height="230" fill="#E89B54"/>
+      <rect y="120" width="800" height="14" fill="#F4C430"/>
+      <rect y="146" width="800" height="10" fill="#F4C430"/>
+      <circle cx="400" cy="150" r="78" fill="#F4C430"/>
+      <rect x="320" y="132" width="160" height="6" fill="#E89B54"/><rect x="320" y="150" width="160" height="8" fill="#E89B54"/><rect x="320" y="170" width="160" height="10" fill="#E89B54"/>
+      <rect y="176" width="800" height="54" fill="#141414"/>
+      <g fill="#141414"><rect x="40" y="96" width="34" height="84"/><rect x="82" y="70" width="28" height="110"/><rect x="118" y="104" width="40" height="76"/><rect x="640" y="84" width="32" height="96"/><rect x="680" y="60" width="26" height="120"/><rect x="714" y="100" width="42" height="80"/></g>
+      <path d="M30 196 Q400 140 770 196" fill="none" stroke="#F4C430" stroke-width="6" stroke-linecap="round" stroke-dasharray="0.1 16"/>
+    </svg>
+  </section>
+
+  <section id="city">
+    <div class="section-head"><h3>City Desk</h3></div>
+    <div class="columns">
+      <div class="story">
+        <h4>Local train timetable gets a new face</h4>
+        <p>The Western line unveiled its revised timetable on Thursday, with three additional fast locals between Churchgate and Borivali. Commuters at Dadar were seen comparing the new printed cards on the platform and arguing happily about the 6:12.</p>
+        <p>&ldquo;It is the little changes that keep the city moving,&rdquo; said a stationmaster, adjusting his cap against the afternoon sun.</p>
+      </div>
+      <h4>Marine Drive lights go up early</h4>
+      <p>The Queen&rsquo;s Necklace was switched on a full half hour before sunset this week as the city prepares for the festive season. Chai sellers report brisk business along the promenade.</p>
+      <div class="ad hot"><b>Wanted</b>Old Hindi film songs on cassette, any condition. Reply Box No. 4412, c/o The Bulletin.</div>
+    </div>
+  </section>
+
+  <section id="classifieds">
+    <div class="section-head"><h3>Classifieds</h3></div>
+    <div class="columns">
+      <div class="ad"><b>To-Let</b>Sea-facing room, Colaba. Rent by arrangement. Serious tenants only. Box No. 2087.</div>
+      <div class="ad"><b>For Sale</b>Premier Padmini, well maintained, original paint. Box No. 1190.</div>
+      <div class="ad hot"><b>Lost</b>Brown leather wallet near Churchgate station. Reward offered. Box No. 3305.</div>
+      <div class="ad"><b>Tuitions</b>Maths and Science for Std. IX-X. Dadar (East). Box No. 5521.</div>
+      <div class="ad"><b>Notice</b>The Bombay Film Club meets every second Sunday. All lovers of cinema welcome.</div>
+      <div class="ad"><b>Wanted</b>Bicycle repair apprentice, Mahim. Meals provided. Box No. 7743.</div>
+    </div>
+  </section>
+
+  <section id="tickets">
+    <div class="section-head"><h3>Tickets</h3></div>
+    <div class="tickets">
+      <div class="ticket bus"><div class="ticket-in"><b>BEST</b>ROUTE 83 LTD<br>COLABA &rarr; DADAR TT<br>STAGE 04 &middot; FARE Rs. 4.00<br>NO. 0417 &middot; 12.11.94</div></div>
+      <div class="ticket cinema"><div class="ticket-in"><div><b>ADMIT ONE</b>REGAL CINEMA &middot; COLABA<br>EVENING SHOW &middot; 6:30 PM<br>BALCONY &middot; ROW F &middot; SEAT 12</div><div class="stub"><b>Rs. 35</b>NO. 2291</div></div></div>
+    </div>
+  </section>
+
+  <section id="tape">
+    <div class="section-head"><h3>Cassette Corner</h3></div>
+    <svg class="cassette" viewBox="0 0 300 190" role="img" aria-label="Cassette tape, Side A Marine Drive mix 1994">
+      <rect x="2" y="2" width="296" height="186" fill="#141414"/>
+      <rect x="18" y="16" width="264" height="96" fill="#F4C430" stroke="#141414" stroke-width="3"/>
+      <text x="30" y="40" font-family="Courier Prime, Courier New, monospace" font-size="14" font-weight="700" fill="#141414">SIDE A - MARINE DRIVE MIX '94</text>
+      <path d="M30 56 H270 M30 72 H270 M30 88 H270" stroke="#141414" stroke-width="1.5"/>
+      <rect x="70" y="118" width="160" height="50" fill="#EFE6D2" stroke="#141414" stroke-width="3"/>
+      <circle cx="104" cy="143" r="16" fill="#141414"/><circle cx="196" cy="143" r="16" fill="#141414"/>
+      <circle cx="104" cy="143" r="7" fill="#EFE6D2"/><circle cx="196" cy="143" r="7" fill="#EFE6D2"/>
+      <path d="M104 126 V160 M87 143 H121 M196 126 V160 M179 143 H213" stroke="#EFE6D2" stroke-width="2"/>
+    </svg>
+    <p class="cta"><a class="btn" href="#tape">Play Side A</a></p>
+  </section>
+
+  <footer>
+    <div class="checker" aria-hidden="true"></div>
+    <div class="route">ROUTE 83 LTD &middot; 66 &middot; 121 &middot; A-1 &middot; ALL STOPS TO DADAR TT</div>
+    <p class="fine">Printed and published in Bombay &middot; Set in Bebas Neue, Lora &amp; Courier Prime</p>
+  </footer>
+</div>
+
+</body>
+</html>
