@@ -16,7 +16,7 @@
   var tableOk = false;
 
   var brand, outlet, categories = [], itemById = {}, theme;
-  var cart = {}, prefs, nameVal, order = null, activeTab = 'all', placing = false, placeError = '', pendingKey = null;
+  var cart = {}, prefs, nameVal, noteVal = '', order = null, activeTab = 'all', placing = false, placeError = '', pendingKey = null;
   var CK, OK;
 
   function live(msg) { $('live').textContent = msg; }
@@ -229,6 +229,10 @@
       inn.appendChild(h('fieldset', {}, [h('legend', { text: t('pref_head') + ': ' + t('strength') }), seg('strength', ['Halka', 'Normal', 'Kadak'], prefs.strength)]));
       inn.appendChild(h('fieldset', {}, [h('legend', { text: t('sugar') }), seg('sugar', ['Kam', 'Normal', 'Zyada'], prefs.sugar)]));
     }
+    var ask = h('input', { type: 'text', maxlength: '120', placeholder: t('note_hint'), 'aria-label': t('note_label') });
+    ask.value = noteVal;
+    ask.addEventListener('input', function () { noteVal = ask.value; });
+    if (n) inn.appendChild(h('fieldset', {}, [h('legend', { text: t('note_label') }), ask]));
     var input = h('input', { type: 'text', maxlength: '30', autocomplete: 'given-name', 'aria-label': t('name_opt') });
     input.value = nameVal;
     input.addEventListener('input', function () { nameVal = input.value; store.write('qro_name', nameVal); });
@@ -260,13 +264,13 @@
     placing = true; placeError = ''; renderCart();
     try {
       if (!pendingKey) pendingKey = makeKey();
-      var body = { outlet: slug, table: table, key: tableKey, kind: 'dine_in', name: nameVal.trim(), client_key: pendingKey,
+      var body = { outlet: slug, table: table, key: tableKey, kind: 'dine_in', name: nameVal.trim(), note: noteVal.trim(), client_key: pendingKey,
         lines: Object.keys(cart).map(function (id) { return { item_id: Number(id), qty: cart[id] }; }) };
       if (hasChai()) body.prefs = { strength: prefs.strength, sugar: prefs.sugar };
       var res = await withRetry(function () { return api('/api/orders', { method: 'POST', body: body }); });
       pendingKey = null;
       store.write(OK, res.public_id);
-      cart = {}; saveCart();
+      cart = {}; saveCart(); noteVal = '';
       order = await getRetry('/api/orders/' + res.public_id);
       placing = false;
       renderDishes(); renderCart();
@@ -295,6 +299,7 @@
     });
     inn.appendChild(ul);
     if (order.prefs) inn.appendChild(h('p', { class: 'hint', text: t('pref_head') + ': ' + t(order.prefs.strength) + ', ' + t('sugar') + ': ' + t(order.prefs.sugar) }));
+    if (order.note) inn.appendChild(h('p', { class: 'hint', text: t('note_short') + ': ' + order.note }));
     inn.appendChild(h('div', { class: 'total' }, [h('span', { text: t('total') }), h('span', { text: money(order.total) })]));
     inn.appendChild(h('p', { class: 'hint', text: t('pay_counter') }));
     return h('section', { class: 'cart slip', 'aria-label': t('slip') }, [inn]);

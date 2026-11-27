@@ -63,8 +63,10 @@ class StoreRoutes:
             if setup_needed(c):
                 return self.send_json({"setup_needed": True})
             b = c.execute("SELECT * FROM brands ORDER BY id LIMIT 1").fetchone()
-            outlets = [{"slug": o["slug"], "name": o["name"]} for o in c.execute("SELECT slug,name FROM outlets WHERE brand_id=? ORDER BY id", (b["id"],))]
-        self.send_json({"setup_needed": False, "name": b["name"], "brand": b["slug"], "outlets": outlets})
+            outlets = [{"slug": o["slug"], "name": o["name"], "takeaway": bool(o["takeaway"])}
+                       for o in c.execute("SELECT slug,name,takeaway FROM outlets WHERE brand_id=? ORDER BY id", (b["id"],))]
+            sample = c.execute("SELECT 1 FROM meta WHERE key='sample_data'").fetchone() is not None
+        self.send_json({"setup_needed": False, "name": b["name"], "brand": b["slug"], "outlets": outlets, "sample": sample})
 
     def r_table_check(self, slug, table):
         with db.connect() as c:
@@ -105,8 +107,8 @@ class StoreRoutes:
                 raise ApiError(409, "This store is already set up")
             bid = c.execute("INSERT INTO brands(slug,name,theme,tagline,langs,default_lang,admin_pin_hash) VALUES(?,?,?,?,?,?,?)",
                             (brand_slug, name, theme, text(d.get("tagline"), 80, "tagline"), j(list(dict.fromkeys(langs))), "en", password_hash)).lastrowid
-            c.execute("INSERT INTO outlets(brand_id,slug,name,city,country,currency,tables_count,kitchen_lang,kitchen_pin_hash) VALUES(?,?,?,?,?,?,?,?,?)",
-                      (bid, outlet_slug, "%s - %s" % (name, area), city, "India", "INR", tables, "en", pin_hash))
+            c.execute("INSERT INTO outlets(brand_id,slug,name,city,country,currency,tables_count,kitchen_lang,kitchen_pin_hash,takeaway) VALUES(?,?,?,?,?,?,?,?,?,?)",
+                      (bid, outlet_slug, "%s - %s" % (name, area), city, "India", "INR", tables, "en", pin_hash, 0 if d.get("takeaway") is False else 1))
             c.execute("INSERT OR REPLACE INTO meta(key,value) VALUES('store_secret',?)", (secrets.token_hex(32),))
             if d.get("starter_menu") is True:
                 db.starter_menu(c, bid, langs)

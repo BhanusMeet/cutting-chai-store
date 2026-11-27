@@ -282,7 +282,8 @@
     return h('div', { class: 'qrcard' }, [
       h('div', { class: 'brandname', text: brand.name }), h('div', { class: 'scan', text: place }),
       h('div', { class: 'tno', text: 'Table ' + n }), holder,
-      h('div', { class: 'scan', text: 'Scan to order from your table' })
+      h('div', { class: 'scan', text: 'Scan to order from your table' }),
+      h('a', { class: 'noprint openq', href: qr.tables[n - 1].path, target: '_blank', rel: 'noopener', text: 'Open as this table' })
     ]);
   }
 
@@ -300,6 +301,9 @@
     var save = async function (body) {
       try { await call('/outlets/' + o.slug, { method: 'PUT', body: body }); await reloadAll(); toast('Saved'); } catch (e) { toast(e.message); }
     };
+    var take = h('button', { class: 'tog off', type: 'button', 'aria-pressed': String(o.takeaway), text: o.takeaway ? 'Takeaway ON' : 'Dine-in only' });
+    take.addEventListener('click', function () { save({ takeaway: !o.takeaway }); });
+    pane.appendChild(h('label', { class: 'f', text: 'Takeaway sales' })); pane.appendChild(take);
     var auto = h('button', { class: 'tog off', type: 'button', 'aria-pressed': String(o.auto_accept), text: o.auto_accept ? 'Auto-accept ON' : 'Auto-accept OFF' });
     auto.addEventListener('click', function () { save({ auto_accept: !o.auto_accept }); });
     pane.appendChild(h('label', { class: 'f', text: 'Accepting new orders in the kitchen' })); pane.appendChild(auto);

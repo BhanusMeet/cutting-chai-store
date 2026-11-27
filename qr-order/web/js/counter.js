@@ -16,6 +16,7 @@
     if (!slug) { $('app').textContent = 'Open the counter from the staff home page.'; return; }
     try { var r = await api('/api/outlet/' + slug); outlet = r.outlet; brand = r.brand; } catch (e) { $('app').textContent = 'Outlet not found.'; return; }
     document.title = 'Counter - ' + outlet.name;
+    if (!outlet.takeaway) kind = 'dine_in';
     token = session.read('qro_tok_kitchen_' + slug);
     if (token) start(); else loginView();
   }
@@ -157,7 +158,7 @@
     var right = h('aside', { class: 'till', 'aria-label': 'Current sale' });
     if (last) right.appendChild(h('div', { class: 'done', role: 'status' }, [h('div', { text: 'ORDER PLACED - TOKEN' }), h('strong', { text: String(last.token).padStart(3, '0') }),
       h('div', { text: money(last.total) + (last.pay && last.pay !== 'later' ? ' · paid ' + last.pay.toUpperCase() : ' · to be paid') })]));
-    right.appendChild(h('div', { class: 'inline' }, [choice('Takeaway', 'takeaway', kind, function (v) { kind = v; if (pay === 'later') pay = null; }),
+    if (outlet.takeaway) right.appendChild(h('div', { class: 'inline' }, [choice('Takeaway', 'takeaway', kind, function (v) { kind = v; if (pay === 'later') pay = null; }),
       choice('Table order', 'dine_in', kind, function (v) { kind = v; })]));
     Object.keys(cart).forEach(function (id) {
       var minus = h('button', { class: 'btn ghost', type: 'button', 'aria-label': 'One less ' + byId[id].names.en, text: '-' });

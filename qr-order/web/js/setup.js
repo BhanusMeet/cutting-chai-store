@@ -33,6 +33,7 @@
     f.appendChild(h('label', { class: 'f', for: 'theme', text: 'Look of the guest menu' })); f.appendChild(theme); fields.theme = theme;
     check(f, 'hi', 'Offer Hindi', true);
     check(f, 'mr', 'Offer Marathi', true);
+    check(f, 'takeaway', 'Also sell takeaway (leave off for a sit-down, dine-in restaurant)', false);
     check(f, 'starter', 'Start with the sample chai menu (the prices are placeholders: change every one before opening)', false);
     field(f, 'owner_password', 'Owner password (at least 10 characters)', { type: 'password', autocomplete: 'new-password', maxlength: '128' }, 'Three unrelated words and a number work well. Only the owner should know it.');
     field(f, 'owner_again', 'Owner password again', { type: 'password', autocomplete: 'new-password', maxlength: '128' });
@@ -52,7 +53,7 @@
       try {
         var r = await api('/api/setup', { method: 'POST', body: {
           code: fields.code.value, restaurant: fields.restaurant.value, tagline: fields.tagline.value, outlet: fields.outlet.value, city: fields.city.value,
-          tables: Number(fields.tables.value), theme: fields.theme.value, langs: langs, starter_menu: fields.starter.checked,
+          tables: Number(fields.tables.value), theme: fields.theme.value, langs: langs, starter_menu: fields.starter.checked, takeaway: fields.takeaway.checked,
           owner_password: fields.owner_password.value, staff_pin: fields.staff_pin.value } });
         location.replace('/admin.html?brand=' + r.brand + '&outlet=' + r.outlet + '&tab=menu');
       } catch (x) { err.textContent = x.message; go.disabled = false; }

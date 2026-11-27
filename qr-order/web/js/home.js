@@ -16,7 +16,8 @@
       s.outlets.forEach(function (o) {
         box.appendChild(h('div', { class: 'brandbox' }, [h('h3', { text: o.name }), h('div', { class: 'outlet' }, [
           h('span', { class: 'nm', text: 'Staff screens' }), link('Kitchen screen', '/kitchen.html?outlet=' + o.slug, true),
-          link('Counter', '/counter.html?outlet=' + o.slug, true), link('Token board', '/board.html?outlet=' + o.slug)])]));
+          link('Counter', '/counter.html?outlet=' + o.slug, true), o.takeaway ? link('Token board', '/board.html?outlet=' + o.slug) : null,
+          link('Guest website (browse)', '/r/' + o.slug)])]));
       });
     } catch (e) { box.textContent = 'Could not reach the store server: ' + e.message; }
   }

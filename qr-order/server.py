@@ -107,7 +107,7 @@ def brand_public(r):
 def outlet_public(r):
     """What anyone may know about an outlet."""
     return {"slug": r["slug"], "name": r["name"], "city": r["city"], "country": r["country"], "currency": r["currency"],
-            "tables": r["tables_count"], "accepting": bool(r["accepting"]), "online_payment": bool(PAY_SECRET)}
+            "tables": r["tables_count"], "accepting": bool(r["accepting"]), "takeaway": bool(r["takeaway"]), "online_payment": bool(PAY_SECRET)}
 
 
 def outlet_staff(r):
@@ -277,6 +277,8 @@ def clean_phone(v):
 
 def validate_order(c, o, d, kind):
     """Check a request against this store's menu and work out the price on the server."""
+    if kind == "takeaway" and not o["takeaway"]:
+        raise ApiError(409, "This restaurant is dine-in only")
     table = 0 if kind == "takeaway" else as_int(d.get("table"), 1, o["tables_count"], "table")
     raw = d.get("lines")
     if not isinstance(raw, list) or not 1 <= len(raw) <= 40:
@@ -420,6 +422,16 @@ def menu_rows(c, outlet, admin=False):
     return out
 
 
+def guest_page(outlet_slug):
+    """The restaurant's own website if web/brands/<brand>/index.html exists, otherwise the standard menu.
+    Every design talks to this same backend."""
+    with db.connect() as c:
+        r = c.execute("SELECT b.slug FROM outlets o JOIN brands b ON b.id=o.brand_id WHERE o.slug=?", (outlet_slug,)).fetchone()
+    if r and os.path.isfile(os.path.join(WEB, "brands", r["slug"], "index.html")):
+        return "/brands/%s/index.html" % r["slug"]
+    return "/customer.html"
+
+
 # ------------------------------------------------------------ HTTP handler
 class Handler(BusinessRoutes, PrintRoutes, StoreRoutes, BaseHTTPRequestHandler):
     protocol_version = "HTTP/1.0"
@@ -533,8 +545,9 @@ class Handler(BusinessRoutes, PrintRoutes, StoreRoutes, BaseHTTPRequestHandler):
     def static(self, path):
         if path.startswith("/api/"):
             raise ApiError(404, "Not found")
-        if re.match(r"^/r/[a-z0-9-]+(/\d+)?/?$", path):
-            path = "/customer.html"
+        guest = re.match(r"^/r/([a-z0-9-]+)(/\d+)?/?$", path)
+        if guest:
+            path = guest_page(guest.group(1))
         elif path == "/":
             path = "/index.html"
         if "\x00" in path or "/." in path:
@@ -967,8 +980,13 @@ class Handler(BusinessRoutes, PrintRoutes, StoreRoutes, BaseHTTPRequestHandler):
             mode = d.get("print_order", o["print_order"])
             if mode not in ("fifo", "small_first"):
                 raise ApiError(400, "print_order must be fifo or small_first")
-            c.execute("UPDATE outlets SET tables_count=?, accepting=?, kitchen_lang=?, auto_accept=?, print_gap=?, print_order=? WHERE id=?",
-                      (tables, accepting, kl, auto, gap, mode, o["id"]))
+            takeaway = o["takeaway"]
+            if "takeaway" in d:
+                if not isinstance(d["takeaway"], bool):
+                    raise ApiError(400, "takeaway must be true or false")
+                takeaway = 1 if d["takeaway"] else 0
+            c.execute("UPDATE outlets SET tables_count=?, accepting=?, kitchen_lang=?, auto_accept=?, print_gap=?, print_order=?, takeaway=? WHERE id=?",
+                      (tables, accepting, kl, auto, gap, mode, takeaway, o["id"]))
             security.log_activity(c, "admin:" + brand, self.ip(), "outlet settings",
                                   "tables %d, taking orders %d, auto-accept %d, gap %s" % (tables, accepting, auto, gap))
         PRINTER.configure(o["id"], gap, mode)

@@ -20,6 +20,13 @@ enter the code, then your restaurant name, tables, owner password and staff PIN.
 Setup can be done only once. The sample menu is optional and its prices are
 placeholders: change every one before opening.
 
+## Pitch store and brand websites
+
+`python pitch.py` starts a separate Cutting Chai Co. store with sample data for showing clients: see
+[PITCH.md](PITCH.md). A restaurant can have its own guest website in `web/brands/<brand>/`, using the
+shared connection kit: see [web/kit/README.md](web/kit/README.md). Owner panel -> Settings can switch a
+restaurant to **dine-in only**.
+
 ## Screens
 
 | Screen | Address | Who | Sign-in |

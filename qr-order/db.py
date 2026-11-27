@@ -139,6 +139,7 @@ def migrate(c):
     add("outlets", "printer_name", "TEXT")
     add("outlets", "paper_width", "INTEGER NOT NULL DEFAULT 80")
     add("slips", "error", "TEXT")
+    add("outlets", "takeaway", "INTEGER NOT NULL DEFAULT 1")  # 0 = dine-in only (the takeaway features are kept, just off)
     add("slips", "reprint", "INTEGER NOT NULL DEFAULT 0")
     c.execute("CREATE INDEX IF NOT EXISTS idx_slips_outlet ON slips(outlet_id, status)")
     # money: when and how each order was paid, and whether money for a rejected order was given back

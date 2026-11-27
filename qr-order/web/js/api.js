@@ -72,4 +72,11 @@
   };
 
   window.QRO = { h: h, svg: svg, $: $, api: api, sse: sse, store: store, session: session };
+
+  // Staff screens of a pitch store say plainly that the figures are made up. Guest pages are left clean.
+  if (!/^\/r\//.test(location.pathname)) {
+    api('/api/store').then(function (s) {
+      if (s.sample) document.body.appendChild(h('div', { class: 'samplebar noprint', role: 'note', title: 'Pitch store: all orders, sales and stock figures are made up', text: 'Sample data' }));
+    }).catch(function () { /* the page itself reports a server that cannot be reached */ });
+  }
 })();
