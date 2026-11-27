@@ -1,6 +1,7 @@
 """Running a real store: first-time setup, staff sign-in, owner security tools, table QR links, activity and backups.
 These are request handlers mixed into the server's Handler class."""
 import hmac
+import ipaddress
 import json
 import os
 import re
@@ -14,6 +15,8 @@ from core import ApiError, as_int, get_brand, get_outlet, text, writer
 SESSIONS = security.Sessions()
 THROTTLE = security.Throttle()
 LOGIN_RATE = security.RateLimit(int(os.environ.get("QRO_LOGIN_RATE", "30")))
+CLIENT_IP_HEADER = os.environ.get("QRO_CLIENT_IP_HEADER", "").strip()
+PROXY_HOPS = int(os.environ.get("QRO_PROXY_HOPS", "0") or 0)
 SETUP = {"code": None}  # printed in the server window while the store has not been set up
 THEMES = ("bombay", "darbar")
 LANGS = ("en", "hi", "mr")
@@ -45,6 +48,23 @@ def lan_ip():
 
 class StoreRoutes:
     def ip(self):
+        """The visitor's address, used by the sign-in and order limits. Behind a hosting company's front door every
+        connection comes from that front door, so the real address is read from a header IT sets. This is off unless
+        configured, because a visitor can write such headers themselves:
+          QRO_CLIENT_IP_HEADER  a header the host always overwrites with the visitor's address
+          QRO_PROXY_HOPS        otherwise: how many entries from the END of X-Forwarded-For the host added"""
+        found = None
+        if CLIENT_IP_HEADER:
+            found = self.headers.get(CLIENT_IP_HEADER, "").strip()
+        elif PROXY_HOPS > 0:
+            chain = [x.strip() for x in ",".join(self.headers.get_all("X-Forwarded-For") or []).split(",") if x.strip()]
+            if len(chain) >= PROXY_HOPS:
+                found = chain[-PROXY_HOPS]
+        if found:
+            try:
+                return str(ipaddress.ip_address(found))
+            except ValueError:
+                pass
         return self.client_address[0]
 
     def owned_outlet(self, c, brand, slug):

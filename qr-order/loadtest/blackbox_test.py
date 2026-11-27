@@ -12,6 +12,7 @@ import os
 import random
 import re
 import secrets
+import shutil
 import socket
 import subprocess
 import sys
@@ -507,6 +508,59 @@ def money_tests(ctx):
     ctx["ingredient"] = batter
 
 
+def hosted_tests():
+    """The pitch store as it would run online: sign-ins from settings, and visitor addresses read from the front door."""
+    port = PORT + 1
+    base = "http://127.0.0.1:%d" % port
+    folder = os.path.join(HERE, "results", "hosted-%s" % secrets.token_hex(4))
+    shutil.copytree(ROOT, folder, ignore=shutil.ignore_patterns("data", "loadtest", "__pycache__"))
+    owner, pin = "tulip-%s-harbour-72" % secrets.token_hex(3), "6%06d4" % random.randint(0, 999999)
+    env = dict(os.environ, QRO_PROXY_HOPS="1", PORT=str(port))
+    for k in ("QRO_DB", "QRO_PRINT_SIM", "QRO_PITCH_OWNER_PASSWORD", "QRO_PITCH_STAFF_PIN"):
+        env.pop(k, None)
+
+    def get(path, body=None, headers=None):
+        r = urllib.request.Request(base + path, data=json.dumps(body).encode() if body is not None else None, headers=headers or {})
+        try:
+            with urllib.request.urlopen(r, timeout=30) as resp:
+                return resp.status, resp.headers, resp.read()
+        except urllib.error.HTTPError as e:
+            return e.code, e.headers, e.read()
+        except Exception:
+            return 0, {}, b""
+
+    section("online mode: sign-ins and visitor addresses")
+    run = lambda extra: subprocess.run([sys.executable, os.path.join(folder, "pitch.py"), "--hosted"], env=dict(env, **extra), capture_output=True, text=True, timeout=60)
+    r = run({})
+    check("online mode refuses to start without sign-ins", r.returncode != 0 and "QRO_PITCH_OWNER_PASSWORD" in r.stderr)
+    r = run({"QRO_PITCH_OWNER_PASSWORD": "password123", "QRO_PITCH_STAFF_PIN": "111111"})
+    check("online mode refuses weak sign-ins, without repeating them", r.returncode != 0 and "password123" not in r.stderr + r.stdout)
+    logp = os.path.join(folder, "server.log")
+    with open(logp, "w") as log:
+        p = subprocess.Popen([sys.executable, "-u", os.path.join(folder, "pitch.py"), "--hosted"], stdout=log, stderr=log,
+                             env=dict(env, QRO_PITCH_OWNER_PASSWORD=owner, QRO_PITCH_STAFF_PIN=pin))
+        try:
+            for _ in range(240):
+                if get("/api/health")[0] == 200:
+                    break
+                time.sleep(0.5)
+            s, h, body = get("/api/store")
+            check("the online pitch store starts and is marked sample data", s == 200 and json.loads(body).get("sample") is True, s)
+            check("it tells browsers to always use HTTPS", "max-age" in (h.get("Strict-Transport-Security") or ""))
+            login = lambda secret, chain: get("/api/login", {"scope": "kitchen", "slug": "cutting-chai-co-dadar", "pin": secret}, {"X-Forwarded-For": chain})[0]
+            codes = [login("9000%02d" % i, "10.9.9.%d, 203.0.113.7" % i) for i in range(7)]
+            check("faking the start of the address chain does not dodge the lockout", codes[:5] == [401] * 5 and set(codes[5:]) == {429}, codes)
+            check("another visitor is not locked out by it", login(pin, "198.51.100.4") == 200)
+            check("a nonsense address header does no harm", login("900099", "not-an-address") in (401, 429))
+        finally:
+            p.terminate()
+            p.wait(10)
+    text = open(logp, errors="replace").read()
+    check("the online log holds no sign-ins and no crashes", owner not in text and pin not in text and "Traceback" not in text)
+    check("no sign-in file is written online", not os.path.exists(os.path.join(folder, "data", "pitch", "PITCH-LOGINS.txt")))
+    shutil.rmtree(folder, ignore_errors=True)
+
+
 def main():
     os.makedirs(os.path.join(HERE, "results"), exist_ok=True)
     dbp = os.path.join(HERE, "results", "blackbox-%s.db" % secrets.token_hex(4))  # always a brand-new, empty store
@@ -910,6 +964,7 @@ def main():
         except subprocess.TimeoutExpired:
             srv.kill()
         log.close()
+    hosted_tests()
     section("server log")
     text = open(logp, errors="replace").read()
     check("no crashes recorded", text.count("Traceback") == 0, "%d tracebacks" % text.count("Traceback"))

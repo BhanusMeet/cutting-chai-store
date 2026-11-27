@@ -1061,15 +1061,17 @@ def main():
     ap.add_argument("--lan", action="store_true", help="listen on all network interfaces (phones and tablets on your Wi-Fi)")
     ap.add_argument("--cert", help="HTTPS certificate file (PEM)")
     ap.add_argument("--key", help="HTTPS private key file (PEM)")
+    ap.add_argument("--hosted", action="store_true",
+                    help="behind a hosting company that provides HTTPS: listen on all interfaces and treat visitors as using HTTPS")
     a = ap.parse_args()
     if bool(a.cert) != bool(a.key):
         ap.error("--cert and --key go together")
     db.init()
     load_printer()
     PrintRoutes.pacer, PrintRoutes.dispatch = PRINTER, DISPATCH
-    host = "0.0.0.0" if a.lan else "127.0.0.1"
+    host = "0.0.0.0" if a.lan or a.hosted else "127.0.0.1"
     srv = Server((host, a.port), Handler)
-    srv.is_https = bool(a.cert)
+    srv.is_https = bool(a.cert) or a.hosted
     if a.cert:
         ctx = ssl.SSLContext(ssl.PROTOCOL_TLS_SERVER)
         ctx.minimum_version = ssl.TLSVersion.TLSv1_2

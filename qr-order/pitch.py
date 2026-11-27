@@ -8,6 +8,8 @@ Every staff screen is marked as sample data.
     python pitch.py             start it (creates it the first time)
     python pitch.py --lan       also reachable from phones on the same private Wi-Fi
     python pitch.py --reset     throw the pitch store away and make a fresh one
+    python pitch.py --hosted    run on a hosting service that provides HTTPS. You set the sign-ins in its settings:
+                                QRO_PITCH_OWNER_PASSWORD (10+ characters) and QRO_PITCH_STAFF_PIN (6 to 12 digits)
 """
 import argparse
 import json
@@ -97,13 +99,25 @@ def today_orders(c, ledger, menu, outlet_id, rng):
         token += 1
 
 
-def create():
+def hosted_sign_ins():
+    """Online, nobody can read a file on the server, and passwords must not go into logs: the owner sets them."""
+    import security
+    from core import ApiError
+    owner, pin = os.environ.get("QRO_PITCH_OWNER_PASSWORD", ""), os.environ.get("QRO_PITCH_STAFF_PIN", "")
+    if not owner or not pin:
+        sys.exit("Set QRO_PITCH_OWNER_PASSWORD and QRO_PITCH_STAFF_PIN in the hosting settings, then deploy again.")
+    try:
+        return security.check_new_password(owner), security.check_new_pin(pin)
+    except ApiError as e:
+        sys.exit("The hosting settings were refused: %s" % e.msg)  # the message never repeats the password
+
+
+def create(given=None):
     import db
     import ledger
-    import security  # noqa: F401  (checked here so a broken install fails before anything is written)
     os.makedirs(FOLDER, exist_ok=True)
+    owner, pin = given or passwords()
     db.init()
-    owner, pin = passwords()
     rng = random.Random()
     j = lambda v: json.dumps(v, ensure_ascii=False)
     owner_hash, pin_hash = db.hash_pin(owner), db.hash_pin(pin)
@@ -146,6 +160,8 @@ def create():
                              VALUES(?,?,?,?,'purchase',?,?,'owner','weekly stock')""",
                           (midnight(29 - week * 7) + 7 * 3600, oid, ids[key], part, per_unit, round(part / 1000.0 * per_unit, 2)))
             c.execute("UPDATE stock SET qty=qty+? WHERE outlet_id=? AND ingredient_id=?", (need, oid, ids[key]))
+    if given:
+        return
     with open(LOGINS, "w", encoding="utf-8") as f:
         f.write("PITCH STORE sign-ins (sample data only; do not use these for a real store)\n\n"
                 "Owner panel password : %s\nStaff PIN (kitchen and counter) : %s\n" % (owner, pin))
@@ -166,7 +182,8 @@ def top_up():
 
 def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
-    ap.add_argument("--port", type=int, default=8010)
+    ap.add_argument("--port", type=int, default=int(os.environ.get("PORT", "8010")))
+    ap.add_argument("--hosted", action="store_true", help="run on a hosting service that provides HTTPS")
     ap.add_argument("--lan", action="store_true", help="let phones on the same Wi-Fi open it")
     ap.add_argument("--reset", action="store_true", help="delete the pitch store and make a new one")
     ap.add_argument("--create-only", action="store_true", help=argparse.SUPPRESS)
@@ -174,10 +191,15 @@ def main():
     if a.reset and os.path.isdir(FOLDER):
         shutil.rmtree(FOLDER)  # only ever the pitch folder
     os.environ["QRO_DB"] = DB  # must be set before the store code is loaded
+    if a.hosted:
+        os.environ.setdefault("TZ", "Asia/Kolkata")  # "today" and the sheets follow India time, not the server's
+        if hasattr(time, "tzset"):
+            time.tzset()
     sys.path.insert(0, HERE)
+    given = hosted_sign_ins() if a.hosted else None
     if not os.path.exists(DB):
         print("Making the pitch store (30 days of sample sales)...", flush=True)
-        create()
+        create(given)
     else:
         import db
         db.init()
@@ -185,14 +207,17 @@ def main():
             print("Added today's sample orders.")
     if a.create_only:
         return
-    base = "http://localhost:%d" % a.port
-    print("\nPITCH STORE - sample data, separate from your real store")
-    print("  start here      : %s/" % base)
-    print("  guest website   : %s/r/%s" % (base, OUTLET))
-    print("  sign-ins are in : %s" % LOGINS)
-    print("  to order as a table: Owner panel -> Tables & QR -> 'Open as this table'\n", flush=True)
+    if a.hosted:
+        print("PITCH STORE - sample data. Sign in with the values you put in the hosting settings.", flush=True)
+    else:
+        base = "http://localhost:%d" % a.port
+        print("\nPITCH STORE - sample data, separate from your real store")
+        print("  start here      : %s/" % base)
+        print("  guest website   : %s/r/%s" % (base, OUTLET))
+        print("  sign-ins are in : %s" % LOGINS)
+        print("  to order as a table: Owner panel -> Tables & QR -> 'Open as this table'\n", flush=True)
     import server
-    sys.argv = ["server.py", "--port", str(a.port)] + (["--lan"] if a.lan else [])
+    sys.argv = ["server.py", "--port", str(a.port)] + (["--lan"] if a.lan else []) + (["--hosted"] if a.hosted else [])
     server.main()
 
 
